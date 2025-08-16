@@ -41,6 +41,8 @@
     "typescript": "~4.5.4"
   },
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.1"
+    "@types/pg": "^8.15.5",
+    "electron-squirrel-startup": "^1.0.1",
+    "pg": "^8.16.3"
   }
 }

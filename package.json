@@ -42,7 +42,11 @@
   },
   "dependencies": {
     "@types/pg": "^8.15.5",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
     "electron-squirrel-startup": "^1.0.1",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   }
 }

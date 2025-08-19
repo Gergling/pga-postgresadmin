@@ -1,24 +1,33 @@
-export const Status = () => {
+import { StatusItemProps } from "./types";
+
+type StatusProps = {
+  statuses: StatusItemProps[];
+};
+
+const statusIcons: {
+  [key in StatusItemProps['status']]: string;
+} = {
+  failure: '❌',
+  pending: '⏳',
+  success: '✅',
+};
+
+const StatusItem = ({ description, status }: StatusItemProps) => {
+  return (
+    <li>
+      <span>{statusIcons[status]}</span>
+      <span style={{ marginLeft: '8px' }}>{description}</span>
+    </li>
+  );
+};
+
+export const Status = ({ statuses }: StatusProps) => {
   return (
     <div>
-      <h2>Startup Status</h2>
       <ul>
-        <li>
-          <span>✅</span>
-          <span style={{ marginLeft: '8px' }}>Checked Docker installation</span>
-        </li>
-        <li>
-          <span>✅</span>
-          <span style={{ marginLeft: '8px' }}>Verified Docker is running</span>
-        </li>
-        <li>
-          <span>✅</span>
-          <span style={{ marginLeft: '8px' }}>Launched PostgreSQL container</span>
-        </li>
-        <li>
-          <span>⏳</span>
-          <span style={{ marginLeft: '8px' }}>Waiting for database to become available...</span>
-        </li>
+        {statuses.map((item) => (
+          <StatusItem key={item.name} {...item} />
+        ))}
       </ul>
     </div>
   );

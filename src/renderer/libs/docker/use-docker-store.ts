@@ -16,12 +16,12 @@ export const useDocker = create<State & Actions>((set) => ({
   status: "unknown",
   check: (checkDockerStatus) => {
     set({ checking: true });
-    checkDockerStatus().then(({ status }) => {
-      console.log("Docker status:", status);
-      set({ status });
+    checkDockerStatus().then(({ error, stderr, stdout, status }) => {
+      console.log("Docker status:", status, error, stderr, stdout);
+      set({ status, message: stderr + error || stdout || '' });
     }).catch((error) => {
       console.error("Error checking Docker status:", error);
-      set({ status: 'absent', message: error.message });
+      set({ status: 'unknown', message: error.message });
     }).finally(() => {
       set({ checking: false });
     });

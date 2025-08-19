@@ -5,7 +5,7 @@ import { useIpc } from "../shared/ipc/hook";
 import { useStatus } from "../libs/status/use-status-store";
 
 export const StartupView = () => {
-  const { check, checking, status } = useDocker();
+  const { check, checking, message, status } = useDocker();
   const { checkDockerStatus } = useIpc();
   const { statuses, update } = useStatus();
 
@@ -31,14 +31,7 @@ export const StartupView = () => {
     if (status === 'inactive') {
       update({
         name: 'docker',
-        description: 'Docker is not running',
-        status: 'failure',
-      });
-    }
-    if (status === 'absent') {
-      update({
-        name: 'docker',
-        description: 'Docker is not installed',
+        description: 'Docker is not running: ' + message,
         status: 'failure',
       });
     }

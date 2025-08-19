@@ -7,10 +7,17 @@ export const runDockerInfo = (): Promise<DockerStatus> => {
     exec('docker info', (error, stdout, stderr) => {
       if (error) {
         // An error here means the command failed, so Docker is not running.
-        resolve({ status: 'inactive', message: error.message + '+++SEPARATOR+++' + stderr });
+        resolve({
+          status: 'inactive',
+          error: error.message,
+          stderr,
+        });
       } else {
         // If there's no error, Docker is running.
-        resolve({ status: 'running' });
+        resolve({
+          status: 'running',
+          stdout,
+        });
       }
     });
   });

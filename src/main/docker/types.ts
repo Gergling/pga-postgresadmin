@@ -1,6 +1,8 @@
 export type DockerStatus = {
-  message?: string;
-  status: 'running' | 'inactive' | 'absent';
+  error?: string;
+  status: 'running' | 'inactive';
+  stderr?: string;
+  stdout?: string;
 };
 
 export type DockerCommands = {

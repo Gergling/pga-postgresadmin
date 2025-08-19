@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useDatabases } from "../libs/databases/databases-store";
+import { useDatabases } from "../libs/databases/use-databases-store";
 import { useIpc } from '../shared/ipc/hook';
 import { Table } from "../shared/table/Table";
 

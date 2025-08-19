@@ -1,11 +1,13 @@
 import { IpcHandlerDatabase } from '../main/database/types';
 import { IpcHandlerConfig, IpcInvocationConfigBase } from '../libs/ipc';
+import { DatabaseItem, DatabaseResponseSelect } from '../renderer/shared/database/types';
 
 // Minimalist configuration type for the renderer side.
 // IpcInvocationConfigBase really just makes these functions return promises.
 export type IpcInvocationConfig = IpcInvocationConfigBase<{
   testIPC: (message: string) => string;
-  runQuery: (query: string) => { success: boolean; error?: string };
+  createDatabase: (dbName: string) => { success: boolean; error?: string };
+  selectDatabases: () => DatabaseResponseSelect<DatabaseItem>;
 }>;
 
 // The handler configuration will run functions from the backend.
@@ -19,8 +21,11 @@ export const ipcHandlerConfig: IpcHandlerConfig<
     console.log('IPC test received:', message);
     return `Received: ${message}`;
   },
-  runQuery: ({
-    args: [query],
-    database: { runQuery },
-  }) => runQuery(query),
+  createDatabase: ({
+    args: [dbName],
+    database: { createDatabase },
+  }) => createDatabase(dbName),
+  selectDatabases: ({
+    database: { selectDatabases }
+  }) => selectDatabases(),
 };

@@ -1,3 +1,11 @@
-export type IpcHandlerDatabase = {
-  runQuery: (query: string) => Promise<{ success: boolean; error?: string }>;
+import { DatabaseItem, DatabaseResponseBase, DatabaseResponseSelect } from "../../renderer/shared/database/types";
+
+type DatabaseProps<T extends Record<string, (...args: unknown[]) => unknown>> = {
+  [K in keyof T]: (...args: Parameters<T[K]>) => Promise<ReturnType<T[K]>>;
 };
+
+export type IpcHandlerDatabase = DatabaseProps<{
+  createDatabase: (dbName: string) => DatabaseResponseBase;
+  selectDatabases: () => DatabaseResponseSelect<DatabaseItem>;
+  // runQuery: (query: string) => Promise<DatabaseResponseBase>;
+}>;

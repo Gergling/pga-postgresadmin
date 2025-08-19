@@ -21,11 +21,30 @@ export const rules: Required<ModuleOptions>['rules'] = [
   {
     test: /\.tsx?$/,
     exclude: /(node_modules|\.webpack)/,
-    use: {
-      loader: 'ts-loader',
-      options: {
-        transpileOnly: true,
+    use: [
+      {
+        loader: 'ts-loader',
+        options: {
+          transpileOnly: true,
+        },
       },
-    },
+      {
+        loader: 'babel-loader',
+        options: {
+          presets: [
+            '@babel/preset-typescript',
+            [
+              '@babel/preset-react',
+              {
+                runtime: 'automatic',
+              }
+            ],
+          ],
+          plugins: [
+            "@emotion/babel-plugin"
+          ],
+        }
+      },
+    ],
   },
 ];

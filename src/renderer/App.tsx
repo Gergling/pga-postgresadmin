@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { useIpc } from './shared/ipc/utils';
+import { useIpc } from './shared/ipc/hook';
+import { DatabasesView } from './views/DatabasesView';
+import { AppContextProvider } from './app/AppContextProvider';
 
 const IpcTest: React.FC = () => {
   const { testIPC } = useIpc(); // Ensure the IPC context is initialized
@@ -35,12 +37,9 @@ const IpcTest: React.FC = () => {
 };
 
 const App = () => (
-  // <AppContextProvider>
-  //   <BrowserRouter>
-  //     <RootView tabs={routing} />
-  //   </BrowserRouter>
-  // </AppContextProvider>
-  <IpcTest />
+  <AppContextProvider>
+    <DatabasesView />
+  </AppContextProvider>
 );
 
 const root = createRoot(document.getElementById('app'));

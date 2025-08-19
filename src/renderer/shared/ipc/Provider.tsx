@@ -1,5 +1,5 @@
 import { PropsWithChildren } from "react";
-import { IpcContext } from "./utils";
+import { IpcContext } from "./context";
 
 export const IpcContextProvider = ({ children }: PropsWithChildren) => {
   return (

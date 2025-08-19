@@ -27,6 +27,8 @@ const createWindow = (): void => {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
+
+  mainWindow.maximize();
 };
 
 setupHandlers(getDatabase())

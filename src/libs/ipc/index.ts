@@ -4,6 +4,19 @@ type IpcInvocationConfigTemplate<T = unknown, U = unknown> = {
   [K: string]: (...args: T[]) => Promise<U>;
 };
 
+// Window events and handlers are a bit special, so we define them separately.
+type WindowEvents = 'window-focused';
+type WindowEventHandlerProp = 'on';
+export type WindowEventHandlerMapping = {
+  [K in WindowEventHandlerProp]: (
+    channel: WindowEvents,
+    listener: (params: {
+      event: Electron.IpcRendererEvent;
+      args: unknown[];
+    }) => void
+  ) => () => void;
+};
+
 // A base type for simplifying the invocation config type.
 export type IpcInvocationConfigBase<V extends ({
   [K: string]: (...args: unknown[]) => unknown;
@@ -11,12 +24,14 @@ export type IpcInvocationConfigBase<V extends ({
   [K in keyof V]: (...args: Parameters<V[K]>) => Promise<ReturnType<V[K]>>;
 };
 
+export const WINDOW_EVENTS_FOCUSED: WindowEvents = 'window-focused';
+
 // The handler configuration type based on the invocation config type.
 export type IpcHandlerConfig<
-  IpcInvocationConfig extends IpcInvocationConfigTemplate,
+  IpcInvocationConfig extends Omit<IpcInvocationConfigTemplate, WindowEventHandlerProp>,
   Params extends ParamsBase
 > = {
-  [K in keyof IpcInvocationConfig]: (
+  [K in keyof Omit<IpcInvocationConfig, WindowEventHandlerProp>]: (
     params: (
       & {
         event: Electron.IpcMainInvokeEvent;
@@ -69,6 +84,24 @@ export const preloadIpc = <
 
   contextBridge.exposeInMainWorld(
     ipcExposurePropertyName,
-    invocations
+    {
+      ...invocations,
+      on: (
+        channel: WindowEvents,
+        listener: ({
+          event,
+          args
+        }: {
+          event: Electron.IpcRendererEvent;
+          args: unknown[];
+        }) => void
+      ) => {
+        // You can also add more security checks here if needed
+        const subscription = (event: Electron.IpcRendererEvent, ...args: unknown[]) => listener({ event, args });
+        ipcRenderer.on(channel, subscription);
+
+        return () => ipcRenderer.removeListener(channel, subscription);
+      },
+    }
   );
 };

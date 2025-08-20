@@ -3,7 +3,7 @@
   "productName": "postgresadmin",
   "version": "1.0.0",
   "description": "My Electron application description",
-  "main": ".webpack/main",
+  "main": ".vite/build/index.js",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
@@ -28,6 +28,7 @@
     "@electron-forge/plugin-auto-unpack-natives": "^7.8.3",
     "@electron-forge/plugin-fuses": "^7.8.3",
     "@electron-forge/plugin-webpack": "^7.8.3",
+    "@electron-forge/plugin-vite": "^7.8.3",
     "@electron/fuses": "^1.8.0",
     "@emotion/babel-plugin": "^11.13.5",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
@@ -36,13 +37,15 @@
     "babel-loader": "^10.0.0",
     "css-loader": "^6.11.0",
     "electron": "37.3.0",
+    "electron-reloader": "^1.2.3",
     "eslint": "^8.57.1",
     "eslint-plugin-import": "^2.32.0",
     "fork-ts-checker-webpack-plugin": "^7.3.0",
     "node-loader": "^2.1.0",
     "style-loader": "^3.3.4",
     "ts-loader": "^9.5.2",
-    "typescript": "~4.5.4"
+    "typescript": "~4.5.4",
+    "vite": "^5.3.3"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -51,6 +54,8 @@
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "electron-squirrel-startup": "^1.0.1",
+    "electron-store": "^10.1.0",
+    "keytar": "^7.9.0",
     "pg": "^8.16.3",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

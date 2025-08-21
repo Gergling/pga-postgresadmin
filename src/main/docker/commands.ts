@@ -27,7 +27,7 @@ export const runDockerInfo = (): Promise<DockerStatus> => {
 export const runDockerImageInspect = (): Promise<DockerStatus> => {
   return new Promise((resolve) => {
     // The 'docker info' command will fail if Docker isn't running or installed.
-    exec('docker image inspect john', (error, stdout, stderr) => {
+    exec('docker image inspect postgres', (error, stdout, stderr) => {
       if (error) {
         // An error here means the command failed, so Docker is not running.
         resolve({

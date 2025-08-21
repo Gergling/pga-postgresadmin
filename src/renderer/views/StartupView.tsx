@@ -68,7 +68,7 @@ export const StartupView = () => {
       if (image === 'no') {
         update({
           name: 'image',
-          description: 'No docker postgres image found.' + message,
+          description: 'No docker postgres image found.',
           status: 'failure',
         });
       }

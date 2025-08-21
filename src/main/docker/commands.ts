@@ -1,5 +1,6 @@
-import { exec } from 'child_process';
+import { exec, spawn } from 'child_process';
 import { DockerCommands, DockerStatus } from './types';
+import { DOCKER_PULL_POSTGRES_CHANNEL_DONE, DOCKER_PULL_POSTGRES_CHANNEL_PROGRESS } from '../../shared/docker-postgres/types';
 
 // TODO: Definitely a DRYing candidate.
 export const runDockerInfo = (): Promise<DockerStatus> => {
@@ -46,4 +47,25 @@ export const runDockerImageInspect = (): Promise<DockerStatus> => {
   });
 }
 
-export const getCommands = (): DockerCommands => ({ runDockerInfo, runDockerImageInspect });
+export const runDockerPullPostgres = (
+  event: Electron.IpcMainInvokeEvent
+): void => {
+  const child = spawn('docker', ['pull', 'postgres']);
+
+  // Send progress to the renderer
+  child.stdout.on('data', (data) => {
+    event.sender.send(DOCKER_PULL_POSTGRES_CHANNEL_PROGRESS, data.toString());
+  });
+
+  // Send a completion message
+  child.on('close', (code) => {
+    event.sender.send(DOCKER_PULL_POSTGRES_CHANNEL_DONE, { success: code === 0 });
+  });
+
+  // Handle any errors
+  child.on('error', (err) => {
+    event.sender.send(DOCKER_PULL_POSTGRES_CHANNEL_DONE, { success: false, error: err.message });
+  });
+}
+
+export const getCommands = (): DockerCommands => ({ runDockerInfo, runDockerImageInspect, runDockerPullPostgres });

@@ -2,12 +2,13 @@ import { useCallback, useEffect } from "react";
 import { Status } from "../libs/status/StatusComponent";
 import { useDocker } from "../libs/docker/use-docker-store";
 import { useIpc } from "../shared/ipc/hook";
+import { DOCKER_PULL_POSTGRES_CHANNEL_DONE, DOCKER_PULL_POSTGRES_CHANNEL_PROGRESS } from "../../shared/docker-postgres/types";
 import { useStatus } from "../libs/status/use-status-store";
-import { WINDOW_EVENTS_FOCUSED } from "../../libs/ipc";
+import { EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED } from "../../ipc";
 
 export const StartupView = () => {
   const { check, checking, message, running, image } = useDocker();
-  const { checkDockerStatus, checkDockerImage, on } = useIpc();
+  const { checkDockerStatus, checkDockerImage, on, pullPostgresImage } = useIpc();
   const { clearStatuses, statuses, update } = useStatus();
 
   const recheck = useCallback(() => {
@@ -15,7 +16,7 @@ export const StartupView = () => {
   }, [clearStatuses, check, checkDockerStatus]);
 
   useEffect(() => {
-    const removeListener = on(WINDOW_EVENTS_FOCUSED, recheck);
+    const removeListener = on(EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED, recheck);
 
     recheck();
 
@@ -23,6 +24,30 @@ export const StartupView = () => {
       removeListener();
     };
   }, [on, recheck]);
+
+  useEffect(() => {
+    const removers = [
+      on(DOCKER_PULL_POSTGRES_CHANNEL_PROGRESS, ({ args }) => {
+        update({
+          name: 'image',
+          description: 'No docker postgres image found. Pulling...' + args.join(', '),
+          status: 'pending',
+        });
+      }),
+      on(DOCKER_PULL_POSTGRES_CHANNEL_DONE, (args) => {
+        console.log('done', args)
+        update({
+          name: 'image',
+          description: 'Image downloaded',
+          status: 'success',
+        });
+      }),
+    ];
+
+    return () => {
+      removers.forEach((removeListener) => removeListener());
+    };
+  }, [on]);
 
   // TODO: Needs a special amount of DRYing up.
   useEffect(() => {
@@ -68,9 +93,11 @@ export const StartupView = () => {
       if (image === 'no') {
         update({
           name: 'image',
-          description: 'No docker postgres image found.',
+          description: 'No docker postgres image found. Attempting to pull image.',
           status: 'failure',
         });
+
+        pullPostgresImage();
       }
     }
   }, [image, running, update]);

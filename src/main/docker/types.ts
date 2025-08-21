@@ -1,6 +1,6 @@
-export type DockerStatus = {
+export type DockerStatus<T = boolean> = {
   error?: string;
-  status: boolean;
+  status: T;
   stderr?: string;
   stdout?: string;
 };
@@ -8,4 +8,5 @@ export type DockerStatus = {
 export type DockerCommands = {
   runDockerInfo: () => Promise<DockerStatus>;
   runDockerImageInspect: () => Promise<DockerStatus>;
+  runDockerPullPostgres: (event: Electron.IpcMainInvokeEvent) => void;
 };

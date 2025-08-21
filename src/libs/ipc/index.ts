@@ -5,16 +5,17 @@ type IpcInvocationConfigTemplate<T = unknown, U = unknown> = {
 };
 
 // Window events and handlers are a bit special, so we define them separately.
-type WindowEvents = 'window-focused';
-type WindowEventHandlerProp = 'on';
-export type WindowEventHandlerMapping = {
-  [K in WindowEventHandlerProp]: (
-    channel: WindowEvents,
-    listener: (params: {
-      event: Electron.IpcRendererEvent;
-      args: unknown[];
-    }) => void
-  ) => () => void;
+type EventSubscriptionHandlerProp = 'on';
+const WINDOW_EVENT_HANDLER_PROP: EventSubscriptionHandlerProp = 'on';
+export type EventSubscriptionHandler<EventSubscriptionChannel extends string> = (
+  channel: EventSubscriptionChannel,
+  listener: (params: {
+    event: Electron.IpcRendererEvent;
+    args: unknown[];
+  }) => void
+) => () => void;
+export type EventSubscriptionHandlerMapping<EventSubscriptionChannel extends string = string> = {
+  [K in EventSubscriptionHandlerProp]: EventSubscriptionHandler<EventSubscriptionChannel>;
 };
 
 // A base type for simplifying the invocation config type.
@@ -24,14 +25,12 @@ export type IpcInvocationConfigBase<V extends ({
   [K in keyof V]: (...args: Parameters<V[K]>) => Promise<ReturnType<V[K]>>;
 };
 
-export const WINDOW_EVENTS_FOCUSED: WindowEvents = 'window-focused';
-
 // The handler configuration type based on the invocation config type.
 export type IpcHandlerConfig<
-  IpcInvocationConfig extends Omit<IpcInvocationConfigTemplate, WindowEventHandlerProp>,
+  IpcInvocationConfig extends Omit<IpcInvocationConfigTemplate, EventSubscriptionHandlerProp>,
   Params extends ParamsBase
 > = {
-  [K in keyof Omit<IpcInvocationConfig, WindowEventHandlerProp>]: (
+  [K in keyof Omit<IpcInvocationConfig, EventSubscriptionHandlerProp>]: (
     params: (
       & {
         event: Electron.IpcMainInvokeEvent;
@@ -86,8 +85,8 @@ export const preloadIpc = <
     ipcExposurePropertyName,
     {
       ...invocations,
-      on: (
-        channel: WindowEvents,
+      [WINDOW_EVENT_HANDLER_PROP]: (
+        channel: string,
         listener: ({
           event,
           args

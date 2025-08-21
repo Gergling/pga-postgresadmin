@@ -2,6 +2,7 @@ import { IpcHandlerDatabase } from '../main/database/types';
 import { IpcHandlerConfig, IpcInvocationConfigBase } from '../libs/ipc';
 import { DatabaseItem, DatabaseResponseSelect } from '../renderer/shared/database/types';
 import { DockerCommands, DockerStatus } from '../main/docker/types';
+import { DockerPullPostgresChannel } from '../shared/docker-postgres/types';
 
 // Minimalist configuration type for the renderer side.
 // IpcInvocationConfigBase really just makes these functions return promises.
@@ -13,6 +14,7 @@ export type IpcInvocationConfig = IpcInvocationConfigBase<{
 
   checkDockerStatus: () => DockerStatus;
   checkDockerImage: () => DockerStatus;
+  pullPostgresImage: () => void;
 }>;
 
 export type IpcAdditionalParameters = {
@@ -41,4 +43,12 @@ export const ipcHandlerConfig: IpcHandlerConfig<
 
   checkDockerStatus: ({ docker: { runDockerInfo } }) => runDockerInfo(),
   checkDockerImage: ({ docker: { runDockerImageInspect } }) => runDockerImageInspect(),
+  pullPostgresImage: async ({
+    docker: { runDockerPullPostgres },
+    event,
+   }) => runDockerPullPostgres(event),
 };
+
+export const EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED = 'window-focused';
+export type WindowEvents = typeof EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED;
+export type EventSubscriptionChannel = DockerPullPostgresChannel | WindowEvents;

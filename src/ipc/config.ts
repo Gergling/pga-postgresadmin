@@ -12,6 +12,7 @@ export type IpcInvocationConfig = IpcInvocationConfigBase<{
   selectDatabases: () => DatabaseResponseSelect<DatabaseItem>;
 
   checkDockerStatus: () => DockerStatus;
+  checkDockerImage: () => DockerStatus;
 }>;
 
 export type IpcAdditionalParameters = {
@@ -39,4 +40,5 @@ export const ipcHandlerConfig: IpcHandlerConfig<
   }) => selectDatabases(),
 
   checkDockerStatus: ({ docker: { runDockerInfo } }) => runDockerInfo(),
+  checkDockerImage: ({ docker: { runDockerImageInspect } }) => runDockerImageInspect(),
 };

@@ -3,18 +3,19 @@ import { Status } from "../libs/status/StatusComponent";
 import { useDocker } from "../libs/docker/use-docker-store";
 import { useIpc } from "../shared/ipc/hook";
 import { useStatus } from "../libs/status/use-status-store";
+import { WINDOW_EVENTS_FOCUSED } from "../../libs/ipc";
 
 export const StartupView = () => {
-  const { check, checking, message, status } = useDocker();
-  const { checkDockerStatus, on } = useIpc();
-  const { statuses, update } = useStatus();
+  const { check, checking, message, running, image } = useDocker();
+  const { checkDockerStatus, checkDockerImage, on } = useIpc();
+  const { clearStatuses, statuses, update } = useStatus();
 
   const recheck = useCallback(() => {
-    check(checkDockerStatus);
-  }, [check, checkDockerStatus]);
+    check(checkDockerStatus, checkDockerImage);
+  }, [clearStatuses, check, checkDockerStatus]);
 
   useEffect(() => {
-    const removeListener = on('window-focused', recheck);
+    const removeListener = on(WINDOW_EVENTS_FOCUSED, recheck);
 
     recheck();
 
@@ -23,34 +24,62 @@ export const StartupView = () => {
     };
   }, [on, recheck]);
 
+  // TODO: Needs a special amount of DRYing up.
   useEffect(() => {
-    if (status === 'running') {
+    clearStatuses();
+    if (running === 'yes') {
       update({
         name: 'docker',
         description: 'Docker is running',
         status: 'success',
       });
     }
-    if (status === 'unknown') {
+    if (running === 'unknown') {
       update({
         name: 'docker',
         description: 'Checking Docker status',
         status: 'pending',
       });
     }
-    if (status === 'inactive') {
+    if (running === 'no') {
       update({
         name: 'docker',
         description: 'Docker is not running: ' + message,
         status: 'failure',
       });
     }
-  }, [status, update]);
+  }, [running, update]);
+  useEffect(() => {
+    if (running === 'yes') {
+      if (image === 'yes') {
+        update({
+          name: 'image',
+          description: 'Image exists',
+          status: 'success',
+        });
+      }
+      if (image === 'unknown') {
+        update({
+          name: 'image',
+          description: 'Checking docker postgres image...',
+          status: 'pending',
+        });
+      }
+      if (image === 'no') {
+        update({
+          name: 'image',
+          description: 'No docker postgres image found.' + message,
+          status: 'failure',
+        });
+      }
+    }
+  }, [image, running, update]);
   return (
     <>
       <h2>Startup Status</h2>
       <div>Checking: {checking ? 'checking' : 'not checking'}</div>
-      <div>Status: {status}</div>
+      <div>Running: {running}</div>
+      <div>Image: {image}</div>
       <Status statuses={statuses} />
     </>
   );

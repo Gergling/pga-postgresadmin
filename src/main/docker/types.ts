@@ -1,3 +1,4 @@
+// TODO: Everything except status is a more generic command line response type.
 export type DockerStatus<T = boolean> = {
   error?: string;
   status: T;

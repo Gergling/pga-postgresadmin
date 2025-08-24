@@ -5,7 +5,13 @@ import { DOCKER_PULL_POSTGRES_CHANNEL_DONE, DOCKER_PULL_POSTGRES_CHANNEL_PROGRES
 
 export const useDocker = () => {
   const { checking, initialise, imageLayers, message, phase, reset, runChecklist, updatePullProgress, updatePullStatus } = useDockerStore();
-  const { checkDockerStatus, on, pullPostgresImage } = useIpc();
+  const {
+    checkDockerContainer,
+    checkDockerImage,
+    checkDockerStatus,
+    on,
+    pullPostgresImage,
+  } = useIpc();
 
   useEffect(() => {
     const removers = [
@@ -35,7 +41,8 @@ export const useDocker = () => {
       },
       {
         engine: checkDockerStatus,
-        container: () => Promise.resolve({ status: false })
+        image: checkDockerImage,
+        container: checkDockerContainer,
       }
     );
 

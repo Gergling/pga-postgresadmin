@@ -28,7 +28,7 @@ type State = {
     image: () => void;
   } | undefined;
   statusCallbacks: {
-    [K in StatusProp]: DockerCommandCallback;
+    [K in Phase]: DockerCommandCallback;
   } | undefined;
 };
 type Actions = {
@@ -162,11 +162,7 @@ export const useDockerStore = create<State & Actions>((set, get) => ({
     const decisions: Decisions = {
       engine: {
         check: engine,
-        next: () => {
-          // Proceed to the image phase.
-          // There is no image decision because the checks are handled
-          return 'image';
-        },
+        next: () => 'image',
         failure: () => {
           // Start up the engine, probably using docker desktop start or something.
           // This may require another asynchronous process set from outside the store.
@@ -176,18 +172,8 @@ export const useDockerStore = create<State & Actions>((set, get) => ({
       image: {
         // Image doesn't need an image check command to call because the pull
         // command updates the state through updatePullStatus.
-        check: async () => {
-          console.log('checking image')
-          const { phase: { breakdown: { image: status } } } = get();
-          if (status === 'yes') return { status: true };
-
-          return { status: false };
-        },
-        next: () => {
-          // TODO: Start the container.
-          console.log('we can start the container')
-          return 'container';
-        },
+        check: statusCallbacks.image,
+        next: () => 'container',
         failure: () => {
           // Start the image pull.
           console.log('image check failed, pulling')

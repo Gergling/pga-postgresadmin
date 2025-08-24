@@ -40,6 +40,27 @@ export const StartupView = () => {
           description: 'Image exists',
           status: 'success',
         });
+        if (phase.breakdown.container === 'unknown') {
+          update({
+            name: 'container',
+            description: 'Checking if container is running...',
+            status: 'pending',
+          });
+        }
+        if (phase.breakdown.container === 'no') {
+          update({
+            name: 'container',
+            description: 'Container is not running',
+            status: 'failure',
+          });
+        }
+        if (phase.breakdown.container === 'yes') {
+          update({
+            name: 'container',
+            description: 'Container is running',
+            status: 'success',
+          });
+        }
       }
       if (phase.breakdown.image === 'unknown') {
         update({

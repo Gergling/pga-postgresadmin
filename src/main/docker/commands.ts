@@ -47,6 +47,7 @@ export const runDockerImageInspect = (): Promise<DockerStatus> => {
   });
 }
 
+// TODO: This is going to be format of the main thread part of an abstract command-running framework.
 export const runDockerPullPostgres = (
   event: Electron.IpcMainInvokeEvent
 ): void => {
@@ -68,4 +69,28 @@ export const runDockerPullPostgres = (
   });
 }
 
-export const getCommands = (): DockerCommands => ({ runDockerInfo, runDockerImageInspect, runDockerPullPostgres });
+export const runDockerPSPostgres = (): Promise<DockerStatus> => {
+  return new Promise((resolve) => {
+    exec('docker ps -a --filter "name=your-postgres-db" | grep .', (error, stdout, stderr) => {
+      if (error) {
+        resolve({
+          status: false,
+          error: error.message,
+          stderr,
+        });
+      } else {
+        resolve({
+          status: true,
+          stdout,
+        });
+      }
+    });
+  });
+}
+
+export const getCommands = (): DockerCommands => ({
+  runDockerInfo,
+  runDockerImageInspect,
+  runDockerPSPostgres,
+  runDockerPullPostgres,
+});

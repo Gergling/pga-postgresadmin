@@ -14,6 +14,7 @@ export type IpcInvocationConfig = IpcInvocationConfigBase<{
 
   checkDockerStatus: () => DockerStatus;
   checkDockerImage: () => DockerStatus;
+  checkDockerContainer: () => DockerStatus;
   pullPostgresImage: () => void;
 }>;
 
@@ -43,10 +44,11 @@ export const ipcHandlerConfig: IpcHandlerConfig<
 
   checkDockerStatus: ({ docker: { runDockerInfo } }) => runDockerInfo(),
   checkDockerImage: ({ docker: { runDockerImageInspect } }) => runDockerImageInspect(),
+  checkDockerContainer: ({ docker: { runDockerPSPostgres } }) => runDockerPSPostgres(),
   pullPostgresImage: async ({
     docker: { runDockerPullPostgres },
     event,
-   }) => runDockerPullPostgres(event),
+  }) => runDockerPullPostgres(event),
 };
 
 export const EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED = 'window-focused';

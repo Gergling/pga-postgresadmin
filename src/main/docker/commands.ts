@@ -1,51 +1,11 @@
-import { exec, spawn } from 'child_process';
+import { spawn } from 'child_process';
 import { DockerCommands, DockerStatus } from './types';
 import { DOCKER_PULL_POSTGRES_CHANNEL_DONE, DOCKER_PULL_POSTGRES_CHANNEL_PROGRESS } from '../../shared/docker-postgres/types';
+import { runCommand } from '../commands/run';
 
-// TODO: Definitely a DRYing candidate.
-export const runDockerInfo = (): Promise<DockerStatus> => {
-  return new Promise((resolve) => {
-    // The 'docker info' command will fail if Docker isn't running or installed.
-    exec('docker info', (error, stdout, stderr) => {
-      if (error) {
-        // An error here means the command failed, so Docker is not running.
-        resolve({
-          status: false,
-          error: error.message,
-          stderr,
-        });
-      } else {
-        // If there's no error, Docker is running.
-        resolve({
-          status: true,
-          stdout,
-        });
-      }
-    });
-  });
-}
+export const runDockerInfo = (): Promise<DockerStatus> => runCommand('docker info');
 
-export const runDockerImageInspect = (): Promise<DockerStatus> => {
-  return new Promise((resolve) => {
-    // The 'docker info' command will fail if Docker isn't running or installed.
-    exec('docker image inspect postgres', (error, stdout, stderr) => {
-      if (error) {
-        // An error here means the command failed, so Docker is not running.
-        resolve({
-          status: false,
-          error: error.message,
-          stderr,
-        });
-      } else {
-        // If there's no error, Docker is running.
-        resolve({
-          status: true,
-          stdout,
-        });
-      }
-    });
-  });
-}
+export const runDockerImageInspect = (): Promise<DockerStatus> => runCommand('docker image inspect postgres');
 
 // TODO: This is going to be format of the main thread part of an abstract command-running framework.
 export const runDockerPullPostgres = (
@@ -69,24 +29,32 @@ export const runDockerPullPostgres = (
   });
 }
 
-export const runDockerPSPostgres = (): Promise<DockerStatus> => {
-  return new Promise((resolve) => {
-    exec('docker ps -a --filter "name=your-postgres-db" | grep .', (error, stdout, stderr) => {
-      if (error) {
-        resolve({
-          status: false,
-          error: error.message,
-          stderr,
-        });
-      } else {
-        resolve({
-          status: true,
-          stdout,
-        });
-      }
-    });
-  });
-}
+export const runDockerPSPostgres = async (): Promise<DockerStatus> => {
+  const containerName = 'postgres-db';
+  const {
+    error,
+    status,
+    stderr,
+    stdout,
+  } = await runCommand(`docker ps -a --filter "name=${containerName}"`);
+
+  if (status && stdout) {
+    // If the command was successful, and there's output, check if the container is running.
+    const isRunning = stdout.includes(containerName) && !stdout.includes('Exited');
+    return {
+      status: isRunning,
+      stdout,
+    };
+  }
+
+  // If the command failed or there's no output, return the error status.
+  return {
+    status: false,
+    error,
+    stderr,
+    stdout,
+  };
+};
 
 export const getCommands = (): DockerCommands => ({
   runDockerInfo,

@@ -1,10 +1,6 @@
-// TODO: Everything except status is a more generic command line response type.
-export type DockerStatus<T = boolean> = {
-  error?: string;
-  status: T;
-  stderr?: string;
-  stdout?: string;
-};
+import { CommandStatusResponse } from "../../shared/types";
+
+export type DockerStatus<T = boolean> = CommandStatusResponse<T>;
 
 export type DockerCommands = {
   runDockerInfo: () => Promise<DockerStatus>;

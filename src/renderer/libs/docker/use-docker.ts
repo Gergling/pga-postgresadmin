@@ -1,10 +1,27 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useIpc } from "../../shared/ipc/hook";
-import { useDockerStore } from "./use-docker-store";
+import { DockerPostgresPhase, useDockerStore } from "./use-docker-store";
 import { DOCKER_PULL_POSTGRES_CHANNEL_DONE, DOCKER_PULL_POSTGRES_CHANNEL_PROGRESS } from "../../../shared/docker-postgres/types";
+import { UncertainBoolean } from "../../../shared/types";
+
+type StatusViewItem = {
+  phase: DockerPostgresPhase;
+  status: UncertainBoolean;
+};
+
+const statusViewOrder: DockerPostgresPhase[] = ['engine', 'image', 'container'];
 
 export const useDocker = () => {
-  const { checking, initialise, imageLayers, message, phase, reset, runChecklist, updatePullProgress, updatePullStatus } = useDockerStore();
+  const {
+    initialise,
+    imageLayers,
+    message,
+    phase: { breakdown, current },
+    reset,
+    runChecklist,
+    updatePullProgress,
+    updatePullStatus
+  } = useDockerStore();
   const {
     checkDockerContainer,
     checkDockerImage,
@@ -12,6 +29,23 @@ export const useDocker = () => {
     on,
     pullPostgresImage,
   } = useIpc();
+
+  const statusView = useMemo(() => {
+    return statusViewOrder.reduce(
+      (
+        statuses,
+        phase
+      ) => {
+        const isCurrentPhase = phase === current;
+        const status = breakdown[phase];
+
+        if (!isCurrentPhase && status === 'unknown') return statuses;
+
+        return [...statuses, { phase, status }];
+      },
+      [] as StatusViewItem[]
+    );
+  }, [breakdown, current]);
 
   useEffect(() => {
     const removers = [
@@ -52,11 +86,10 @@ export const useDocker = () => {
   }, []);
 
   return {
-    runChecklist,
-    checking,
     imageLayers,
     message,
-    phase,
     reset,
+    runChecklist,
+    statusView,
   }
 };

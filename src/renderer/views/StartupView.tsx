@@ -1,20 +1,82 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { Status } from "../libs/status/StatusComponent";
 import { useIpc } from "../shared/ipc/hook";
 import { useStatus } from "../libs/status/use-status-store";
 import { EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED } from "../../ipc";
-import { useDocker } from "../libs/docker/use-docker";
+import { DockerPostgresPhase, useDocker } from "../libs/docker";
+import { StatusItemProps } from "../libs/status/types";
+import { UncertainBoolean } from "../../shared/types";
 
-export const StartupView = () => {
-  const { checking, imageLayers, message, phase, reset, runChecklist } = useDocker();
-  const { on } = useIpc();
+type PhaseStatusMapping = {
+  [K in UncertainBoolean]: StatusItemProps['status'];
+};
+
+const phaseStatusMapping: PhaseStatusMapping = {
+  no: 'failure',
+  unknown: 'pending',
+  yes: 'success',
+};
+
+type ChecklistStatusConfig = {
+  [P in DockerPostgresPhase]: {
+    [S in StatusItemProps['status']]: string;
+  }
+};
+
+const useDockerStatus = () => {
+  const { imageLayers, message, reset, runChecklist, statusView } = useDocker();
   const { clearStatuses, statuses, update } = useStatus();
+
+  const statusConfig = useMemo((): ChecklistStatusConfig => ({
+    engine: {
+      failure: 'Docker is not running: ' + message,
+      pending: 'Checking Docker status',
+      success: 'Docker is running',
+    },
+    image: {
+      failure: 'No docker postgres image found. Attempting to pull image.',
+      pending: 'Checking docker postgres image...' + imageLayers.join(', '),
+      success: 'Image exists',
+    },
+    container: {
+      failure: 'Container is not running',
+      pending: 'Checking if container is running...',
+      success: 'Container is running',
+    },
+  }), [imageLayers, message]);
+
+  const statusUpdates = useMemo(() => statusView.map(({
+    phase,
+    status,
+  }): StatusItemProps => {
+    const phaseStatus = phaseStatusMapping[status];
+    const description = statusConfig[phase][phaseStatus];
+    return {
+      name: phase,
+      description,
+      status: phaseStatus,
+    };
+  }), [statusView, statusConfig]);
 
   const recheck = useCallback(() => {
     reset();
     clearStatuses();
     runChecklist();
   }, [clearStatuses, reset, runChecklist]);
+
+  useEffect(() => {
+    statusUpdates.forEach(update);
+  }, [statusUpdates, update]);
+
+  return {
+    recheck,
+    statuses,
+  }
+};
+
+export const StartupView = () => {
+  const { on } = useIpc();
+  const { recheck, statuses } = useDockerStatus();
 
   useEffect(() => {
     const removeListener = on(EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED, recheck);
@@ -26,77 +88,9 @@ export const StartupView = () => {
     };
   }, [on, recheck]);
 
-  // TODO: Needs a special amount of DRYing up.
-  useEffect(() => {
-    if (phase.breakdown.engine === 'yes') {
-      update({
-        name: 'docker',
-        description: 'Docker is running',
-        status: 'success',
-      });
-      if (phase.breakdown.image === 'yes') {
-        update({
-          name: 'image',
-          description: 'Image exists',
-          status: 'success',
-        });
-        if (phase.breakdown.container === 'unknown') {
-          update({
-            name: 'container',
-            description: 'Checking if container is running...',
-            status: 'pending',
-          });
-        }
-        if (phase.breakdown.container === 'no') {
-          update({
-            name: 'container',
-            description: 'Container is not running',
-            status: 'failure',
-          });
-        }
-        if (phase.breakdown.container === 'yes') {
-          update({
-            name: 'container',
-            description: 'Container is running',
-            status: 'success',
-          });
-        }
-      }
-      if (phase.breakdown.image === 'unknown') {
-        update({
-          name: 'image',
-          description: 'Checking docker postgres image...' + imageLayers.join(', '),
-          status: 'pending',
-        });
-      }
-      if (phase.breakdown.image === 'no') {
-        update({
-          name: 'image',
-          description: 'No docker postgres image found. Attempting to pull image.',
-          status: 'failure',
-        });
-      }
-    }
-    if (phase.breakdown.engine === 'unknown') {
-      update({
-        name: 'docker',
-        description: 'Checking Docker status',
-        status: 'pending',
-      });
-    }
-    if (phase.breakdown.engine === 'no') {
-      update({
-        name: 'docker',
-        description: 'Docker is not running: ' + message,
-        status: 'failure',
-      });
-    }
-  }, [phase, update]);
-
   return (
     <>
       <h2>Startup Status</h2>
-      <div>Checking: {checking ? 'checking' : 'not checking'}</div>
       <Status statuses={statuses} />
     </>
   );

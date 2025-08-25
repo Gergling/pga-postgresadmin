@@ -4,31 +4,29 @@ import { create } from "zustand";
 
 type DockerCommandCallback = () => Promise<DockerStatus>;
 
-type StatusProp = 'engine' | 'container';
-type Phase = StatusProp | 'image';
+export type DockerPostgresPhase = 'engine' | 'container' | 'image';
 
 type Decision = {
   check: DockerCommandCallback;
-  next: () => Phase | undefined;
+  next: () => DockerPostgresPhase | undefined;
   failure?: () => void;
 };
 
 type State = {
-  checking: boolean;
   message: string;
   imageLayers: string[];
   phase: {
     breakdown: {
-      [K in Phase]: UncertainBoolean;
+      [K in DockerPostgresPhase]: UncertainBoolean;
     };
-    current: Phase;
-    next: Phase | undefined;
+    current: DockerPostgresPhase;
+    next: DockerPostgresPhase | undefined;
   };
   actionCallbacks: {
     image: () => void;
   } | undefined;
   statusCallbacks: {
-    [K in Phase]: DockerCommandCallback;
+    [K in DockerPostgresPhase]: DockerCommandCallback;
   } | undefined;
 };
 type Actions = {
@@ -42,7 +40,7 @@ type Actions = {
 };
 
 type Decisions = {
-  [K in Phase]: Decision;
+  [K in DockerPostgresPhase]: Decision;
 };
 
 const runDecision = async ({
@@ -51,7 +49,7 @@ const runDecision = async ({
   failure,
 }: Decision): Promise<{
   message: string;
-  nextPhase?: Phase;
+  nextPhase?: DockerPostgresPhase;
   status?: UncertainBoolean;
 }> => {
   try {
@@ -92,7 +90,6 @@ const initialPhase: State['phase'] = {
 };
 
 export const useDockerStore = create<State & Actions>((set, get) => ({
-  checking: false,
   message: '',
   phase: initialPhase,
   imageLayers: [],

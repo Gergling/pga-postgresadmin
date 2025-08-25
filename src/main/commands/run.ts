@@ -4,9 +4,10 @@ import { CommandStatusResponse } from "../../shared/types";
 export const runCommand = (
   command: string,
 ): Promise<CommandStatusResponse> => {
-  console.log('Running command:', command);
+  // console.log('Running command:', command);
   return new Promise((resolve) => {
     exec(command, (error, stdout, stderr) => {
+      // console.log('Command finished:', command, { error, stdout, stderr });
       if (error) {
         resolve({
           status: false,

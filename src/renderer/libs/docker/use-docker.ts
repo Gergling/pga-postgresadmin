@@ -28,6 +28,7 @@ export const useDocker = () => {
     checkDockerStatus,
     on,
     pullPostgresImage,
+    runDockerContainer,
   } = useIpc();
 
   const statusView = useMemo(() => {
@@ -71,7 +72,8 @@ export const useDocker = () => {
 
     initialise(
       {
-        image: pullPostgresImage
+        image: pullPostgresImage,
+        container: runDockerContainer,
       },
       {
         engine: checkDockerStatus,

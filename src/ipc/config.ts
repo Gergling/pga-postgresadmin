@@ -16,6 +16,7 @@ export type IpcInvocationConfig = IpcInvocationConfigBase<{
   checkDockerImage: () => DockerStatus;
   checkDockerContainer: () => DockerStatus;
   pullPostgresImage: () => void;
+  runDockerContainer: () => DockerStatus;
 }>;
 
 export type IpcAdditionalParameters = {
@@ -49,6 +50,9 @@ export const ipcHandlerConfig: IpcHandlerConfig<
     docker: { runDockerPullPostgres },
     event,
   }) => runDockerPullPostgres(event),
+  runDockerContainer: ({
+    docker: { runDockerRunPostgres },
+  }) => runDockerRunPostgres(),
 };
 
 export const EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED = 'window-focused';

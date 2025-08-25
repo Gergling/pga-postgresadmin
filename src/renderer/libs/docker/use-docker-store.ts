@@ -22,9 +22,9 @@ type State = {
     current: DockerPostgresPhase;
     next: DockerPostgresPhase | undefined;
   };
-  actionCallbacks: {
-    image: () => void;
-  } | undefined;
+  actionCallbacks: Omit<{
+    [K in DockerPostgresPhase]: () => void;
+  }, 'engine'> | undefined;
   statusCallbacks: {
     [K in DockerPostgresPhase]: DockerCommandCallback;
   } | undefined;
@@ -57,13 +57,11 @@ const runDecision = async ({
     const message = (stderr || '') + error || stdout || '';
     if (status) {
       const nextPhase = next();
-      if (nextPhase) {
-        return {
-          message,
-          nextPhase,
-          status: 'yes',
-        };
-      }
+      return {
+        message,
+        nextPhase,
+        status: 'yes',
+      };
     }
     if (!status && failure) failure();
 
@@ -153,7 +151,6 @@ export const useDockerStore = create<State & Actions>((set, get) => ({
 
     if (!actionCallbacks || !statusCallbacks) throw new Error(`No action callbacks or status callbacks set. Need to run "initialise" before other functions.`);
 
-    const { image } = actionCallbacks;
     const { container, engine } = statusCallbacks;
     const { current: currentPhase } = phase;
     const decisions: Decisions = {
@@ -176,7 +173,7 @@ export const useDockerStore = create<State & Actions>((set, get) => ({
           console.log('image check failed, pulling')
           // TODO: Need to distinguish clearly between the image not existing and other errors... should other errors
           // occur.
-          image();
+          actionCallbacks.image();
         },
       },
       container: {
@@ -187,6 +184,7 @@ export const useDockerStore = create<State & Actions>((set, get) => ({
         },
         failure: () => {
           console.log('container not running')
+          actionCallbacks.container();
         }
       },
     };

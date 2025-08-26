@@ -27,8 +27,8 @@
     "@electron-forge/maker-zip": "^7.8.3",
     "@electron-forge/plugin-auto-unpack-natives": "^7.8.3",
     "@electron-forge/plugin-fuses": "^7.8.3",
-    "@electron-forge/plugin-webpack": "^7.8.3",
     "@electron-forge/plugin-vite": "^7.8.3",
+    "@electron-forge/plugin-webpack": "^7.8.3",
     "@electron/fuses": "^1.8.0",
     "@emotion/babel-plugin": "^11.13.5",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
@@ -50,6 +50,7 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@mui/material": "^7.3.1",
     "@types/pg": "^8.15.5",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",

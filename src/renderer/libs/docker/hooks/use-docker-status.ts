@@ -1,11 +1,8 @@
 import { useCallback, useEffect, useMemo } from "react";
-import { Status } from "../libs/status/StatusComponent";
-import { useIpc } from "../shared/ipc/hook";
-import { useStatus } from "../libs/status/use-status-store";
-import { EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED } from "../../ipc";
-import { DockerPostgresPhase, useDocker } from "../libs/docker";
-import { StatusItemProps } from "../libs/status/types";
-import { UncertainBoolean } from "../../shared/types";
+import { UncertainBoolean } from "../../../../shared/types";
+import { StatusItemProps, useStatus } from "../../status";
+import { useDocker } from "./use-docker";
+import { DockerPostgresPhase } from "./use-docker-store";
 
 type PhaseStatusMapping = {
   [K in UncertainBoolean]: StatusItemProps['status'];
@@ -20,11 +17,11 @@ const phaseStatusMapping: PhaseStatusMapping = {
 type ChecklistStatusConfig = {
   [P in DockerPostgresPhase]: {
     [S in StatusItemProps['status']]: string;
-  }
+  };
 };
 
-const useDockerStatus = () => {
-  const { imageLayers, message, reset, runChecklist, statusView } = useDocker();
+export const useDockerStatus = () => {
+  const { imageLayers, isCompleted, message, reset, runChecklist, statusView } = useDocker();
   const { clearStatuses, statuses, update } = useStatus();
 
   const statusConfig = useMemo((): ChecklistStatusConfig => ({
@@ -69,29 +66,8 @@ const useDockerStatus = () => {
   }, [statusUpdates, update]);
 
   return {
+    isCompleted,
     recheck,
     statuses,
   }
-};
-
-export const StartupView = () => {
-  const { on } = useIpc();
-  const { recheck, statuses } = useDockerStatus();
-
-  useEffect(() => {
-    const removeListener = on(EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED, recheck);
-
-    recheck();
-
-    return () => {
-      removeListener();
-    };
-  }, [on, recheck]);
-
-  return (
-    <>
-      <h2>Startup Status</h2>
-      <Status statuses={statuses} />
-    </>
-  );
 };

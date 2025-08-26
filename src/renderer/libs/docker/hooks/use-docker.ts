@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from "react";
-import { useIpc } from "../../shared/ipc/hook";
+import { useIpc } from "../../../shared/ipc/hook";
 import { DockerPostgresPhase, useDockerStore } from "./use-docker-store";
-import { DOCKER_PULL_POSTGRES_CHANNEL_DONE, DOCKER_PULL_POSTGRES_CHANNEL_PROGRESS } from "../../../shared/docker-postgres/types";
-import { UncertainBoolean } from "../../../shared/types";
+import { DOCKER_PULL_POSTGRES_CHANNEL_DONE, DOCKER_PULL_POSTGRES_CHANNEL_PROGRESS } from "../../../../shared/docker-postgres/types";
+import { UncertainBoolean } from "../../../../shared/types";
 
 type StatusViewItem = {
   phase: DockerPostgresPhase;
@@ -48,6 +48,8 @@ export const useDocker = () => {
     );
   }, [breakdown, current]);
 
+  const isCompleted = useMemo(() => Object.values(breakdown).reduce((isCompleted, status) => isCompleted && status === 'yes', true), [breakdown]);
+
   useEffect(() => {
     const removers = [
       // TODO: Consider separate invocation functions for
@@ -89,6 +91,7 @@ export const useDocker = () => {
 
   return {
     imageLayers,
+    isCompleted,
     message,
     reset,
     runChecklist,

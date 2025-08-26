@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 // import { useIpc } from './shared/ipc/hook';
 import { AppContextProvider } from './app/AppContextProvider';
-import { StartupView } from './views';
+import { DatabasesView } from './views';
 
 // const IpcTest: React.FC = () => {
 //   const { testIPC } = useIpc(); // Ensure the IPC context is initialized
@@ -38,12 +38,18 @@ import { StartupView } from './views';
 
 const App = () => (
   <AppContextProvider>
-    <StartupView />
-    {/* <DatabasesView /> */}
+    {/* <StartupView /> */}
+    <DatabasesView />
   </AppContextProvider>
 );
 
-const root = createRoot(document.getElementById('app'));
+const appElement = document.getElementById('app');
+
+if (appElement === null) {
+  throw new Error("Element with ID 'app' not found in the DOM.");
+}
+
+const root = createRoot(appElement);
 root.render(
   <React.StrictMode>
     <App />

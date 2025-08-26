@@ -1,5 +1,5 @@
-import { UncertainBoolean } from "../../../shared/types";
-import { DockerStatus } from "../../../main/docker/types";
+import { UncertainBoolean } from "../../../../shared/types";
+import { DockerStatus } from "../../../../main/docker/types";
 import { create } from "zustand";
 
 type DockerCommandCallback = () => Promise<DockerStatus>;

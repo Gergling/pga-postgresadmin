@@ -43,9 +43,14 @@ const createWindow = (): void => {
   });
 };
 
-console.log('Setting up IPC handlers');
-setupHandlers({ database: getDatabase(), docker: getCommands()})
+// Setting up app.on events doesn't work well asynchronously, but ideally we need the database pool set up once.
+console.log('Setting up database.')
+getDatabase().then((database) => {
+  console.log('Setting up IPC handlers...');
+  setupHandlers({ database, docker: getCommands()})
 setupDockerChecklistHandler(ipcMain);
+});
+
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

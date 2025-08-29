@@ -1,6 +1,7 @@
 import { Pool, PoolClient } from 'pg';
 import { IpcHandlerDatabase } from './types';
 import { selectDatabaseList } from './queries';
+import { loadDatabaseServerCredentials } from '../docker/server';
 
 export const getDatabaseClient = (pool: Pool) => async () => {
   try {
@@ -50,10 +51,12 @@ const createDatabase = (
   await client.query(query);
 };
 
-export const getDatabase = (): IpcHandlerDatabase => {
-  const pool = new Pool({
-    // Your database connection details
-  });
+export const getDatabase = async (): Promise<IpcHandlerDatabase> => {
+  const credentials = await loadDatabaseServerCredentials();
+
+  if (!credentials) throw new Error(`Running getDatabase without any credentials saved.`);
+
+  const pool = new Pool(credentials);
 
   const getClient = getDatabaseClient(pool);
 

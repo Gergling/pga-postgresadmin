@@ -14,6 +14,8 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
+const log = (...args: string[]) => console.log('+ app-start:', ...args);
+
 const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -44,9 +46,9 @@ const createWindow = (): void => {
 };
 
 // Setting up app.on events doesn't work well asynchronously, but ideally we need the database pool set up once.
-console.log('Setting up database.')
+log('Setting up database.')
 getDatabase().then((database) => {
-  console.log('Setting up IPC handlers...');
+  log('Setting up IPC handlers...');
   setupHandlers({ database, docker: getCommands()})
   setupDockerChecklistHandler(ipcMain);
 });
@@ -55,8 +57,8 @@ getDatabase().then((database) => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', async () => {
-  console.log('App is ready. Creating window.');
+app.on('ready', () => {
+  log('App is ready. Creating window.');
   createWindow();
 });
 
@@ -64,7 +66,7 @@ app.on('ready', async () => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
-  console.log('All windows closed. Quitting app.');
+  log('All windows closed. Quitting app.');
   ipcMain.removeAllListeners();
   if (process.platform !== 'darwin') {
     app.quit();

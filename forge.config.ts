@@ -22,7 +22,7 @@ const config: ForgeConfig = {
       build: [
         {
           // `entry` is just an alias for `build.lib.entry` in the corresponding file of `config`.
-          entry: 'src/index.ts',
+          entry: 'src/app-start.ts',
           config: 'vite.main.config.ts',
         },
         {

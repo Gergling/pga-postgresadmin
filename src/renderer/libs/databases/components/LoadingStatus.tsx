@@ -16,7 +16,7 @@ export const DatabasesLoadingStatus = () => {
     return () => {
       removeListener();
     };
-  }, [on, recheck]);
+  }, []);
 
   return (
     <>

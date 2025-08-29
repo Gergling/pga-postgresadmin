@@ -48,7 +48,7 @@ console.log('Setting up database.')
 getDatabase().then((database) => {
   console.log('Setting up IPC handlers...');
   setupHandlers({ database, docker: getCommands()})
-setupDockerChecklistHandler(ipcMain);
+  setupDockerChecklistHandler(ipcMain);
 });
 
 

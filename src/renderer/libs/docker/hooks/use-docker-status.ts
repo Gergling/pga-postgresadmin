@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import { UncertainBoolean } from "../../../../shared/types";
 import { StatusItemProps, useStatus } from "../../status";
 import { useDocker } from "./use-docker";
-import { DockerPostgresPhase } from "./use-docker-store";
+import { DockerChecklistName } from "../../../../shared/docker-postgres/types";
 
 type PhaseStatusMapping = {
   [K in UncertainBoolean]: StatusItemProps['status'];
@@ -15,13 +15,13 @@ const phaseStatusMapping: PhaseStatusMapping = {
 };
 
 type ChecklistStatusConfig = {
-  [P in DockerPostgresPhase]: {
+  [P in DockerChecklistName]: {
     [S in StatusItemProps['status']]: string;
   };
 };
 
 export const useDockerStatus = () => {
-  const { imageLayers, isCompleted, message, reset, runChecklist, statusView } = useDocker();
+  const { checklist, imageLayers, isCompleted, message, reset, runChecklist } = useDocker();
   const { clearStatuses, statuses, update } = useStatus();
 
   const statusConfig = useMemo((): ChecklistStatusConfig => ({
@@ -30,30 +30,36 @@ export const useDockerStatus = () => {
       pending: 'Checking Docker status',
       success: 'Docker is running',
     },
+    'container-exists': {
+      failure: 'Container does not exist. Attempt to create container.',
+      pending: 'Checking if container exists...',
+      success: 'Container exists',
+    },
     image: {
       failure: 'No docker postgres image found. Attempting to pull image.',
       pending: 'Checking docker postgres image...' + imageLayers.join(', '),
       success: 'Image exists',
     },
-    container: {
+    'container-running': {
       failure: 'Container is not running',
       pending: 'Checking if container is running...',
       success: 'Container is running',
     },
   }), [imageLayers, message]);
 
-  const statusUpdates = useMemo(() => statusView.map(({
-    phase,
+  const statusUpdates = useMemo(() => checklist.map(({
+    // description, // TODO: ...
+    name,
     status,
   }): StatusItemProps => {
     const phaseStatus = phaseStatusMapping[status];
-    const description = statusConfig[phase][phaseStatus];
+    const label = statusConfig[name][phaseStatus];
     return {
-      name: phase,
-      description,
+      name,
+      description: label,
       status: phaseStatus,
     };
-  }), [statusView, statusConfig]);
+  }), [checklist, statusConfig]);
 
   const recheck = useCallback(() => {
     reset();

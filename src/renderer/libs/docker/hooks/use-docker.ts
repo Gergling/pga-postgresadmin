@@ -4,16 +4,17 @@ import { DockerPostgresPhase, useDockerStore } from "./use-docker-store";
 import { DOCKER_PULL_POSTGRES_CHANNEL_DONE, DOCKER_PULL_POSTGRES_CHANNEL_PROGRESS } from "../../../../shared/docker-postgres/types";
 import { UncertainBoolean } from "../../../../shared/types";
 
+// TODO: Are we keeping this or...?
 type StatusViewItem = {
   phase: DockerPostgresPhase;
   status: UncertainBoolean;
 };
 
-const statusViewOrder: DockerPostgresPhase[] = ['engine', 'image', 'container'];
+const statusViewOrder: DockerPostgresPhase[] = ['engine', 'image', 'exists', 'running'];
 
 export const useDocker = () => {
   const {
-    initialise,
+    checklist,
     imageLayers,
     message,
     phase: { breakdown, current },
@@ -23,12 +24,7 @@ export const useDocker = () => {
     updatePullStatus
   } = useDockerStore();
   const {
-    checkDockerContainer,
-    checkDockerImage,
-    checkDockerStatus,
     on,
-    pullPostgresImage,
-    runDockerContainer,
   } = useIpc();
 
   const statusView = useMemo(() => {
@@ -72,24 +68,14 @@ export const useDocker = () => {
       }),
     ];
 
-    initialise(
-      {
-        image: pullPostgresImage,
-        container: runDockerContainer,
-      },
-      {
-        engine: checkDockerStatus,
-        image: checkDockerImage,
-        container: checkDockerContainer,
-      }
-    );
-
     return () => {
       removers.forEach((removeListener) => removeListener());
     };
   }, []);
 
   return {
+    breakdown,
+    checklist,
     imageLayers,
     isCompleted,
     message,

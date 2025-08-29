@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 import { useIpc } from '../../../shared/ipc/hook';
 import { Table } from "../../../shared/table/Table";
-import { useDatabases } from '../use-databases-store';
+import { useDatabasesStore } from '../use-databases-store';
 
 export const DatabasesListDatabases = () => {
   const { selectDatabases } = useIpc();
-  const { databases, error, fetch, loading } = useDatabases();
+  const { databases, error, fetch, loading } = useDatabasesStore();
 
   useEffect(() => {
     if (fetch && selectDatabases) {

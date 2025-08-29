@@ -2,9 +2,17 @@ export type UncertainBoolean = 'yes' | 'no' | 'unknown';
 
 export type WorkflowState = 'todo' | 'doing' | 'done';
 
-export type CommandStatusResponse<T = boolean> = {
+export type CommandResponse = {
   error?: string;
-  status: T;
   stderr?: string;
   stdout?: string;
+};
+
+export type CommandStatusResponse<T = boolean> = CommandResponse & {
+  status: T;
+};
+
+export type GeneralResponse = {
+  success: boolean;
+  error?: string;
 };

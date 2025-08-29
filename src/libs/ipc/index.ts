@@ -1,3 +1,8 @@
+// TODO: These should be abstracted out.
+import { setupDockerChecklistSubscription } from "../../main/docker/ipc";
+import { CHANNEL_SUBSCRIBE_TO_DOCKER_CHECKLIST } from "../../shared/channels";
+import { DockerChecklistSubscriptionParams } from "../../shared/docker-postgres/types";
+
 // These types are used a couple of times, so they're shortened.
 type ParamsBase = Record<string, unknown>;
 type IpcInvocationConfigTemplate<T = unknown, U = unknown> = {
@@ -100,6 +105,13 @@ export const preloadIpc = <
         ipcRenderer.on(channel, subscription);
 
         return () => ipcRenderer.removeListener(channel, subscription);
+      },
+      // TODO: Improve specialised IPC calls.
+      [CHANNEL_SUBSCRIBE_TO_DOCKER_CHECKLIST]: (
+        listener: (update: DockerChecklistSubscriptionParams) => void
+      ) => {
+        console.log('subscribed to checklist: preload IPC edition')
+        return setupDockerChecklistSubscription(ipcRenderer, listener);
       },
     }
   );

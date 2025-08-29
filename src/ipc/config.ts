@@ -1,8 +1,12 @@
 import { IpcHandlerDatabase } from '../main/database/types';
 import { IpcHandlerConfig, IpcInvocationConfigBase } from '../libs/ipc';
 import { DatabaseItem, DatabaseResponseSelect } from '../renderer/shared/database/types';
-import { DockerCommands, DockerStatus } from '../main/docker/types';
-import { DockerPullPostgresChannel } from '../shared/docker-postgres/types';
+import { DockerCommands } from '../main/docker/types';
+import {
+  DatabaseServerCredentials,
+  DockerPullPostgresChannel
+} from '../shared/docker-postgres/types';
+import { GeneralResponse } from '../shared/types';
 
 // Minimalist configuration type for the renderer side.
 // IpcInvocationConfigBase really just makes these functions return promises.
@@ -12,11 +16,8 @@ export type IpcInvocationConfig = IpcInvocationConfigBase<{
   createDatabase: (dbName: string) => { success: boolean; error?: string };
   selectDatabases: () => DatabaseResponseSelect<DatabaseItem>;
 
-  checkDockerStatus: () => DockerStatus;
-  checkDockerImage: () => DockerStatus;
-  checkDockerContainer: () => DockerStatus;
-  pullPostgresImage: () => void;
-  runDockerContainer: () => DockerStatus;
+  loadDatabaseServerCredentials: () => DatabaseServerCredentials | undefined;
+  saveDatabaseServerCredentials: (credentials: DatabaseServerCredentials) => GeneralResponse;
 }>;
 
 export type IpcAdditionalParameters = {
@@ -43,16 +44,13 @@ export const ipcHandlerConfig: IpcHandlerConfig<
     database: { selectDatabases }
   }) => selectDatabases(),
 
-  checkDockerStatus: ({ docker: { runDockerInfo } }) => runDockerInfo(),
-  checkDockerImage: ({ docker: { runDockerImageInspect } }) => runDockerImageInspect(),
-  checkDockerContainer: ({ docker: { runDockerPSPostgres } }) => runDockerPSPostgres(),
-  pullPostgresImage: async ({
-    docker: { runDockerPullPostgres },
-    event,
-  }) => runDockerPullPostgres(event),
-  runDockerContainer: ({
-    docker: { runDockerRunPostgres },
-  }) => runDockerRunPostgres(),
+  loadDatabaseServerCredentials: ({
+    docker: { loadDatabaseServerCredentials },
+  }) => loadDatabaseServerCredentials(),
+  saveDatabaseServerCredentials: ({
+    args: [credentials],
+    docker: { saveDatabaseServerCredentials },
+  }) => saveDatabaseServerCredentials(credentials),
 };
 
 export const EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED = 'window-focused';

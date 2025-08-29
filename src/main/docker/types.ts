@@ -1,11 +1,14 @@
-import { CommandStatusResponse } from "../../shared/types";
+import { DatabaseServerCredentials, DockerChecklistSubscriptionParams, DockerStatus } from "../../shared/docker-postgres/types";
+import { GeneralResponse } from "../../shared/types";
 
-export type DockerStatus<T = boolean> = CommandStatusResponse<T>;
+type AsyncCommand<T = DockerStatus> = () => Promise<T>;
 
 export type DockerCommands = {
-  runDockerInfo: () => Promise<DockerStatus>;
-  runDockerImageInspect: () => Promise<DockerStatus>;
-  runDockerPSPostgres: () => Promise<DockerStatus>;
-  runDockerPullPostgres: (event: Electron.IpcMainInvokeEvent) => void;
-  runDockerRunPostgres: () => Promise<DockerStatus>;
+  loadDatabaseServerCredentials: AsyncCommand<DatabaseServerCredentials | undefined>,
+  saveDatabaseServerCredentials: (credentials: DatabaseServerCredentials) => Promise<GeneralResponse>,
+  subscribeToDockerChecklist: (
+    subscription: (
+      update: DockerChecklistSubscriptionParams
+    ) => void
+  ) => void;
 };

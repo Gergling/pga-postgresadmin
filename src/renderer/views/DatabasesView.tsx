@@ -1,3 +1,3 @@
-import { DatabasesIndex } from "../libs/databases/components/Index";
+import { DatabasesIndex } from "../libs/databases/components/DatabasesIndex";
 
 export const DatabasesView = () => <DatabasesIndex />;

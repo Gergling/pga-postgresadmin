@@ -1,10 +1,54 @@
+/* eslint-disable no-fallthrough */
 import { spawn } from 'child_process';
-import { DockerCommands, DockerStatus } from './types';
-import { DOCKER_PULL_POSTGRES_CHANNEL_DONE, DOCKER_PULL_POSTGRES_CHANNEL_PROGRESS } from '../../shared/docker-postgres/types';
+import {
+  DOCKER_PULL_POSTGRES_CHANNEL_DONE,
+  DOCKER_PULL_POSTGRES_CHANNEL_PROGRESS,
+  DockerChecklistContainerStatus,
+  DockerChecklistEngineStatus,
+  DockerChecklistImageStatus,
+  DockerChecklistName,
+  DockerChecklistPhaseStates,
+  DockerChecklistStatusViewItem,
+  DockerChecklistSubscriptionParams,
+  DockerContainerStatus,
+  DockerEngineStates,
+  DockerStatus } from '../../shared/docker-postgres/types';
 import { runCommand } from '../commands/run';
-import { DOCKER_CONTAINER_NAME } from './constants';
+import { DOCKER_CONTAINER_NAME, DOCKER_IMAGE_NAME } from './constants';
+import { loadDatabaseServerCredentials, saveDatabaseServerCredentials } from './server';
+import { DockerCommands } from './types';
+import { CommandResponse, UncertainBoolean } from '../../shared/types';
 
-export const runDockerInfo = (): Promise<DockerStatus> => runCommand('docker info');
+export const runDockerInfo = async (): Promise<DockerStatus<DockerEngineStates>> => {
+  const response = await runCommand('docker info');
+  const { status, stderr } = response;
+
+  if (stderr && stderr.indexOf('error during connect') > -1) {
+    return {
+      ...response,
+      status: 'installed',
+    };
+  }
+
+  if (stderr && stderr.indexOf('Docker Desktop is manually paused') > -1) {
+    return {
+      ...response,
+      status: 'paused',
+    };
+  }
+
+  if (status) {
+    return {
+      ...response,
+      status: 'running',
+    };
+  }
+
+  return {
+    ...response,
+    status: 'not-installed',
+  };
+}
 
 export const runDockerImageInspect = (): Promise<DockerStatus> => runCommand('docker image inspect postgres');
 
@@ -12,7 +56,7 @@ export const runDockerImageInspect = (): Promise<DockerStatus> => runCommand('do
 export const runDockerPullPostgres = (
   event: Electron.IpcMainInvokeEvent
 ): void => {
-  const child = spawn('docker', ['pull', 'postgres']);
+  const child = spawn('docker', ['pull', DOCKER_IMAGE_NAME]);
 
   // Send progress to the renderer
   child.stdout.on('data', (data) => {
@@ -29,6 +73,35 @@ export const runDockerPullPostgres = (
     event.sender.send(DOCKER_PULL_POSTGRES_CHANNEL_DONE, { success: false, error: err.message });
   });
 }
+
+// TODO: Run one command and discern whether the container has been created AND whether it is running.
+// docker inspect --format='{{.State.Running}}' ${DOCKER_CONTAINER_NAME}
+export const runDockerInspect = async (): Promise<DockerContainerStatus> => {
+  const experimental = true;
+  const cmd = experimental
+    ? `docker inspect --format={{.State.Running}} ${DOCKER_CONTAINER_NAME}`
+    : `docker inspect --format='{{.State.Running}}' ${DOCKER_CONTAINER_NAME}`;
+  const {
+    error,
+    status,
+    stderr,
+    stdout,
+  } = await runCommand(cmd);
+  if (status && stdout) {
+    const isRunning = stdout.trim() === 'true' ? 'running' : 'stopped';
+    console.log('Is container running:', isRunning, stdout.trim(), stdout.trim() === 'true');
+    return {
+      status: isRunning,
+      stdout,
+    };
+  }
+  return {
+    status: 'missing',
+    error,
+    stderr,
+    stdout,
+  };
+};
 
 export const runDockerPSPostgres = async (): Promise<DockerStatus> => {
   const {
@@ -57,13 +130,219 @@ export const runDockerPSPostgres = async (): Promise<DockerStatus> => {
 };
 
 export const runDockerRunPostgres = async (): Promise<DockerStatus> => {
-  return runCommand(`docker run --name ${DOCKER_CONTAINER_NAME} -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 -d postgres`);
+  const credentials = await loadDatabaseServerCredentials();
+
+  if (!credentials) return Promise.resolve({ status: false, error: 'No database server credentials found' });
+
+  const { password, port } = credentials;
+
+  return runCommand(`docker run --name ${DOCKER_CONTAINER_NAME} -e POSTGRES_PASSWORD=${password} -p ${port}:${port} -d ${DOCKER_IMAGE_NAME}`);
+};
+export const runDockerStartPostgres = async (): Promise<DockerStatus> => {
+  return runCommand(`docker start ${DOCKER_CONTAINER_NAME}`);
 };
 
+type PhaseStatusMapping = {
+  container: {
+    pending: DockerChecklistContainerStatus[];
+    yes: DockerChecklistContainerStatus;
+  };
+  engine: {
+    pending: DockerChecklistEngineStatus[];
+    yes: DockerChecklistEngineStatus;
+  };
+  image: {
+    pending: DockerChecklistImageStatus[];
+    yes: DockerChecklistImageStatus;
+  };
+};
+type DockerChecklistPhase = keyof PhaseStatusMapping;
+
+const phaseStatusMapping: PhaseStatusMapping = {
+  engine: {
+    pending: ['checking', 'unknown'],
+    yes: 'running',
+  },
+  image: {
+    pending: ['checking', 'pulling', 'unknown'],
+    yes: 'exists',
+  },
+  container: {
+    pending: ['checking', 'unknown'],
+    yes: 'running',
+  },
+};
+
+const upsertChecklist = (
+  statuses: DockerChecklistStatusViewItem[],
+  item: DockerChecklistStatusViewItem,
+): DockerChecklistStatusViewItem[] => {
+  const existingItem = statuses.find((i) => i.name === item.name);
+  if (existingItem) {
+    return statuses.map((i) =>
+      i.name === item.name ? { ...i, ...item } : i
+    );
+  }
+  return [...statuses, item];
+};
+
+const updateChecklist = (
+  statuses: DockerChecklistStatusViewItem[],
+  phase: DockerChecklistPhase,
+  phaseStatus: DockerChecklistSubscriptionParams['status'],
+  description: string,
+): DockerChecklistStatusViewItem[] => {
+  const isContainerPhase = phase === 'container';
+  const name: DockerChecklistName = isContainerPhase ? 'container-exists' : phase;
+  const { pending, yes } = phaseStatusMapping[phase];
+  const isPending = (pending as string[]).includes(phaseStatus);
+  const isPositive = yes === phaseStatus;
+  const status: UncertainBoolean = isPending
+    ? 'unknown'
+    : isPositive
+      ? 'yes'
+      : 'no';
+
+  // TODO: Engine should be checked for installation, whether it's stopped
+  // altogether (if not, the application is running, so... good), paused
+  // (so resume) or running.
+  // All of those need special function calls.
+  if (isContainerPhase) {
+    if (phaseStatus === 'missing') {
+      return upsertChecklist(statuses, { description, name, status: 'no' });
+    }
+
+    return upsertChecklist(
+      upsertChecklist(statuses, { name, status: 'yes' }),
+      { description, name: 'container-running', status }
+    );
+  }
+
+  return upsertChecklist(statuses, { description, name, status });
+}
+
+const isCompleted = (
+  statuses: DockerChecklistStatusViewItem[]
+) => statuses.filter(({ status }) => status === 'yes').length === 4;
+
+const triggerSubscription = (
+  params: DockerChecklistPhaseStates & CommandResponse,
+  subscription: (update: DockerChecklistSubscriptionParams) => void,
+  checklist: DockerChecklistStatusViewItem[],
+  description?: string,
+): DockerChecklistStatusViewItem[] => {
+  const { phase, status } = params;
+  // const checklist = getVisibleChecklist(phase, status, description);
+  const updatedChecklist = updateChecklist(checklist, phase, status, description || '');
+  // TODO: Derive whether completion has occurred via updatedChecklist.
+  subscription({ ...params, checklist: updatedChecklist, isCompleted: isCompleted(updatedChecklist) });
+  return updatedChecklist;
+};
+
+export const subscribeToDockerChecklist = async (
+  subscription: (update: DockerChecklistSubscriptionParams) => void,
+  phase: DockerChecklistPhase = 'engine',
+  checklist: DockerChecklistStatusViewItem[] = [],
+) => {
+  // const x = (c: DockerChecklistStatusViewItem[]) => checklist = updateChecklist(c, )
+  console.log('Starting checklist from phase:', phase);
+  const checks: (() => Promise<boolean>)[] = [];
+  switch (phase) {
+    // Engine
+    case 'engine':
+      checks.push(async () => {
+        checklist = triggerSubscription({ phase, status: 'checking' }, subscription, checklist);
+        const { status, ...info } = await runDockerInfo();
+
+        if (status === 'running') {
+          checklist = triggerSubscription(
+            {
+              ...info,
+              phase,
+              status: 'running'
+            },
+            subscription,
+            checklist,
+            info.stdout
+          );
+          return true;
+        }
+
+        if (status === 'paused') {
+          checklist = triggerSubscription({ ...info, phase, status: 'paused' }, subscription, checklist, info.stderr);
+          return false;
+        }
+
+        if (status === 'not-installed') {
+          checklist = triggerSubscription({ ...info, phase, status: 'not-installed' }, subscription, checklist, info.stderr);
+          return false;
+        }
+
+        // TODO: Differentiate between not installed and not running.
+        checklist = triggerSubscription({ ...info, phase, status: 'installed' }, subscription, checklist, info.stderr);
+        return false;
+      });
+
+    // Image
+    case 'image':
+      checks.push(async () => {
+        const phase: DockerChecklistPhase = 'image';
+        checklist = triggerSubscription({ phase, status: 'checking' }, subscription, checklist);
+        const { status, ...image } = await runDockerImageInspect();
+        if (!status) {
+          const child = spawn('docker', ['pull', DOCKER_IMAGE_NAME]);
+
+          checklist = triggerSubscription({ ...image, phase, status: 'pulling' }, subscription, checklist, image.stderr || image.stdout);
+
+          // Send progress to the renderer
+          child.stdout.on('data', (data) => {
+            checklist = triggerSubscription({ ...image, phase, status: 'pulling', stdout: data.toString() }, subscription, checklist, data.toString());
+          });
+    
+          // Send a completion message
+          child.on('close', (code) => {
+            checklist = triggerSubscription({ ...image, phase, status: code === 0 ? 'exists' : 'error' }, subscription, checklist);
+            subscribeToDockerChecklist(subscription, 'container', checklist);
+          });
+    
+          // Handle any errors
+          child.on('error', (err) => {
+            checklist = triggerSubscription({ ...image, phase, status: 'error', error: err.message }, subscription, checklist, err.message);
+          });
+    
+          return false;
+        }
+
+        checklist = triggerSubscription({ ...image, phase, status: 'exists' }, subscription, checklist);
+        return true;
+      });
+
+    // Container
+    case 'container':
+      checks.push(async () => {
+        const phase = 'container';
+        checklist = triggerSubscription({ phase, status: 'checking' }, subscription, checklist);
+        const container = await runDockerInspect();
+        checklist = triggerSubscription({ ...container, phase }, subscription, checklist, container.stderr || container.stdout);
+        if (container.status !== 'running') {
+          checklist = triggerSubscription({ ...container, phase, status: 'checking' }, subscription, checklist, container.stderr || container.stdout);
+          await (container.status === 'missing' ? runDockerRunPostgres : runDockerStartPostgres)();
+          setTimeout(() => {
+            subscribeToDockerChecklist(subscription, 'container', checklist);
+          }, 500);
+        }
+        return false;
+      });
+  }
+
+  for (const fnc of checks) {
+    const result = await fnc();
+    if (!result) break;
+  }
+}
+
 export const getCommands = (): DockerCommands => ({
-  runDockerInfo,
-  runDockerImageInspect,
-  runDockerPSPostgres,
-  runDockerPullPostgres,
-  runDockerRunPostgres,
+  loadDatabaseServerCredentials,
+  saveDatabaseServerCredentials,
+  subscribeToDockerChecklist,
 });

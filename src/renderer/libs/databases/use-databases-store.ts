@@ -13,7 +13,7 @@ interface StoreActions {
 }
 type Store = StoreState & StoreActions;
 
-export const useDatabases = create<Store>((set) => ({
+export const useDatabasesStore = create<Store>((set) => ({
   databases: [],
   error: undefined,
   loading: undefined,

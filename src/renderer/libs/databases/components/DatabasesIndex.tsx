@@ -16,8 +16,6 @@ const SwitchComponent = ({ show }: { show: string }) => {
   }
 }
 
-// TODO: We can kick off the checks for docker anyway, but we will need to visualise them differently.
-// We don't have any server credentials stored. This will trigger the server connection form to appear.
 export const DatabasesIndex = () => {
   const {
     isCompleted,

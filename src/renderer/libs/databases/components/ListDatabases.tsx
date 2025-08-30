@@ -1,23 +1,31 @@
-import { useEffect } from 'react';
-import { useIpc } from '../../../shared/ipc/hook';
+import { useEffect, useState } from 'react';
 import { Table } from "../../../shared/table/Table";
 import { useDatabasesStore } from '../use-databases-store';
+import { Button } from '@mui/material';
+import { CreateDatabaseModal } from './CreateDatabase';
 
 export const DatabasesListDatabases = () => {
-  const { selectDatabases } = useIpc();
-  const { databases, error, fetch, loading } = useDatabasesStore();
+  const { create, databases, error, fetch, loading } = useDatabasesStore();
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const handleHideCreateModal = () => setShowCreateModal(false);
+  const handleShowCreateModal = () => setShowCreateModal(true);
 
   useEffect(() => {
-    if (fetch && selectDatabases) {
-      fetch(selectDatabases);
+    if (fetch) {
+      fetch();
     }
-  }, [fetch, selectDatabases]);
+  }, [fetch]);
 
   return (
     <div>
       <h1>Databases</h1>
-      <div>Error: {error}</div>
-      <div>Loading: {loading}</div>
+      <Button onClick={handleShowCreateModal}>Create New Database</Button>
+      <CreateDatabaseModal
+        open={showCreateModal}
+        onClose={handleHideCreateModal}
+        onConfirm={create}
+      />
       <Table rows={databases} />
     </div>
   );

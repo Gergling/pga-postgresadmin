@@ -1,6 +1,6 @@
 import { IpcHandlerDatabase } from '../main/database/types';
 import { IpcHandlerConfig, IpcInvocationConfigBase } from '../libs/ipc';
-import { DatabaseItem, DatabaseResponseSelect } from '../renderer/shared/database/types';
+import { DatabaseItem, DatabaseResponseSelect } from '../shared/database/types';
 import { DockerCommands } from '../main/docker/types';
 import {
   DatabaseServerCredentials,

@@ -1,40 +1,48 @@
-// src/store.ts
 import { create } from 'zustand';
-import { DatabaseItem, DatabaseResponseSelect } from '../../shared/database/types';
+import { DatabaseItem } from '../../../shared/database/types';
+import { getIpc } from '../../shared/ipc/util';
 
 interface StoreState {
   databases: DatabaseItem[];
   error: string | undefined;
-  loading: string | undefined;
+  loading: boolean;
 }
 interface StoreActions {
-  // create: () => void;
-  fetch: (selectDatabases: () => Promise<DatabaseResponseSelect<DatabaseItem>>) => void;
+  create: (name: string) => Promise<void>;
+  fetch: () => void;
 }
 type Store = StoreState & StoreActions;
 
-export const useDatabasesStore = create<Store>((set) => ({
+export const useDatabasesStore = create<Store>((set, get) => ({
   databases: [],
   error: undefined,
-  loading: undefined,
-  fetch: (selectDatabases) => {
-    set({ loading: 'Fetching databases' });
+  loading: false,
+  create: async (name) => {
+    const { createDatabase } = getIpc();
+    const { fetch } = get();
+    set({ loading: true });
+    const { error, success } = await createDatabase(name);
+    set({ error, loading: false });
+    if (success) {
+      fetch();
+    }
+  },
+  fetch: async () => {
+    const { selectDatabases } = getIpc();
+    set({ loading: true });
 
-    selectDatabases()
-      .then((response) => {
-        if (response.success === false) {
-          console.error('Failed to fetch databases:', response.error);
-          return set({ error: response.error });
-        }
+    try {
+      const response = await selectDatabases();
 
-        set({ databases: response.data, error: undefined });
-      })
-      .catch((error) => {
-        console.error('Error fetching databases:', error);
-        set({ error });
-      })
-      .finally(() => {
-        set({ loading: undefined });
-      });
+      if (response.success) {
+        set({ databases: response.data });
+      } else {
+        set({ error: response.error });
+      }
+    } catch (error) {
+      set({ error: error.toString() });
+    } finally {
+      set({ loading: false });
+    }
   },
 }));

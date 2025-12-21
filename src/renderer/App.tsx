@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 // import { useIpc } from './shared/ipc/hook';
 import { AppContextProvider } from './app/AppContextProvider';
 import { DatabasesView } from './views';
+import { AppRouter } from './app/AppRouter';
 
 // const IpcTest: React.FC = () => {
 //   const { testIPC } = useIpc(); // Ensure the IPC context is initialized
@@ -39,7 +40,7 @@ import { DatabasesView } from './views';
 const App = () => (
   <AppContextProvider>
     {/* <StartupView /> */}
-    <DatabasesView />
+    <AppRouter />
   </AppContextProvider>
 );
 

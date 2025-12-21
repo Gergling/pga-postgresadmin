@@ -239,6 +239,51 @@ const triggerSubscription = (
   return updatedChecklist;
 };
 
+type DockerChecklistStep = {
+  phase: DockerChecklistSubscriptionParams['phase'];
+  status: DockerChecklistSubscriptionParams['status'];
+  step: string;
+  fnc: (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    params: any
+  ) => Promise<Partial<{
+    description: string;
+    status: DockerChecklistSubscriptionParams['status'];
+    nextStep: string;
+  }>>;
+};
+
+const steps: DockerChecklistStep[] = [
+  {
+    phase: 'engine',
+    status: 'checking',
+    step: 'check-engine',
+    fnc: async () => {
+      const { status, ...info } = await runDockerInfo();
+      return {
+        status,
+        // nextStep depends on status ofc
+        // CommandResponse or whatever it is should be put in here somewhere
+        // Optional description is already specified
+      };
+    },
+  },
+]
+
+// console.log(steps)
+
+// const reduceSteps = async () => {
+//   let initialValue = {
+
+//   };
+//   // const configs = steps.
+//   for (const { phase, status, step, fnc } of steps) {
+//     const state = {}; // TODO: Actually make sure there is a state. Can "let" if necessary. We are containing the mess. COuld abstract an async reducer.
+//     const latest = await fnc('dong');
+//     // newState = { ...state, ...steteUpdates }
+//   }
+// };
+
 export const subscribeToDockerChecklist = async (
   subscription: (update: DockerChecklistSubscriptionParams) => void,
   phase: DockerChecklistPhase = 'engine',

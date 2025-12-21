@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Table } from "../../../shared/table/Table";
+import { KeyboardArrowRight } from '@mui/icons-material';
+import { Button, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import { useDatabasesStore } from '../use-databases-store';
-import { Button } from '@mui/material';
 import { CreateDatabaseModal } from './CreateDatabase';
 
 export const DatabasesListDatabases = () => {
@@ -16,6 +16,7 @@ export const DatabasesListDatabases = () => {
       fetch();
     }
   }, [fetch]);
+  // TODO: Hook the routing for the databases section.
 
   return (
     <div>
@@ -26,7 +27,18 @@ export const DatabasesListDatabases = () => {
         onClose={handleHideCreateModal}
         onConfirm={create}
       />
-      <Table rows={databases} />
+      <List dense={true}>
+        {databases.map(({ datname }) => 
+          <ListItem key={datname}>
+            <ListItemButton href={`/databases/${datname}`}>
+              <ListItemText primary={datname}/>
+              <ListItemIcon>
+                <KeyboardArrowRight />
+              </ListItemIcon>
+            </ListItemButton>
+          </ListItem>
+        )}
+      </List>
     </div>
   );
 };

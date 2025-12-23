@@ -290,7 +290,7 @@ export const subscribeToDockerChecklist = async (
   checklist: DockerChecklistStatusViewItem[] = [],
 ) => {
   // const x = (c: DockerChecklistStatusViewItem[]) => checklist = updateChecklist(c, )
-  console.log('Starting checklist from phase:', phase);
+  // console.log('Starting checklist from phase:', phase);
   const checks: (() => Promise<boolean>)[] = [];
   switch (phase) {
     // Engine

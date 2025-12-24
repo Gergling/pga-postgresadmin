@@ -16,3 +16,11 @@ export type GeneralResponse = {
   success: boolean;
   error?: string;
 };
+
+export interface UserTask {
+  id?: string;
+  text: string;
+  energy: number;   // -5 (drains) to +5 (recharges)
+  friction: number;       // 1 (easy) to 10 (hard/phone calls)
+  timestamp: number;
+}

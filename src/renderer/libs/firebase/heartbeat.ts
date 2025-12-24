@@ -1,0 +1,25 @@
+// TODO: Probably don't need this anymore. If we want health logging, we can probably do better.
+import { db } from './firebase-config';
+import { collection, addDoc, getDocs } from "firebase/firestore"; 
+
+export async function runHeartbeatTest() {
+  try {
+    console.log("Checking Firebase connection...");
+    
+    // Attempt to write a temporary test document
+    const docRef = await addDoc(collection(db, "heartbeat"), {
+      timestamp: Date.now(),
+      message: "Testing from Electron App",
+      device: "Laptop"
+    });
+    
+    console.log("Test Write Success! ID:", docRef.id);
+
+    // Attempt to read it back
+    const querySnapshot = await getDocs(collection(db, "heartbeat"));
+    console.log(`Test Read Success! Found ${querySnapshot.size} heartbeat logs.`);
+    
+  } catch (e) {
+    console.error("Firebase Test Failed. Error Details:", e);
+  }
+}

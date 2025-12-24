@@ -7,6 +7,7 @@ import {
   DockerPullPostgresChannel
 } from '../shared/docker-postgres/types';
 import { GeneralResponse } from '../shared/types';
+import { EmailHandlers, EmailSync } from '../main/email/types';
 
 // Minimalist configuration type for the renderer side.
 // IpcInvocationConfigBase really just makes these functions return promises.
@@ -18,11 +19,14 @@ export type IpcInvocationConfig = IpcInvocationConfigBase<{
 
   loadDatabaseServerCredentials: () => DatabaseServerCredentials | undefined;
   saveDatabaseServerCredentials: (credentials: DatabaseServerCredentials) => GeneralResponse;
+
+  syncEmails: () => EmailSync;
 }>;
 
 export type IpcAdditionalParameters = {
   database: IpcHandlerDatabase;
   docker: DockerCommands;
+  email: EmailHandlers;
 };
 
 // The handler configuration will run functions from the backend.
@@ -51,6 +55,8 @@ export const ipcHandlerConfig: IpcHandlerConfig<
     args: [credentials],
     docker: { saveDatabaseServerCredentials },
   }) => saveDatabaseServerCredentials(credentials),
+
+  syncEmails: ({ email: { syncEmails } }) => syncEmails(),
 };
 
 export const EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED = 'window-focused';

@@ -1,20 +1,4 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-    "module": "commonjs",
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "jsx": "react-jsx",
-    "lib": ["es6", "dom"],
-    "noImplicitAny": true,
-    "sourceMap": true,
-    "baseUrl": ".",
-    "outDir": "dist",
-    "moduleResolution": "node",
-    "noImplicitThis": true,
-    "resolveJsonModule": true,
-    "strictNullChecks": true,
-  }
+  "extends": "./tsconfig.base.json",
+  "exclude": ["src/renderer"]
 }

@@ -1,89 +1,89 @@
-import { Temporal } from '@js-temporal/polyfill';
-import * as dotenv from 'dotenv';
-import { FetchMessageObject, ImapFlow } from 'imapflow';
-import { EmailSync } from './types';
+import { firestore } from 'firebase-admin';
+import { ImapFlow } from 'imapflow';
+import { simpleParser } from 'mailparser';
 import { EmailFragment } from '../../shared/email/types';
+import { getPlainDateTimeFromDate } from '../../shared/utilities/temporal';
+import { addFirebaseDoc, FirebaseCollectionName, FirebaseEmailFragment } from '../libs/firebase';
+import { instantiateClient } from './client';
+import { fetchEmail, fetchRecentEmailIds } from './fetch';
+import { EmailSync } from './types';
 
-dotenv.config();
-
-const instantiateClient = () => new ImapFlow({
-  host: process.env.IMAP_HOST,
-  port: parseInt(process.env.IMAP_PORT || '993'),
-  secure: true,
-  auth: {
-    user: process.env.IMAP_USER,
-    pass: process.env.IMAP_PASS,
-  },
-  logger: false
-});
-
-const getDate1MonthAgo = () => {
-  const now = Temporal.Now.plainDateTimeISO();
-  console.log('now', now.toString())
-  const oneMonthAgo = now.subtract({ months: 1 });
-  console.log('previous', oneMonthAgo.toString())
-
-  return oneMonthAgo.toString();
-}
-
-const fetchRecentEmailIds = async (client: ImapFlow) => {
-  const since = getDate1MonthAgo();
-  console.log('since', since)
-  const list = await client.search({ since });
-  console.log('list', list)
-  if (!list || !list.length) return;
-
-  const recentIds = list.slice(-10).reverse();
-  return recentIds;
+type GmailFragmentError = {
+  type: 'fetch' | 'source' | 'body' | 'date-missing' | 'date-formatting';
+  id: string;
 };
 
-const fetchEmail = async (
-  client: ImapFlow,
-  id: string
-) => client.fetchOne(id.toString(), {
-  envelope: true, 
-  source: true,
-  bodyStructure: true 
-});
+type GmailFragmentResponse =
+  | (GmailFragmentError & { success: false; })
+  | (EmailFragment & { success: true; })
+;
 
-const getPlainDateTime = (date: Date | undefined) => {
-  if (!date) return undefined;
-  try {
-    const instant = Temporal.Instant.from(date.toISOString());
-    return instant.toZonedDateTimeISO(Temporal.Now.timeZoneId()).toPlainDateTime();
-  } catch (e) {
-    console.error(e);
-    return undefined;
-  }
-};
+const COLLECTION_NAME: FirebaseCollectionName = 'inbox_fragments';
 
-const getFragment = (message: FetchMessageObject): EmailFragment | undefined => {
+const createFragmentFactory = (
+  client: ImapFlow
+) => async (
+  gmailId: number
+): Promise<GmailFragmentResponse> => {
+  const success = false;
+  const id = gmailId.toString();
+  const message = await fetchEmail(client, id);
+  if (!message) return { id, success, type: 'fetch' };
+
   const { envelope, source } = message;
-  const date = getPlainDateTime(envelope?.date);
-  if (!date) return;
+  if (!source) return { id, success, type: 'source' };
 
-  const body = source?.toString() || '';
+  const parsed = await simpleParser(source);
+  const body = parsed.text;
+  if (!body) return { id, success, type: 'body' };
+
+  if (!envelope?.date) return { id, success, type: 'date-missing' };
+
   const subject = envelope?.subject || '';
   const from = envelope?.from?.[0].address || '';
+  const fragment: FirebaseEmailFragment = {
+    receivedAt: {
+      ms: envelope.date.getMilliseconds(),
+      db: firestore.Timestamp.fromDate(envelope.date)
+    },
+    body, from, subject,
+    id: id.toString(),
+    status: 'new',
+    source: 'gmail_important',
+  };
 
-  return { body, date, from, subject };
+  console.log('before', fragment)
+
+  await addFirebaseDoc(COLLECTION_NAME, fragment);
+  console.log('after')
+
+  const receivedAt = getPlainDateTimeFromDate(envelope.date);
+  if (!receivedAt) return { id, success, type: 'date-formatting' };
+
+  // TODO: If we're sending to the UI, we need to send dates which can be serialised.
+  const generalFragment: EmailFragment = {
+    ...fragment,
+    receivedAt,
+  };
+  return { ...generalFragment, success: true };
 };
 
 const fetchRecentEmailFragments = async (client: ImapFlow) => {
-  const fragments: EmailFragment[] = [];
   const recentIds = await fetchRecentEmailIds(client);
-  if (!recentIds) return fragments;
+  if (!recentIds) return { rejected: [], resolved: [] };
 
-  return Promise.all(recentIds.map(async (id) => {
-    const message = await fetchEmail(client, id.toString());
-    if (message) {
-      const fragment = getFragment(message);
-      if (!fragment) throw new Error(`fetchEmail failed for id ${id}`);
-      return fragment;
-    }
+  const createFragment = createFragmentFactory(client);
 
-    throw new Error(`fetchEmail failed for id ${id}`);
-  }));
+  const report = await Promise.all(recentIds.map(createFragment));
+  
+  return report.reduce<{
+    rejected: GmailFragmentError[];
+    resolved: EmailFragment[];
+  }>(({ rejected, resolved }, fragment) => {
+    if (fragment.success) return { rejected, resolved: [...resolved, fragment] };
+
+    return { rejected: [...rejected, fragment], resolved };
+  }, { resolved: [], rejected: [] })
 };
 
 export const syncEmails = async (): Promise<EmailSync> => {
@@ -91,11 +91,17 @@ export const syncEmails = async (): Promise<EmailSync> => {
 
   try {
     await client.connect();
+
     const lock = await client.getMailboxLock('INBOX');
-    
-    const data = await fetchRecentEmailFragments(client);
+
+    const {
+      rejected,
+      resolved: data
+    } = await fetchRecentEmailFragments(client);
+    if (rejected.length) console.error('rejected', rejected);
     
     lock.release();
+
     await client.logout();
     return { success: true, data };
   } catch (err) {

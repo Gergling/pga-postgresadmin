@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { db } from './firebase-config';
 import { addDoc, doc, onSnapshot, collection, getDocs, limit, query } from "firebase/firestore";
 import { runHeartbeatTest } from './heartbeat';
 import { UserTask } from '../../../shared/types';
+import { firebasedDb } from './config';
 
 export const commitToDiary = async (rawText: string) => {
   // Eventually, the Council (AI) will determine these numbers.
@@ -14,14 +14,14 @@ export const commitToDiary = async (rawText: string) => {
     timestamp: Date.now()
   };
 
-  const docRef = await addDoc(collection(db, "diary"), newTask);
+  const docRef = await addDoc(collection(firebasedDb, "diary"), newTask);
   return docRef.id;
 };
 
 const wakeUpDB = async () => {
   try {
     // Just try to fetch a single document from any collection (even if it's empty)
-    const q = query(collection(db, "test_logs"), limit(1));
+    const q = query(collection(firebasedDb, "test_logs"), limit(1));
     await getDocs(q);
     console.log("🚀 Firestore 'Wake Up' call successful.");
   } catch (e) {
@@ -42,7 +42,7 @@ export const useFirebaseStatus = () => {
     // 2. Monitor Firestore Connection
     // Firebase provides a special metadata document for this
     const [path, pathSegments] = ["diary_entries", "connection_status"];
-    const unsub = onSnapshot(doc(db, path, pathSegments), (doc) => {
+    const unsub = onSnapshot(doc(firebasedDb, path, pathSegments), (doc) => {
       console.log("For path", path, pathSegments);
       console.log("Document exists?", doc.exists());
       console.log("Metadata (fromCache):", doc.metadata.fromCache);

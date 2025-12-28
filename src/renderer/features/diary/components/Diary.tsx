@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { db } from '../../../libs/firebase/firebase-config'; // Adjust path to your config
-import { DiaryEntryDb } from '../../../../shared/features/diary/types';
+import { Temporal } from '@js-temporal/polyfill';
 import { 
   collection, 
   addDoc, 
@@ -10,9 +9,10 @@ import {
   limit, 
   onSnapshot 
 } from 'firebase/firestore';
-import { DiaryEntryUi } from '../types';
+import { DiaryEntryDb } from '../../../../shared/features/diary/types';
+import { firebasedDb } from '../../../libs/firebase/config';
 import { mapDiaryEntryDbToUi, mapDiaryEntryUiToDb } from '../utilities';
-import { Temporal } from '@js-temporal/polyfill';
+import { DiaryEntryUi } from '../types';
 
 // Styled Components
 const Container = styled.div`
@@ -55,7 +55,7 @@ export const DiaryInterface = () => {
   // 1. Listen for entries (Real-time)
   useEffect(() => {
     const q = query(
-      collection(db, "diary_entries"), 
+      collection(firebasedDb, "diary_entries"), 
       orderBy("created", "desc"),
       limit(20)
     );
@@ -76,7 +76,7 @@ export const DiaryInterface = () => {
   const handleSubmit = async (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && e.ctrlKey && input.trim()) {
       try {
-        await addDoc(collection(db, "diary_entries"), mapDiaryEntryUiToDb({
+        await addDoc(collection(firebasedDb, "diary_entries"), mapDiaryEntryUiToDb({
           text: input,
           created: Temporal.Now.instant(),
           status: 'draft',

@@ -16,13 +16,13 @@ const SyncButton = styled.button`
 
 export const EmailSyncPanel = () => {
   const [isSyncing, setIsSyncing] = useState(false);
-  const { syncEmails } = useIpc();
+  const { triageEmailTasks } = useIpc();
 
   const handleSync = async () => {
     setIsSyncing(true);
     // This calls the IPC bridge we will define in preload.ts
     console.log('about to sync')
-    const result = await syncEmails();
+    const result = await triageEmailTasks();
     setIsSyncing(false);
     console.log('synced?', result);
   };

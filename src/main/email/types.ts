@@ -1,11 +1,14 @@
 import { EmailFragment } from "../../shared/email/types";
 
 export type EmailSync = {
-  message: string;
-  success: false;
+  data: string;
+  status: 'email';
+} | {
+  data: string;
+  status: 'triage';
 } | {
   data: EmailFragment[];
-  success: true;
+  status: 'success';
 };
 
 export type EmailHandlers = {

@@ -1,6 +1,5 @@
-import { syncEmails } from "./sync";
-import { EmailHandlers } from "./types";
-
-export const emailHandlers: EmailHandlers = {
-  syncEmails,
-};
+export * from './app-start';
+export * from './client';
+export * from './fetch';
+export * from './sync';
+export * from './types';

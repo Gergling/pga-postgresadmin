@@ -50,7 +50,7 @@ const createWindow = (): void => {
 log('Setting up database.')
 getDatabase().then((database) => {
   log('Setting up IPC handlers...');
-  setupHandlers({ database, docker: getCommands(), email: emailHandlers })
+  setupHandlers({ database, docker: getCommands(), triage: emailHandlers })
   setupDockerChecklistHandler(ipcMain);
 });
 

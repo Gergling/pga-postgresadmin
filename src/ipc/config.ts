@@ -1,13 +1,13 @@
-import { IpcHandlerDatabase } from '../main/database/types';
 import { IpcHandlerConfig, IpcInvocationConfigBase } from '../libs/ipc';
-import { DatabaseItem, DatabaseResponseSelect } from '../shared/database/types';
+import { TriageEmailTasksResponse } from '../main/common/types';
+import { IpcHandlerDatabase } from '../main/database/types';
 import { DockerCommands } from '../main/docker/types';
+import { DatabaseItem, DatabaseResponseSelect } from '../shared/database/types';
 import {
   DatabaseServerCredentials,
   DockerPullPostgresChannel
 } from '../shared/docker-postgres/types';
 import { GeneralResponse } from '../shared/types';
-import { EmailHandlers, EmailSync } from '../main/email/types';
 
 // Minimalist configuration type for the renderer side.
 // IpcInvocationConfigBase really just makes these functions return promises.
@@ -20,13 +20,15 @@ export type IpcInvocationConfig = IpcInvocationConfigBase<{
   loadDatabaseServerCredentials: () => DatabaseServerCredentials | undefined;
   saveDatabaseServerCredentials: (credentials: DatabaseServerCredentials) => GeneralResponse;
 
-  syncEmails: () => EmailSync;
+  triageEmailTasks: () => TriageEmailTasksResponse;
 }>;
 
 export type IpcAdditionalParameters = {
   database: IpcHandlerDatabase;
   docker: DockerCommands;
-  email: EmailHandlers;
+  triage: {
+    triageEmailTasks: () => Promise<TriageEmailTasksResponse>;
+  };
 };
 
 // The handler configuration will run functions from the backend.
@@ -56,7 +58,7 @@ export const ipcHandlerConfig: IpcHandlerConfig<
     docker: { saveDatabaseServerCredentials },
   }) => saveDatabaseServerCredentials(credentials),
 
-  syncEmails: ({ email: { syncEmails } }) => syncEmails(),
+  triageEmailTasks: ({ triage: { triageEmailTasks } }) => triageEmailTasks(),
 };
 
 export const EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED = 'window-focused';

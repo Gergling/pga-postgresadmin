@@ -52,10 +52,7 @@ const createFragmentFactory = (
     source: 'gmail_important',
   };
 
-  console.log('before', fragment)
-
-  await addFirebaseDoc(COLLECTION_NAME, fragment);
-  console.log('after')
+  const docRef = await addFirebaseDoc(COLLECTION_NAME, fragment);
 
   const receivedAt = getPlainDateTimeFromDate(envelope.date);
   if (!receivedAt) return { id, success, type: 'date-formatting' };
@@ -63,6 +60,10 @@ const createFragmentFactory = (
   // TODO: If we're sending to the UI, we need to send dates which can be serialised.
   const generalFragment: EmailFragment = {
     ...fragment,
+    db: {
+      id: docRef.id,
+      source: 'firebase',
+    },
     receivedAt,
   };
   return { ...generalFragment, success: true };
@@ -103,9 +104,9 @@ export const syncEmails = async (): Promise<EmailSync> => {
     lock.release();
 
     await client.logout();
-    return { success: true, data };
+    return { status: 'success', data };
   } catch (err) {
     console.error(err);
-    return { success: false, message: (err as Error).message };
+    return { status: 'email', data: (err as Error).message };
   }
 };

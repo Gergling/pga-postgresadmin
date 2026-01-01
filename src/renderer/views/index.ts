@@ -1,1 +1,2 @@
-export * from './DatabasesView';
+export * from './Databases';
+export * from './Home';

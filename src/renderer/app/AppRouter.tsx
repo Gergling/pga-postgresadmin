@@ -1,31 +1,16 @@
-import { BrowserRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
-import { DatabasesView } from "../views";
-import { HomeView } from "../views/Home";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Box, Tab, Tabs } from "@mui/material";
 import { Home } from "@mui/icons-material";
-import { PropsWithChildren, useEffect, useState } from "react";
-
-const Debug = ({ children }: PropsWithChildren) => {
-  console.log(children);
-  return (
-    <div style={{ backgroundColor: '#eee', paddingLeft: '5px', }}>
-      {children}
-    </div>
-  );
-}
+import { DatabasesView, HomeView } from "../views";
+import { useApp } from "./hooks";
+import { Debug } from "./Debug";
 
 const AppRoutes = () => {
-  const { pathname } = useLocation();
-  const [selectedRoute, setSelectedRoute] = useState('/');
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    navigate(selectedRoute);
-  }, [navigate, selectedRoute]);
+  const { pathname, setSelectedRoute } = useApp();
 
   return (
     <div>
-      <Debug>{pathname}</Debug>
+      <Debug>Current path: {pathname}</Debug>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={pathname} onChange={(_, value) => setSelectedRoute(value)}>
           <Tab icon={<Home />} value={'/'} />

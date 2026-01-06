@@ -6,6 +6,10 @@ export type EmailFragment = {
   from: string;
   id: string;
   source: 'gmail_important';
-  status: 'new';
+  status: 'new' | 'processed';
   subject: string;
+  db: {
+    id: string;
+    source: 'firebase';
+  };
 };

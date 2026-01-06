@@ -8,10 +8,11 @@ export const commitToDiary = async (rawText: string) => {
   // Eventually, the Council (AI) will determine these numbers.
   // For now, let's hardcode a 'default' score to test the flow.
   const newTask: UserTask = {
-    text: rawText,
-    energy: rawText.includes("coding") ? 2 : -2,
-    friction: 3,
-    timestamp: Date.now()
+    summary: rawText,
+    description: rawText,
+    // energy: rawText.includes("coding") ? 2 : -2,
+    // friction: 3,
+    // timestamp: Date.now()
   };
 
   const docRef = await addDoc(collection(firebasedDb, "diary"), newTask);

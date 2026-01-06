@@ -2,6 +2,7 @@ import { IpcHandlerConfig, IpcInvocationConfigBase } from '../libs/ipc';
 import { TriageEmailTasksResponse } from '../main/common/types';
 import { IpcHandlerDatabase } from '../main/database/types';
 import { DockerCommands } from '../main/docker/types';
+import { TasksIpc, UserTask } from '../shared/features/user-tasks/types';
 import { DatabaseItem, DatabaseResponseSelect } from '../shared/database/types';
 import {
   DatabaseServerCredentials,
@@ -21,11 +22,14 @@ export type IpcInvocationConfig = IpcInvocationConfigBase<{
   saveDatabaseServerCredentials: (credentials: DatabaseServerCredentials) => GeneralResponse;
 
   triageEmailTasks: () => TriageEmailTasksResponse;
+
+  readIncompleteTasks: () => UserTask[];
 }>;
 
 export type IpcAdditionalParameters = {
   database: IpcHandlerDatabase;
   docker: DockerCommands;
+  tasks: TasksIpc;
   triage: {
     triageEmailTasks: () => Promise<TriageEmailTasksResponse>;
   };
@@ -59,6 +63,7 @@ export const ipcHandlerConfig: IpcHandlerConfig<
   }) => saveDatabaseServerCredentials(credentials),
 
   triageEmailTasks: ({ triage: { triageEmailTasks } }) => triageEmailTasks(),
+  readIncompleteTasks: ({ tasks: { read: { incomplete } } }) => incomplete(),
 };
 
 export const EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED = 'window-focused';

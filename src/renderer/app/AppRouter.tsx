@@ -1,27 +1,32 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import { Box, Tab, Tabs } from "@mui/material";
-import { Home } from "@mui/icons-material";
-import { DatabasesView, HomeView } from "../views";
+import { QuestionMark } from "@mui/icons-material";
 import { useApp } from "./hooks";
 import { Debug } from "./Debug";
 
 const AppRoutes = () => {
-  const { pathname, setSelectedRoute } = useApp();
+  const {
+    children,
+    pathname,
+    rootPathname,
+    setSelectedRoute,
+    tabs,
+  } = useApp();
 
   return (
     <div>
       <Debug>Current path: {pathname}</Debug>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={pathname} onChange={(_, value) => setSelectedRoute(value)}>
-          <Tab icon={<Home />} value={'/'} />
+        <Tabs value={rootPathname} onChange={(_, value) => setSelectedRoute(value)}>
+          {tabs.map(({ value, icon }) => <Tab
+            key={value}
+            icon={icon ? icon : <QuestionMark />}
+            value={value}
+          />)}
         </Tabs>
       </Box>
 
-      <Routes>
-        <Route path="/" element={<HomeView />} />
-        <Route path="/databases/*" element={<DatabasesView />} />
-        <Route path="/*" element={<HomeView />} />
-      </Routes>
+      {children}
     </div>
   );
 };

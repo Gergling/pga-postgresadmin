@@ -4,6 +4,9 @@ import { FragmentAnalysisResponse } from './types/prompt';
 import { buildTriagePrompt } from "./prompt";
 import { analyseLanguage } from "../../features/ai/analyse-language";
 import { inboxFragmentCollection } from '../../email/db';
+import { createUserTask, userTaskCollection } from "../../features/tasks";
+import { validateLanguageModelResponse } from "../shared";
+import { fragmentAnalysisResponseSchema } from "./utilities/validation";
 
 const fetchFragments = async () => {
   try {
@@ -23,30 +26,42 @@ const fetchFragments = async () => {
   }
 };
 
-const getAnalysis = (responseText: string) => {
+const getAnalysis = (responseText: string): FragmentAnalysisResponse => {
   const cleanedJson = responseText.replace(/```json|```/g, "").trim();
-  const analysis = JSON.parse(cleanedJson) as FragmentAnalysisResponse;
-  return analysis;
+  try {
+    const response = JSON.parse(cleanedJson);
+    const validation = validateLanguageModelResponse(response, fragmentAnalysisResponseSchema);
+
+    if (!validation.success) throw new Error(validation.message);
+
+    const analysis = validation.value;
+    return analysis;
+  } catch (error) {
+    console.error("Error parsing JSON:", error);
+    throw error;
+  }
 }
 
-const applyAnalysis = async (analysis: FragmentAnalysisResponse, originalFragments: EmailFragment[]) => {
+const applyAnalysis = async (
+  analysis: FragmentAnalysisResponse,
+  originalFragments: EmailFragment[]
+) => {
   const batch = mainFirebaseDb.batch();
 
   try {
     // Create suggested tasks
-    analysis.suggestedTasks.forEach((task) => {
-      const taskRef = mainFirebaseDb.collection('proposed_tasks').doc();
-      batch.set(taskRef, {
-        ...task,
-        status: 'proposed',
-        createdAt: Date.now(),
-        // TODO: We need to rethink proposed tasks anyway, but these are
-        // proposed based on gmail emails so far. This means the ids are
-        // legit but potentially useless without the context of being from
-        // gmail. That will be what source is for, especially when diary
-        // entries become a factor.
-        // sourceFragmentIds: originalFragments.map(f => f.id)
-      });
+    analysis.suggestedTasks.forEach(({ summary, importance, momentum, reasoning }) => {
+      const taskRef = userTaskCollection().doc();
+      batch.set(taskRef, createUserTask({
+        summary,
+        description: reasoning,
+        votes: {
+          importance: { Librarian: importance },
+          momentum: { Librarian: momentum },
+        },
+        source: 'email',
+        // Status is set to proposed by default, and the updated property should also be automatically set.
+      }));
     });
   
     // Mark fragments as 'processed'

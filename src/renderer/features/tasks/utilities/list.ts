@@ -1,5 +1,5 @@
+import { TaskViewConfigName } from "../../../shared/navigation";
 import { UserTask } from "../../../../shared/features/user-tasks";
-import { TaskViewConfigName } from "../../../shared/navigation/config/tasks";
 import { TaskComparisonFunction, TaskReducerFunction, UiUserTask } from "../types";
 import {
   compareAbstainedTasks,
@@ -41,7 +41,12 @@ export const getTaskListFactory = (
 ) => (
   tasks: UserTask[],
 ): UiUserTask[] => {
-  const { comparison, reducer } = mapping[view];
+  const fncs = mapping[view];
+
+  console.log('getTaskListFactory', view, mapping, fncs)
+  if (!fncs) throw new Error(`Invalid view: ${view}`);
+
+  const { comparison, reducer } = fncs;
   return tasks
     .reduce(reducer, [])
     .sort(comparison);

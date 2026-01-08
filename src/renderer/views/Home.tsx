@@ -5,7 +5,6 @@ import { EmailSyncPanel } from "../features/email/components/EmailSyncPanel";
 
 export const HomeView = () => {
   const { isOnline, dbConnected } = useFirebaseStatus();
-  console.log('home view', isOnline, dbConnected)
   return (
     <div>
       <Chip label={`isOnline: ${isOnline}`} />
@@ -15,3 +14,5 @@ export const HomeView = () => {
     </div>
   );
 };
+
+export default HomeView;

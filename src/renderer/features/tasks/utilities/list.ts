@@ -49,7 +49,6 @@ export const getTaskListFactory = (
 ): UiUserTask[] => {
   const fncs = mapping[view];
 
-  console.log('getTaskListFactory', view, mapping, fncs)
   if (!fncs) throw new Error(`Invalid view: ${view}`);
 
   const { comparison, reducer } = fncs;

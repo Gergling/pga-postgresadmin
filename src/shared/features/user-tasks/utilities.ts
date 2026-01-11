@@ -116,23 +116,25 @@ const reduceSum = (sum?: number, value?: number) => {
   return sum + value;
 };
 
+export const reduceTaskVotes = (sum: TaskVotes, item: CouncilMemberVotes) => {
+  const importance = reduceSum(sum.importance, item.importance);
+  const momentum = reduceSum(sum.momentum, item.momentum);
+  const mean = reduceSum(sum.mean, item.mean);
+  const abstained: number = sum.abstained + (item.abstained || 0);
+  const awaiting: number = sum.awaiting + (item.awaiting || 0);
+  return {
+    abstained,
+    awaiting,
+    importance,
+    momentum,
+    mean,
+  };
+};
+
 const getTaskScores = (
   councilMemberScores: CouncilMemberVotes[]
 ): TaskVotes => councilMemberScores.reduce(
-  (sum, item) => {
-    const importance = reduceSum(sum.importance, item.importance);
-    const momentum = reduceSum(sum.momentum, item.momentum);
-    const mean = reduceSum(sum.mean, item.mean);
-    const abstained = sum.abstained + item.abstained;
-    const awaiting = sum.awaiting + item.awaiting;
-    return {
-      abstained,
-      awaiting,
-      importance,
-      momentum,
-      mean,
-    };
-  },
+  reduceTaskVotes,
   {
     abstained: 0,
     awaiting: 0,

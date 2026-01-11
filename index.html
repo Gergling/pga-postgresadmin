@@ -2,9 +2,43 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>WSU</title>
+    <title>Workspace Unifier [Workflower?] (WSU)</title>
+    <style>
+      #loading-root {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: #121212; /* Match your MUI background */
+        color: hsl(0, 75%, 33%);
+        font-family: sans-serif;
+      }
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid hsla(0, 75%, 33%, 0.3);
+        border-radius: 50%;
+        border-top-color: hsl(0, 75%, 33%);
+        animation: spin 1s ease-in-out infinite;
+      }
+      #loading-root.fade-out {
+        opacity: 0;
+        visibility: hidden;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+
   </head>
   <body style="background-color: black;">
+    <div id="loading-root">
+      <div class="spinner"></div>
+    </div>
+
     <div id="app"></div>
     <script type="module" src="/src/renderer.ts"></script>
   </body>

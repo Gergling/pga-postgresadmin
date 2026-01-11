@@ -29,4 +29,4 @@
 import './index.css';
 import './renderer/App.tsx';
 
-console.log('👋 This message is being logged by "renderer.js", included via webpack');
+console.log(`%c Workspace Unifier (WSU) %c Renderer Initialized: ${new Date().toLocaleTimeString()}`, 'color: #00ffff; font-weight: bold;', 'color: default;');

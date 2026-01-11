@@ -18,3 +18,13 @@ root.render(
     <App />
   </React.StrictMode>
 );
+
+requestAnimationFrame(() => {
+  const loader = document.getElementById('loading-root');
+  if (loader) {
+    loader.classList.add('fade-out');
+    setTimeout(() => {
+      loader.remove();
+    }, 500);
+  }
+});

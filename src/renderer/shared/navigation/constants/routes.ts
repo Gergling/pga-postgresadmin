@@ -8,9 +8,10 @@ import {
   PauseCircle,
   Rocket
 } from "@mui/icons-material";
-import { Outlet, redirect } from "react-router-dom";
-import { HomeView } from "../../views";
-import { TaskViewConfigName, UiNavigationConfigItem, UiNavigationItem } from "./types";
+import { redirect } from "react-router-dom";
+import { HomeView } from "../../../views";
+import { TaskViewConfigName, UiNavigationConfigItem } from "../types";
+import { getNavigationItem, lazyImport } from "./utilities";
 
 export const TASK_VIEW_CONFIG: UiNavigationConfigItem<TaskViewConfigName>[] = [
   {
@@ -43,22 +44,18 @@ export const TASK_VIEW_CONFIG: UiNavigationConfigItem<TaskViewConfigName>[] = [
     path: 'awaiting',
     icon: Balance
   },
-] as const;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const lazyImport = <T extends Record<string, any>>(
-  factory: () => Promise<T>,
-  name: keyof T = 'default'
-): UiNavigationConfigItem['lazy'] => {
-  return async () => {
-    const module = await factory();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return { Component: module[name] as React.ComponentType<any> };
-  };
+];
+
+const lazyImports = {
+  root: lazyImport(() => import('../../../views/Root')),
+  home: lazyImport(() => import('../../../views/Home')),
+  tasks: lazyImport(() => import('../../../views/Tasks')),
 };
+
 const config: UiNavigationConfigItem = {
   icon: Menu,
   label: 'Root',
-  lazy: lazyImport(() => import('../../views/Root')),
+  lazy: lazyImports.root,
   path: '/',
   children: [
     {
@@ -73,22 +70,21 @@ const config: UiNavigationConfigItem = {
       path: 'home',
     },
     {
-      element: Outlet,
+      lazy: lazyImports.tasks,
       icon: Checklist,
       label: 'Tasks',
       path: 'tasks',
       children: [
         {
           index: true,
-          loader: () => {
-            console.log('indexRedirectionLoader')
-            return redirect('proposed');
-          },
+          loader: () => redirect('proposed'),
           omitBreadcrumb: true,
         },
         ...TASK_VIEW_CONFIG.map((item) => ({
+          // If we're putting everything through the same view outlet provider, these don't need to be routes.
+          // So we could have an omitRoute
           ...item,
-          lazy: lazyImport(() => import('../../views/Tasks')),
+          lazy: lazyImports.tasks,
         })),
       ],
     },
@@ -99,27 +95,6 @@ const config: UiNavigationConfigItem = {
       omitBreadcrumb: true,
     },
   ],
-};
-
-const getNavigationItem = (
-  { children, index, label, omitBreadcrumb, ...item }: UiNavigationConfigItem
-): UiNavigationItem => {
-  const base = {
-    ...item,
-    label: label ?? `${item.path}`,
-    omitBreadcrumb: omitBreadcrumb ?? false,
-  };
-
-  if (index) return {
-    ...base,
-    index: true,
-    children: undefined,
-  }
-  return {
-    ...base,
-    children: children ? children.map(getNavigationItem) : [],
-    index: false,
-  };
 };
 
 export const NAVIGATION_TREE = getNavigationItem(config);

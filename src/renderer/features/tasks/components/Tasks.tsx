@@ -1,5 +1,7 @@
 import { DataGrid } from '@mui/x-data-grid';
-import { useUserTasks } from "../hooks/use-tasks";
+import { useUserTasks } from '../context';
+
+// TODO: Tabs for this view would be alright in addition to the breadcrumbs.
 
 export const UserTasks = () => {
   const {
@@ -11,12 +13,9 @@ export const UserTasks = () => {
   return (
     <div>
       {!success && <div>An error occurred{message ? `: ${message}` : '.'}</div>}
-      <div>
-        Table with list of tasks
-        <DataGrid
-          {...grid}
-        />
-      </div>
+      <DataGrid
+        {...grid}
+      />
     </div>
   );
 };

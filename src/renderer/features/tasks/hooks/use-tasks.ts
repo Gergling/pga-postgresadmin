@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { DataGridProps, GridColDef } from '@mui/x-data-grid';
 import { UserTask } from '../../../../shared/features/user-tasks';
 import { useIpc } from '../../../shared/ipc/hook';
-import { TaskViewConfigName } from '../../../shared/navigation/config/tasks';
+import { TaskViewConfigName } from '../../../shared/navigation';
 import { getTaskListFactory, getTaskViewColumns } from '../utilities';
 import { useNavigation } from '../../../shared/navigation/hooks';
 import { BreadcrumbActiveNavigationItem, UiNavigationConfigItem } from '../../../shared/navigation/types';
 import { UiUserTask } from '../types';
-import { TASK_VIEW_CONFIG } from '../../../shared/navigation/constants';
+import { TASK_VIEW_CONFIG } from '../../../shared/navigation/constants/routes';
 
 const dataGridProps: DataGridProps<UiUserTask> = {
   checkboxSelection: true,

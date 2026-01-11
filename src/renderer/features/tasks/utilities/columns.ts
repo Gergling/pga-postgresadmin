@@ -6,7 +6,7 @@ const showStatusColumn = (
   view: TaskViewConfigName,
   column: keyof UiUserTask,
 ) => {
-  if (view === 'proposed' && column === 'status') return false;
+  if (view === 'proposed' && ['status', 'votes'].includes(column)) return false;
   return true;
 };
 

@@ -1,25 +1,20 @@
+import { TaskVotes } from "../../../../shared/features/user-tasks";
 import { TaskComparisonFunction } from "../types";
+
+const compareTasksFactory = (
+  prop: keyof TaskVotes
+): TaskComparisonFunction => (a, b) => {
+  if (b.scores[prop] === a.scores[prop]) return 0;
+  if (b.scores[prop] === undefined) return -1;
+  if (a.scores[prop] === undefined) return 1;
+  return b.scores[prop] - a.scores[prop];
+};
 
 // Undefined scores go to the bottom. This means none of the council members
 // have been able to choose a rank for the task.
-const compareTasksByVoteScore: TaskComparisonFunction = (a, b) => {
-  if (b.scores.mean === a.scores.mean) return 0;
-  if (b.scores.mean === undefined) return -1;
-  if (a.scores.mean === undefined) return 1;
-  return b.scores.mean - a.scores.mean;
-};
-const compareTasksByMomentum: TaskComparisonFunction = (a, b) => {
-  if (b.scores.momentum === a.scores.momentum) return 0;
-  if (b.scores.momentum === undefined) return -1;
-  if (a.scores.momentum === undefined) return 1;
-  return b.scores.momentum - a.scores.momentum;
-};
-const compareTasksByImportance: TaskComparisonFunction = (a, b) => {
-  if (b.scores.importance === a.scores.importance) return 0;
-  if (b.scores.importance === undefined) return -1;
-  if (a.scores.importance === undefined) return 1;
-  return b.scores.importance - a.scores.importance;
-};
+const compareTasksByVoteScore = compareTasksFactory('mean');
+const compareTasksByMomentum = compareTasksFactory('momentum');
+const compareTasksByImportance = compareTasksFactory('importance');
 
 // * Proposed: All tasks with the "proposed" status, sorted by vote score.
 // This is for me to review the data quality around initial task entries. The

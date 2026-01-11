@@ -1,11 +1,28 @@
 import { COUNCIL_MEMBER_NAMES, TASK_VOTE_BASE, VOTE_PROPS } from "./config";
+import { SvgIconComponent } from "@mui/icons-material";
 
 export type WorkflowState =
   | 'proposed' // A bot has created this task.
   | 'todo'
   | 'doing'
   | 'done'
+  | 'rejected'
 ;
+
+export type WorkflowEvent =
+  | 'approve'
+  | 'dismiss'
+  | 'finalize'
+  | 'pause'
+  | 'start'
+;
+export type WorkflowEventConfigItem = {
+  color: string;
+  icon: SvgIconComponent;
+  label: string;
+};
+export type WorkflowEventConfig = Record<WorkflowEvent, WorkflowEventConfigItem>;
+export type WorkflowFsm = Partial<Record<WorkflowState, Partial<Record<WorkflowEvent, WorkflowState>>>>;
 
 type VoteProps = typeof VOTE_PROPS;
 export type VotePropsName = keyof VoteProps;
@@ -52,6 +69,9 @@ export type TasksIpc = {
   // create
   read: {
     incomplete: () => Promise<UserTask[]>;
+  };
+  update: {
+    set: (taskId: string, newData: Partial<UserTask>) => Promise<UserTask>;
   };
   // update
   // delete

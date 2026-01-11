@@ -24,6 +24,7 @@ export type IpcInvocationConfig = IpcInvocationConfigBase<{
   triageEmailTasks: () => TriageEmailTasksResponse;
 
   readIncompleteTasks: () => UserTask[];
+  updateTask: (taskId: string, newData: Partial<UserTask>) => UserTask;
 }>;
 
 export type IpcAdditionalParameters = {
@@ -64,6 +65,10 @@ export const ipcHandlerConfig: IpcHandlerConfig<
 
   triageEmailTasks: ({ triage: { triageEmailTasks } }) => triageEmailTasks(),
   readIncompleteTasks: ({ tasks: { read: { incomplete } } }) => incomplete(),
+  updateTask: ({
+    args: [taskId, newData],
+    tasks: { update: { set } },
+  }) => set(taskId, newData),
 };
 
 export const EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED = 'window-focused';

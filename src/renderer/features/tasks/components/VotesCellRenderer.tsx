@@ -1,6 +1,6 @@
-import { UiUserTask } from "../types";
+import { CellRenderer } from "../types";
 
-export const TaskVotesCellRenderer = ({ votes }: UiUserTask) => {
+export const TaskVotesCellRenderer: CellRenderer = ({ row: { votes } }) => {
   // TODO: Need to make design decisions and consider these views:
   // Limited: Omits the value of the vote and shows only whether they have
   // voted on it or abstained using emoji of the relevant colour. I don't know

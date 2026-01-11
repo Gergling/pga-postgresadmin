@@ -1,4 +1,4 @@
-import { fetchIncompleteUserTasks } from "./db";
+import { fetchIncompleteUserTasks, updateTask } from "./db";
 import { TasksIpc } from "../../../shared/features/user-tasks/types";
 
 export const tasksIpc = (): TasksIpc => {
@@ -7,7 +7,9 @@ export const tasksIpc = (): TasksIpc => {
     read: {
       incomplete: fetchIncompleteUserTasks,
     },
-    // update
+    update: {
+      set: updateTask
+    }
     // delete
   };
 };

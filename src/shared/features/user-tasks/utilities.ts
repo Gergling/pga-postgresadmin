@@ -30,6 +30,7 @@ const getVoteRank = (
 
 // Get the last non-awaiting vote for this task and council member.
 // This is only worth calling for tasks which are abstained/awaiting.
+// This is much easier if the task audits are reduced down to the partial types.
 // const getGhostVote = (
 //   { audit }: UserTask,
 //   member: CouncilMemberNames,

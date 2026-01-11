@@ -1,5 +1,5 @@
 import { createHashRouter } from "react-router-dom";
-import { NAVIGATION_TREE } from "./constants";
+import { NAVIGATION_TREE } from "./constants/routes";
 import { reduceRoutes } from "./utilities";
 
 const routes = reduceRoutes([], NAVIGATION_TREE);

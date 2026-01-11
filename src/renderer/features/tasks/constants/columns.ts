@@ -1,6 +1,11 @@
 import { GridColDef } from '@mui/x-data-grid';
 import { UiUserTask } from "../types";
-import { TaskVotesCellRenderer } from '../components/TaskVotesCellRenderer';
+import {
+  TaskScoreCellRenderer,
+  TaskStatusCellRenderer,
+  TaskStatusControlCellRenderer,
+  TaskVotesCellRenderer
+} from '../components';
 
 export const TASKS_VIEW_COLUMNS: GridColDef<UiUserTask>[] = [
   {
@@ -16,12 +21,13 @@ export const TASKS_VIEW_COLUMNS: GridColDef<UiUserTask>[] = [
     // There is no point to displaying this one in the proposed tasks view.
     field: 'status',
     headerName: 'Status',
-    width: 150,
+    renderCell: TaskStatusCellRenderer,
+    width: 100,
   },
   {
     field: 'source',
     headerName: 'Source',
-    width: 150,
+    width: 75,
   },
   {
     // Could do with more time related data, e.g. an age, etc.
@@ -32,8 +38,19 @@ export const TASKS_VIEW_COLUMNS: GridColDef<UiUserTask>[] = [
   {
     field: 'votes',
     headerName: 'Votes',
-    renderCell: (params) => TaskVotesCellRenderer(params.row),
+    renderCell: TaskVotesCellRenderer,
     width: 150,
+  },
+  {
+    field: 'scores',
+    renderCell: TaskScoreCellRenderer,
+    headerName: 'Score',
+  },
+  {
+    field: 'actions',
+    headerName: 'Actions',
+    renderCell: TaskStatusControlCellRenderer,
+    width: 125,
   },
   // There should be a check/cross column for controlling when proposed tasks
   // are completed.

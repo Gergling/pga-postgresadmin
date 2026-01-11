@@ -2,7 +2,7 @@ import { firestore } from "firebase-admin";
 import { mainFirebaseDb } from "../../libs/firebase";
 import { UserTask } from "../../../shared/features/user-tasks/types";
 import { createUserTask } from "./utils";
-// import { getUserTaskAudit } from "./audit";
+import { getUserTaskAudit } from "./audit";
 
 const converter: firestore.FirestoreDataConverter<UserTask> = {
   toFirestore: (task) => task,
@@ -27,32 +27,36 @@ export const fetchIncompleteUserTasks = async (): Promise<UserTask[]> => {
   }));
 };
 
-// export const updateTask = async (taskId: string, newData: Partial<UserTask>) => {
-//   const taskRef = userTaskCollection().doc(taskId);
+export const updateTask = async (taskId: string, newData: Partial<UserTask>): Promise<UserTask> => {
+  // newData should have at least one property.
+  const taskRef = userTaskCollection().doc(taskId);
 
-//   try {
-//     await mainFirebaseDb.runTransaction(async (transaction) => {
-//       const taskDoc = await transaction.get(taskRef);
-//       const previousState = taskDoc.data();
-//       if (!previousState) throw new Error("Task not found");
+  try {
+    const result = await mainFirebaseDb.runTransaction(async (transaction) => {
+      const taskDoc = await transaction.get(taskRef);
+      const previousState = taskDoc.data();
+      if (!previousState) throw new Error("Task not found");
 
-//       const auditEntry = getUserTaskAudit(previousState);
+      const auditEntry = getUserTaskAudit(previousState, newData);
 
-//       // Append to the TOP of the history array
-//       const audit = [auditEntry, ...previousState.audit];
+      // Append to the TOP of the history array. This means it's easier to find
+      // via [last, ...previous] or Array.prototype.find.
+      const audit = [auditEntry, ...previousState.audit];
 
-//       const updatedState: UserTask = {
-//         ...previousState,
-//         ...newData,
-//         audit,
-//         updated: Date.now(),
-//       };
+      const updatedState: UserTask = {
+        ...previousState,
+        ...newData,
+        audit,
+        updated: Date.now(),
+      };
 
-//       transaction.update(taskRef, { ...updatedState });
-//     });
-//     return { success: true };
-//   } catch (error) {
-//     console.error("Update Failed:", error);
-//     return { success: false, error };
-//   }
-// };
+      transaction.update(taskRef, { ...updatedState });
+
+      return updatedState;
+    });
+    return result;
+  } catch (error) {
+    console.error("Update Failed:", error);
+    throw error;
+  }
+};

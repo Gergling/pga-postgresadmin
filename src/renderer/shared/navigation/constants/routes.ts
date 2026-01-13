@@ -53,6 +53,7 @@ const lazyImports = {
 };
 
 const config: UiNavigationConfigItem = {
+  HydrateFallback: () => null,
   icon: Menu,
   label: 'Root',
   lazy: lazyImports.root,

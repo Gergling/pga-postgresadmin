@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>Workspace Unifier [Workflower?] (WSU)</title>
     <style>
+      body {background: black;}
       #loading-root {
         position: fixed;
         top: 0;
@@ -17,6 +18,10 @@
         background: #121212; /* Match your MUI background */
         color: hsl(0, 75%, 33%);
         font-family: sans-serif;
+        background-color: black;
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.3s ease-in-out;
       }
       .spinner {
         width: 40px;
@@ -34,7 +39,7 @@
     </style>
 
   </head>
-  <body style="background-color: black;">
+  <body>
     <div id="loading-root">
       <div class="spinner"></div>
     </div>

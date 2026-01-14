@@ -29,8 +29,14 @@ export const TASK_MOMENTUM = [
   { name: 'Effortless',	description: 'Automatic. Habitual or so enjoyable it feels like play. Friction is effectively zero.'},
 ] as const;
 
-export const COUNCIL_MEMBER_NAMES = [
-  'Librarian',
+export const COUNCIL_MEMBER = [
+  { id: 'librarian',  label: 'The Librarian',  color: '#607D8B' }, // Slate
+  { id: 'sceptic',    label: 'The Sceptic',    color: '#FF5252' }, // Red
+  { id: 'guardian',   label: 'The Guardian',   color: '#4CAF50' }, // Green
+  { id: 'strategist', label: 'The Strategist', color: '#2196F3' }, // Blue
+  { id: 'philosopher',label: 'The Philosopher',color: '#9C27B0' }, // Purple
+  { id: 'diplomat',   label: 'The Diplomat',   color: '#E91E63' }, // Pink
+  { id: 'architect',  label: 'The Architect',  color: '#FF9800' }, // Orange
 ] as const;
 
 export const VOTE_PROPS = {

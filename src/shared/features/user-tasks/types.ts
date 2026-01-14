@@ -37,7 +37,7 @@ export type TaskImportance = VotePropsMap['importance'];
 export type TaskMomentum = VotePropsMap['momentum'];
 type TaskSource = 'manual' | 'email';
 
-export type CouncilMemberNames = typeof COUNCIL_MEMBER_NAMES[number];
+export type CouncilMemberNames = (typeof COUNCIL_MEMBER[number])['id'];
 
 export type CouncilVotes<T extends TaskImportance | TaskMomentum> = Record<CouncilMemberNames, T | TaskVoteBase>;
 type CouncilVotesMap = {

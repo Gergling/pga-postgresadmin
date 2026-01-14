@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { COUNCIL_MEMBER } from '../config';
 import { TASK_VOTE_PROPS } from '../constants';
 import { CouncilMemberNames, TaskVoteBase, UserTask } from '../types';
-import { atomiseVotes, getAtomicVote } from './votes-atomic';
+import { atomiseVotes, getAtomicVote, getEchoVote } from './votes-atomic';
 
 describe('votes-atomic', () => {
   const defaultVotes: Record<CouncilMemberNames, TaskVoteBase> = {
@@ -41,6 +41,45 @@ describe('votes-atomic', () => {
       }
     ]
   };
+
+  describe('getEchoVote', () => {
+    it('returns the first non-awaiting vote from the audit history', () => {
+      // For librarian/importance, audit[0] is 'Legacy'. The function should find and return it.
+      const result = getEchoVote(mockTask, 'librarian', 'importance');
+      expect(result).toBe('Legacy');
+    });
+
+    it('skips "Awaiting" votes in audit to find the previous value', () => {
+      // For sceptic/momentum, audit[0] is 'Awaiting', audit[1] is 'Propulsive'.
+      // The function should skip audit[0] and return 'Propulsive' from audit[1].
+      const result = getEchoVote(mockTask, 'sceptic', 'momentum');
+      expect(result).toBe('Propulsive');
+    });
+
+    it('returns undefined if no non-awaiting vote is found in audit', () => {
+      // For guardian/importance, all votes in the audit are 'Awaiting'.
+      const result = getEchoVote(mockTask, 'guardian', 'importance');
+      expect(result).toBeUndefined();
+    });
+
+    it('handles missing votes property in an audit entry gracefully', () => {
+      const partialAuditTask: UserTask = {
+        ...mockTask,
+        audit: [
+          { votes: undefined }, // This entry should be skipped
+          { votes: { importance: defaultVotes, momentum: { ...defaultVotes, sceptic: 'Propulsive' } } },
+        ]
+      };
+      const result = getEchoVote(partialAuditTask, 'sceptic', 'momentum');
+      expect(result).toBe('Propulsive');
+    });
+
+    it('returns undefined for a task with an empty audit trail', () => {
+      const taskWithoutAudit: UserTask = { ...mockTask, audit: [] };
+      const result = getEchoVote(taskWithoutAudit, 'librarian', 'importance');
+      expect(result).toBeUndefined();
+    });
+  });
 
   describe('getAtomicVote', () => {
     it('returns the current vote value correctly', () => {

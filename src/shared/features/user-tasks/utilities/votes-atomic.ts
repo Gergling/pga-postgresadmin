@@ -11,7 +11,7 @@ import {
 // Get the last non-awaiting vote for this task and council member.
 // This is only worth calling for tasks which are abstained/awaiting.
 // This is much easier if the task audits are reduced down to the partial types.
-const getEchoVote = <T extends VotePropsName, U extends AtomicVoteValueMap[T]>(
+export const getEchoVote = <T extends VotePropsName, U extends AtomicVoteValueMap[T]>(
   { audit }: UserTask,
   member: CouncilMemberNames,
   voteProp: VotePropsName

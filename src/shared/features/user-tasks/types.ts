@@ -32,6 +32,7 @@ type VotePropsMap = {
 export type TaskRanksMap = {
   [K in VotePropsName]: Record<VotePropsMap[K], number>;
 }
+export type TaskRanks<PropsName extends VotePropsName> = TaskRanksMap[PropsName];
 export type TaskVoteBase = (typeof TASK_VOTE_BASE[number])['name'];
 export type TaskImportance = VotePropsMap['importance'];
 export type TaskMomentum = VotePropsMap['momentum'];

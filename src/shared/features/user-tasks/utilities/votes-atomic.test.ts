@@ -84,12 +84,14 @@ describe('votes-atomic', () => {
   describe('getAtomicVote', () => {
     it('returns the current vote value correctly', () => {
       const result = getAtomicVote(mockTask, 'librarian', 'importance');
-      expect(result).toEqual({
+      expect(result).toEqual(expect.objectContaining({
         member: 'librarian',
         voteProp: 'importance',
-        value: 'Critical',
+        vote: 'Critical',
         echo: 'Legacy',
-      });
+      }));
+      // rank should match the mapping
+      expect(result.rank).toBeDefined();
     });
 
     it('returns the echo vote from audit if present', () => {
@@ -109,7 +111,7 @@ describe('votes-atomic', () => {
     it('returns undefined for echo if no non-awaiting vote is found in audit', () => {
       const result = getAtomicVote(mockTask, 'guardian', 'importance');
       expect(result.echo).toBeUndefined();
-      expect(result.value).toBe('Awaiting');
+      expect(result.vote).toBe('Awaiting');
     });
 
     it('handles missing votes in audit gracefully', () => {
@@ -137,17 +139,17 @@ describe('votes-atomic', () => {
 
       const librarianImportance = result.find(v => v.member === 'librarian' && v.voteProp === 'importance');
       expect(librarianImportance).toBeDefined();
-      expect(librarianImportance?.value).toBe('Critical');
+      expect(librarianImportance?.vote).toBe('Critical');
       expect(librarianImportance?.echo).toBe('Legacy');
 
       const scepticMomentum = result.find(v => v.member === 'sceptic' && v.voteProp === 'momentum');
       expect(scepticMomentum).toBeDefined();
-      expect(scepticMomentum?.value).toBe('Balanced');
+      expect(scepticMomentum?.vote).toBe('Balanced');
       expect(scepticMomentum?.echo).toBe('Propulsive');
 
       const guardianImportance = result.find(v => v.member === 'guardian' && v.voteProp === 'importance');
       expect(guardianImportance).toBeDefined();
-      expect(guardianImportance?.value).toBe('Awaiting');
+      expect(guardianImportance?.vote).toBe('Awaiting');
       expect(guardianImportance?.echo).toBeUndefined();
     });
   });

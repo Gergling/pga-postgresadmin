@@ -78,15 +78,20 @@ export type TasksIpc = {
   // delete
 };
 
-export type AtomicVote = {
+export type AtomicVoteValueMap = {
+  importance: TaskImportance;
+  momentum: TaskMomentum;
+};
+type AtomicVoteValue<T extends VotePropsName> = {
+  echo: AtomicVoteValueMap[T] | undefined; // Will be undefined if there are no previously decided votes.
+  rank: number | undefined; // Will be undefined if vote is indecisive and echo is undefined.
+  vote: AtomicVoteValueMap[T] | TaskVoteBase;
+  voteProp: T;
+};
+
+export type AtomicVote<T extends VotePropsName = VotePropsName> = {
   member: CouncilMemberNames;
-} & ({
-  voteProp: 'importance';
-  value: TaskImportance | TaskVoteBase;
-} | {
-  voteProp: 'momentum';
-  value: TaskMomentum | TaskVoteBase;
-});
+} & AtomicVoteValue<T>;
 
 export type TaskVotes = {
   importance?: number;

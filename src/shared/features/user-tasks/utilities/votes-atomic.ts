@@ -7,14 +7,18 @@ import {
   UserTask,
   VotePropsName
 } from "../types";
+import { getVoteRank } from "./votes-rank";
 
 // Get the last non-awaiting vote for this task and council member.
 // This is only worth calling for tasks which are abstained/awaiting.
 // This is much easier if the task audits are reduced down to the partial types.
-export const getEchoVote = <T extends VotePropsName, U extends AtomicVoteValueMap[T]>(
+export const getEchoVote = <
+  T extends VotePropsName,
+  U extends AtomicVoteValueMap[T]
+>(
   { audit }: UserTask,
   member: CouncilMemberNames,
-  voteProp: VotePropsName
+  voteProp: T
 ): U | undefined => {
   for (const { votes } of audit) {
     if (!votes) continue;
@@ -24,18 +28,24 @@ export const getEchoVote = <T extends VotePropsName, U extends AtomicVoteValueMa
 };
 
 export const getAtomicVote = <
-  T extends VotePropsName,
-  U extends AtomicVoteValueMap[T]
+  T extends VotePropsName, // "importance"/"momentum"
+  U extends AtomicVoteValueMap[T] 
 >(
   task: UserTask,
   member: CouncilMemberNames,
   voteProp: T
-): AtomicVote<T> => ({
-  echo: getEchoVote(task, member, voteProp),
-  member,
-  value: task.votes[voteProp][member] as U,
-  voteProp,
-});
+): AtomicVote<T> => {
+  const vote: U = task.votes[voteProp][member] as U;
+  const echo = getEchoVote(task, member, voteProp);
+  const rank = getVoteRank(voteProp, vote);
+  return {
+    echo,
+    member,
+    rank,
+    vote,
+    voteProp,
+  };
+};
 
 export const atomiseVotes = (
   task: UserTask,

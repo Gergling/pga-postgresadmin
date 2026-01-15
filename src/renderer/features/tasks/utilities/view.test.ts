@@ -1,20 +1,17 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { reduceProposedTasks, reduceActiveTasks, reduceAbstainedTasks, reduceAwaitingTasks } from './view';
-import { UserTask, TaskVotes } from '../../../../shared/features/user-tasks';
-import { getVoteScores } from '../../../../shared/features/user-tasks';
-
-// Mock the module that exports getVoteScores to control the scores returned
-vi.mock('../../../../shared/features/user-tasks', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../../../shared/features/user-tasks')>();
-  return {
-    ...actual,
-    getVoteScores: vi.fn(),
-  };
-});
-
+import { UserTask, CouncilMemberNames, TaskVoteBase } from '../../../../shared/features/user-tasks';
 
 describe('view reducers', () => {
-  const mockGetVoteScores = getVoteScores as unknown as ReturnType<typeof vi.fn>;
+  const defaultVotes: Record<CouncilMemberNames, TaskVoteBase> = {
+    librarian: 'Awaiting',
+    sceptic: 'Awaiting',
+    guardian: 'Awaiting',
+    strategist: 'Awaiting',
+    philosopher: 'Awaiting',
+    diplomat: 'Awaiting',
+    architect: 'Awaiting',
+  };
 
   const baseTask: UserTask = {
     id: '1',
@@ -23,27 +20,25 @@ describe('view reducers', () => {
     status: 'todo',
     source: 'manual',
     updated: 123,
-    votes: {} as any,
+    votes: {
+      importance: { ...defaultVotes },
+      momentum: { ...defaultVotes },
+    },
     audit: [],
   };
 
-  const zeroScores: TaskVotes = {
-    abstained: 0,
-    awaiting: 0,
-    importance: 0,
-    momentum: 0,
-    mean: 0,
+  const createVotes = (vote: string) => {
+    const votes = { ...defaultVotes };
+    (Object.keys(votes) as CouncilMemberNames[]).forEach(key => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      votes[key] = vote as any;
+    });
+    return votes;
   };
-
-  beforeEach(() => {
-    vi.resetAllMocks();
-    // Default to zero scores unless specified
-    mockGetVoteScores.mockReturnValue(zeroScores);
-  });
 
   describe('reduceProposedTasks', () => {
     it('includes proposed tasks', () => {
-      const task = { ...baseTask, status: 'proposed' } as UserTask;
+      const task: UserTask = { ...baseTask, status: 'proposed' };
       const result = reduceProposedTasks([], task);
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe('1');
@@ -73,15 +68,25 @@ describe('view reducers', () => {
 
   describe('reduceAbstainedTasks', () => {
     it('includes tasks with abstained votes > 0', () => {
-      mockGetVoteScores.mockReturnValue({ ...zeroScores, abstained: 1 });
-      const task = { ...baseTask } as UserTask;
+      const task = {
+        ...baseTask,
+        votes: {
+          ...baseTask.votes,
+          importance: createVotes('Abstained'),
+        }
+      } as UserTask;
       const result = reduceAbstainedTasks([], task);
       expect(result).toHaveLength(1);
     });
 
     it('excludes tasks with abstained votes === 0', () => {
-      mockGetVoteScores.mockReturnValue({ ...zeroScores, abstained: 0 });
-      const task = { ...baseTask } as UserTask;
+      const task = {
+        ...baseTask,
+        votes: {
+          importance: createVotes('Awaiting'),
+          momentum: createVotes('Awaiting'),
+        }
+      } as UserTask;
       const result = reduceAbstainedTasks([], task);
       expect(result).toHaveLength(0);
     });
@@ -89,15 +94,25 @@ describe('view reducers', () => {
 
   describe('reduceAwaitingTasks', () => {
     it('includes tasks with awaiting votes > 0', () => {
-      mockGetVoteScores.mockReturnValue({ ...zeroScores, awaiting: 1 });
-      const task = { ...baseTask } as UserTask;
+      const task = {
+        ...baseTask,
+        votes: {
+          importance: createVotes('Awaiting'),
+          momentum: createVotes('Balanced'),
+        }
+      } as UserTask;
       const result = reduceAwaitingTasks([], task);
       expect(result).toHaveLength(1);
     });
 
     it('excludes tasks with awaiting votes === 0', () => {
-      mockGetVoteScores.mockReturnValue({ ...zeroScores, awaiting: 0 });
-      const task = { ...baseTask } as UserTask;
+      const task = {
+        ...baseTask,
+        votes: {
+          importance: createVotes('Critical'),
+          momentum: createVotes('Balanced'),
+        }
+      } as UserTask;
       const result = reduceAwaitingTasks([], task);
       expect(result).toHaveLength(0);
     });

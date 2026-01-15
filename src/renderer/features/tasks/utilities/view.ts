@@ -1,4 +1,4 @@
-import { getVoteScores, UserTask } from "../../../../shared/features/user-tasks";
+import { getVoteSummary, UserTask } from "../../../../shared/features/user-tasks";
 import { TaskFilterFunction, TaskReducerFunction, UiUserTask } from "../types";
 
 const hasAbstainedVotes: TaskFilterFunction = ({ scores }) => scores.abstained > 0;
@@ -8,7 +8,7 @@ const isNotProposedTask: TaskFilterFunction = ({ status }) => status !== 'propos
 const isProposedTask: TaskFilterFunction = ({ status }) => status === 'proposed';
 
 const createUiUserTask = (task: UserTask & { view?: UiUserTask['view']; }): UiUserTask => {
-  const scores = getVoteScores(task);
+  const scores = getVoteSummary(task).task;
   
   return {
     ...task,
@@ -34,4 +34,3 @@ export const reduceActiveTasks = reduceTasksFactory(isNotProposedTask);
 export const reduceAwaitingTasks = reduceTasksFactory(hasAwaitingVotes);
 
 export const reduceProposedTasks = reduceTasksFactory(isProposedTask);
-

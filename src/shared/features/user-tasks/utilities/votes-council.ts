@@ -7,8 +7,17 @@ import {
   CouncilMemberNames,
   CouncilMemberVotes,
   CouncilMemberVoteValue,
+  CouncilVotesBase,
 } from "../types";
 import { getMeanAtomicVoteRank } from "./votes-atomic";
+
+export const createMemberVotes = (): CouncilVotesBase => COUNCIL_MEMBER.reduce(
+  (acc, { id }) => ({
+    ...acc,
+    [id]: 'Awaiting',
+  }),
+  {} as CouncilVotesBase
+);
 
 const getCouncilMemberSummary = (
   summaries: AtomicVoteValueSummary[],

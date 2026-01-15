@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
+import { COUNCIL_MEMBER } from '../config';
 import { AtomicVote, AtomicVoteValueSummary, CouncilMemberNames } from '../types';
-import { getCouncilMemberScores } from './votes-council';
+import { createMemberVotes, getCouncilMemberScores } from './votes-council';
 
 describe('votes-council', () => {
   const createAtomicVote = (
@@ -15,6 +16,18 @@ describe('votes-council', () => {
     rank,
     summary,
     echo,
+  });
+
+  describe('createMemberVotes', () => {
+    it('initializes all council members with "Awaiting"', () => {
+      const votes = createMemberVotes();
+
+      COUNCIL_MEMBER.forEach((member) => {
+        expect(votes[member.id]).toBe('Awaiting');
+      });
+
+      expect(Object.keys(votes)).toHaveLength(COUNCIL_MEMBER.length);
+    });
   });
 
   describe('getCouncilMemberScores', () => {

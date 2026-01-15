@@ -44,15 +44,11 @@ const mapping: Record<TaskViewConfigName, {
 
 export const getTaskListFactory = (
   view: TaskViewConfigName,
-) => (
-  tasks: UserTask[],
-): UiUserTask[] => {
+) => {
   const fncs = mapping[view];
-
   if (!fncs) throw new Error(`Invalid view: ${view}`);
-
   const { comparison, reducer } = fncs;
-  return tasks
+  return (tasks: UserTask[]): UiUserTask[] => tasks
     .reduce(reducer, [])
     .sort(comparison);
 };

@@ -82,6 +82,8 @@ export const atomiseVotes = (
 export const getMeanAtomicVoteRank = (
   votes: AtomicVoteValueSummary[]
 ): number => {
-  const sum = votes.reduce<number>((sum, atom) => typeof atom === 'number' ? sum + atom : sum, 0);
-  return sum / votes.length;
+  const numericVotes = votes.filter((v): v is number => typeof v === 'number');
+  if (numericVotes.length === 0) return NaN;
+  const sum = numericVotes.reduce((sum, atom) => sum + atom, 0);
+  return sum / numericVotes.length;
 };

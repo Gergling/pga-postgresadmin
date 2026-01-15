@@ -212,12 +212,12 @@ describe('votes-atomic', () => {
       expect(getMeanAtomicVoteRank([10, 20])).toBe(15);
     });
 
-    it('treats non-numeric values as 0 in the sum but counts them in the count', () => {
-      expect(getMeanAtomicVoteRank([10, '?'])).toBe(5);
+    it('ignores non-numeric values in the mean calculation', () => {
+      expect(getMeanAtomicVoteRank([10, '?'])).toBe(10);
     });
 
-    it('returns 0 for purely non-numeric values', () => {
-      expect(getMeanAtomicVoteRank(['?', 'A'])).toBe(0);
+    it('returns NaN for purely non-numeric values', () => {
+      expect(getMeanAtomicVoteRank(['?', 'A'])).toBeNaN();
     });
 
     it('returns NaN for empty array', () => {

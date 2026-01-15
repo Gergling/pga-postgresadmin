@@ -32,3 +32,6 @@ export type Swap<
   SubjectProp extends keyof Subject,
   Substitute
 > = Omit<Subject, SubjectProp> & Record<SubjectProp, Substitute>;
+export type DeepPartial<T extends object> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};

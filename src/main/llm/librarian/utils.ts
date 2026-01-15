@@ -56,8 +56,8 @@ const applyAnalysis = async (
         summary,
         description: reasoning,
         votes: {
-          importance: { Librarian: importance },
-          momentum: { Librarian: momentum },
+          importance: { librarian: importance },
+          momentum: { librarian: momentum },
         },
         source: 'email',
         // Status is set to proposed by default, and the updated property should also be automatically set.

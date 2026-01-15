@@ -8,28 +8,7 @@ import {
   CouncilMemberVotes,
   CouncilMemberVoteValue,
 } from "../types";
-
-// const createAtomicVoteValue = <T extends VotePropsName>(voteProp: T): AtomicVoteValue<T> => ({
-//   echo: false,
-//   rank: undefined,
-//   summary: '?',
-//   voteProp,
-// });
-// const createAtomised = () => TASK_VOTE_PROPS.reduce(
-//   (acc, voteProp) => ({
-//     ...acc,
-//     [voteProp]: createAtomicVoteValue(voteProp),
-//   }),
-//   {} as CouncilMemberAtomisedVotes
-// );
-// const baseCouncilMemberVotes: CouncilMemberVotes = {
-//   atomised: createAtomised(),
-//   member: 'librarian',
-//   summary: {
-//     echoes: [],
-//     values: [],
-//   },
-// };
+import { getMeanAtomicVoteRank } from "./votes-atomic";
 
 const getCouncilMemberSummary = (
   summaries: AtomicVoteValueSummary[],
@@ -38,8 +17,8 @@ const getCouncilMemberSummary = (
   const allNumeric = summaries.every((atom) => typeof atom === 'number');
   if (allNumeric) {
     // We return a single mean array value.
-    const sum = summaries.reduce((sum, atom) => typeof atom === 'number' ? sum + atom : sum, 0);
-    return [sum / summaries.length];
+    const mean = getMeanAtomicVoteRank(summaries);
+    return [mean];
   }
 
   // If identical, we return either.
@@ -76,29 +55,6 @@ const getCouncilMemberVoteValue = (atomised: CouncilMemberAtomisedVotes): Counci
     values,
   };
 };
-
-// const reduceCouncilMemberScores = <T extends VotePropsName>(
-//   acc: Record<CouncilMemberNames, CouncilMemberVotes>,
-//   atom: AtomicVote<T>,
-// ): Record<CouncilMemberNames, CouncilMemberVotes> => {
-//   const { member, voteProp } = atom;
-//   const accVotes = acc[member] || {};
-//   const scores: CouncilMemberVotes = {
-//     ...baseCouncilMemberVotes,
-//     ...accVotes,
-//     atomised: {
-//       ...baseCouncilMemberVotes.atomised,
-//       ...accVotes.atomised,
-//       [voteProp]: atom,
-//     },
-//     member,
-//   };
-//   return {
-//     ...acc,
-//     [member]: scores,
-//   };
-// };
-
 const getAtomisedVotesByCouncilMember = (votes: AtomicVote[]) => votes.reduce(
   (acc, atom) => {
     const { member, voteProp } = atom;

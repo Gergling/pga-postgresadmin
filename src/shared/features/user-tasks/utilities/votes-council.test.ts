@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { COUNCIL_MEMBER } from '../config';
-import { AtomicVote, AtomicVoteValueSummary, CouncilMemberNames } from '../types';
-import { createMemberVotes, getCouncilMemberScores } from './votes-council';
+import { AtomicVote, AtomicVoteValueSummary, CouncilMemberAtomisedVotes, CouncilMemberNames } from '../types';
+import { createMemberVotes, getCouncilMemberScores, getCouncilMemberVoteValue } from './votes-council';
 
 describe('votes-council', () => {
   const createAtomicVote = (
@@ -27,6 +27,65 @@ describe('votes-council', () => {
       });
 
       expect(Object.keys(votes)).toHaveLength(COUNCIL_MEMBER.length);
+    });
+  });
+
+  describe('getCouncilMemberVoteValue', () => {
+    const createAtomisedVotes = (
+      importanceSummary: AtomicVoteValueSummary,
+      momentumSummary: AtomicVoteValueSummary,
+      importanceEcho = false,
+      momentumEcho = false
+    ): CouncilMemberAtomisedVotes => ({
+      importance: {
+        echo: importanceEcho,
+        rank: typeof importanceSummary === 'number' ? importanceSummary : undefined,
+        summary: importanceSummary,
+        voteProp: 'importance',
+      },
+      momentum: {
+        echo: momentumEcho,
+        rank: typeof momentumSummary === 'number' ? momentumSummary : undefined,
+        summary: momentumSummary,
+        voteProp: 'momentum',
+      },
+    });
+
+    it('returns mean value when all votes are numeric', () => {
+      const atomised = createAtomisedVotes(10, 20);
+      const result = getCouncilMemberVoteValue(atomised);
+      expect(result.values).toEqual([15]);
+      expect(result.echoes).toEqual([false, false]);
+    });
+
+    it('returns single value when votes are identical numbers', () => {
+      const atomised = createAtomisedVotes(10, 10);
+      const result = getCouncilMemberVoteValue(atomised);
+      expect(result.values).toEqual([10]);
+    });
+
+    it('returns single value when votes are identical strings', () => {
+      const atomised = createAtomisedVotes('?', '?');
+      const result = getCouncilMemberVoteValue(atomised);
+      expect(result.values).toEqual(['?']);
+    });
+
+    it('returns all values when votes are different strings', () => {
+      const atomised = createAtomisedVotes('?', 'A');
+      const result = getCouncilMemberVoteValue(atomised);
+      expect(result.values).toEqual(['?', 'A']);
+    });
+
+    it('returns all values when votes are mixed numeric and string', () => {
+      const atomised = createAtomisedVotes(10, '?');
+      const result = getCouncilMemberVoteValue(atomised);
+      expect(result.values).toEqual([10, '?']);
+    });
+
+    it('correctly extracts echo flags', () => {
+      const atomised = createAtomisedVotes(10, 20, true, false);
+      const result = getCouncilMemberVoteValue(atomised);
+      expect(result.echoes).toEqual([true, false]);
     });
   });
 

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { COUNCIL_MEMBER } from '../config';
 import { TASK_VOTE_BASE_SUMMARY_MAP, TASK_VOTE_PROPS } from '../constants';
 import { CouncilMemberNames, TaskVoteBase, UserTask } from '../types';
-import { atomiseVotes, getAtomicSummary, getAtomicVote, getEchoVote } from './votes-atomic';
+import { atomiseVotes, getAtomicSummary, getAtomicVote, getEchoVote, getMeanAtomicVoteRank } from './votes-atomic';
 import { getVoteRank } from './votes-rank';
 
 describe('votes-atomic', () => {
@@ -204,6 +204,24 @@ describe('votes-atomic', () => {
         summary: TASK_VOTE_BASE_SUMMARY_MAP['Awaiting'],
         voteProp: 'importance',
       });
+    });
+  });
+
+  describe('getMeanAtomicVoteRank', () => {
+    it('calculates the mean of numeric values', () => {
+      expect(getMeanAtomicVoteRank([10, 20])).toBe(15);
+    });
+
+    it('treats non-numeric values as 0 in the sum but counts them in the count', () => {
+      expect(getMeanAtomicVoteRank([10, '?'])).toBe(5);
+    });
+
+    it('returns 0 for purely non-numeric values', () => {
+      expect(getMeanAtomicVoteRank(['?', 'A'])).toBe(0);
+    });
+
+    it('returns NaN for empty array', () => {
+      expect(getMeanAtomicVoteRank([])).toBeNaN();
     });
   });
 });

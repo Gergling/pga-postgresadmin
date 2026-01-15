@@ -12,7 +12,7 @@ const reduceSum = (sum?: number, value?: number) => {
 export const reduceTaskVotes = (sum: TaskVotes, item: CouncilMemberVotes): TaskVotes => {
   const echoes = TASK_VOTE_PROPS.reduce(
     (acc, voteProp) => item.atomised[voteProp].echo ? acc + 1 : acc,
-    0,
+    sum.echoes,
   );
   const {
     abstained,
@@ -45,7 +45,8 @@ const getTaskScores = (
   {
     abstained: 0,
     awaiting: 0,
-  } as TaskVotes
+    echoes: 0,
+  }
 );
 
 export const getVoteSummary = (task: UserTask): TaskVoteSummary => {

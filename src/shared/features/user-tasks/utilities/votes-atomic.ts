@@ -1,9 +1,11 @@
 import { COUNCIL_MEMBER } from "../config";
-import { TASK_VOTE_PROPS } from "../constants";
+import { TASK_VOTE_BASE_SUMMARY_MAP, TASK_VOTE_PROPS } from "../constants";
 import {
   AtomicVote,
   AtomicVoteValueMap,
+  AtomicVoteValueSummary,
   CouncilMemberNames,
+  TaskVoteBase,
   UserTask,
   VotePropsName
 } from "../types";
@@ -27,6 +29,20 @@ export const getEchoVote = <
   }
 };
 
+export const getAtomicSummary = <
+  T extends VotePropsName, // "importance"/"momentum"
+  U extends AtomicVoteValueMap[T] 
+>(
+  rank: number | undefined,
+  echo: AtomicVoteValueMap[T] | undefined,
+  vote: U | TaskVoteBase,
+  voteProp: T
+): AtomicVoteValueSummary => {
+  if (rank !== undefined) return rank;
+  if (echo !== undefined) return getVoteRank(voteProp, echo);
+  return TASK_VOTE_BASE_SUMMARY_MAP[vote as TaskVoteBase];
+};
+
 export const getAtomicVote = <
   T extends VotePropsName, // "importance"/"momentum"
   U extends AtomicVoteValueMap[T] 
@@ -35,14 +51,17 @@ export const getAtomicVote = <
   member: CouncilMemberNames,
   voteProp: T
 ): AtomicVote<T> => {
-  const vote: U = task.votes[voteProp][member] as U;
+  const vote: U | TaskVoteBase = task.votes[voteProp][member] as U | TaskVoteBase;
   const echo = getEchoVote(task, member, voteProp);
-  const rank = getVoteRank(voteProp, vote);
+  const rank = vote === 'Awaiting' || vote === 'Abstained'
+    ? undefined
+    : getVoteRank(voteProp, vote);
+  const summary = getAtomicSummary(rank, echo, vote, voteProp);
   return {
-    echo,
+    echo: echo !== undefined,
     member,
     rank,
-    vote,
+    summary,
     voteProp,
   };
 };

@@ -1,5 +1,5 @@
 import { TASK_IMPORTANCE, TASK_MOMENTUM, TASK_VOTE_BASE, VOTE_PROPS } from "./config";
-import { TaskImportance, TaskMomentum, TaskRanksMap, TaskVoteBase, VotePropsName, WorkflowFsm } from "./types";
+import { TaskImportance, TaskMomentum, TaskRanksMap, TaskVoteBase, TaskVoteBaseSummaryMap, VotePropsName, WorkflowFsm } from "./types";
 
 export const {
   TASK_IMPORTANCE_RANKS,
@@ -55,7 +55,21 @@ export const TASK_IMPORTANCE_NAMES: TaskImportance[] = TASK_IMPORTANCE.map(({ na
 
 export const TASK_MOMENTUM_NAMES: TaskMomentum[] = TASK_MOMENTUM.map(({ name }) => name);
 
-export const TASK_VOTE_BASE_NAMES: TaskVoteBase[] = TASK_VOTE_BASE.map(({ name }) => name);
+export const {
+  TASK_VOTE_BASE_NAMES,
+  TASK_VOTE_BASE_SUMMARY_MAP,
+} = TASK_VOTE_BASE.reduce(
+  ({ TASK_VOTE_BASE_NAMES, TASK_VOTE_BASE_SUMMARY_MAP }, { name, summary }) => {
+    return {
+      TASK_VOTE_BASE_NAMES: [...TASK_VOTE_BASE_NAMES, name],
+      TASK_VOTE_BASE_SUMMARY_MAP: { ...TASK_VOTE_BASE_SUMMARY_MAP, [name]: summary },
+    }
+  },
+  {
+    TASK_VOTE_BASE_NAMES: [] as TaskVoteBase[],
+    TASK_VOTE_BASE_SUMMARY_MAP: {} as TaskVoteBaseSummaryMap,
+  }
+);
 
 export const TASK_FSM: WorkflowFsm = {
   proposed: {

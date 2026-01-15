@@ -1,6 +1,6 @@
 export const TASK_VOTE_BASE = [
-  { name: 'Awaiting', description: 'Awaiting a vote.' },
-  { name: 'Abstained', description: 'Abstained from voting because more information is required.'},
+  { name: 'Awaiting', description: 'Awaiting a vote.', summary: '?' },
+  { name: 'Abstained', description: 'Abstained from voting because more information is required.', summary: 'A' },
 ] as const;
 
 export const TASK_IMPORTANCE = [

@@ -1,4 +1,4 @@
-import { COUNCIL_MEMBER_NAMES, TASK_VOTE_BASE, VOTE_PROPS } from "./config";
+import { COUNCIL_MEMBER, TASK_VOTE_BASE, VOTE_PROPS } from "./config";
 import { SvgIconComponent } from "@mui/icons-material";
 
 export type WorkflowState =
@@ -34,6 +34,11 @@ export type TaskRanksMap = {
 }
 export type TaskRanks<PropsName extends VotePropsName> = TaskRanksMap[PropsName];
 export type TaskVoteBase = (typeof TASK_VOTE_BASE[number])['name'];
+export type TaskVoteBaseNames = (typeof TASK_VOTE_BASE[number])['name'];
+export type TaskVoteBaseSummaryMap = {
+  [K in typeof TASK_VOTE_BASE[number] as K['name']]: K['summary'];
+};
+export type TaskVoteBaseSummary = (typeof TASK_VOTE_BASE[number])['summary'];
 export type TaskImportance = VotePropsMap['importance'];
 export type TaskMomentum = VotePropsMap['momentum'];
 type TaskSource = 'manual' | 'email';
@@ -78,14 +83,17 @@ export type TasksIpc = {
   // delete
 };
 
+// Atomic
 export type AtomicVoteValueMap = {
   importance: TaskImportance;
   momentum: TaskMomentum;
 };
-type AtomicVoteValue<T extends VotePropsName> = {
-  echo: AtomicVoteValueMap[T] | undefined; // Will be undefined if there are no previously decided votes.
-  rank: number | undefined; // Will be undefined if vote is indecisive and echo is undefined.
-  vote: AtomicVoteValueMap[T] | TaskVoteBase;
+export type AtomicVoteValueSummary = TaskVoteBaseSummary | number;
+export type AtomicVoteValue<T extends VotePropsName> = {
+  echo: boolean; // Will be undefined if there are no previously decided votes.
+  rank: number | undefined; // Will be undefined if vote is indecisive and
+    // echo is undefined. Should appear "ghosted" if vote is indecisive but echo is not.
+  summary: AtomicVoteValueSummary;
   voteProp: T;
 };
 

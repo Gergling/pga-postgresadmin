@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { COUNCIL_MEMBER } from '../config';
-import { TASK_VOTE_PROPS } from '../constants';
+import { TASK_VOTE_BASE_SUMMARY_MAP, TASK_VOTE_PROPS } from '../constants';
 import { CouncilMemberNames, TaskVoteBase, UserTask } from '../types';
-import { atomiseVotes, getAtomicVote, getEchoVote } from './votes-atomic';
+import { atomiseVotes, getAtomicSummary, getAtomicVote, getEchoVote } from './votes-atomic';
+import { getVoteRank } from './votes-rank';
 
 describe('votes-atomic', () => {
   const defaultVotes: Record<CouncilMemberNames, TaskVoteBase> = {
@@ -81,49 +82,84 @@ describe('votes-atomic', () => {
     });
   });
 
+  describe('getAtomicSummary', () => {
+    it('returns rank if it is defined', () => {
+      const summary = getAtomicSummary(5, 'Critical', 'Critical', 'importance');
+      expect(summary).toBe(5);
+    });
+
+    it('returns echo rank if rank is undefined and echo is defined', () => {
+      const summary = getAtomicSummary(undefined, 'Legacy', 'Awaiting', 'importance');
+      const legacyRank = getVoteRank('importance', 'Legacy');
+      expect(summary).toBe(legacyRank);
+    });
+
+    it('returns base summary if rank and echo are undefined', () => {
+      const summary = getAtomicSummary(undefined, undefined, 'Awaiting', 'importance');
+      expect(summary).toBe(TASK_VOTE_BASE_SUMMARY_MAP['Awaiting']);
+    });
+
+    it('returns base summary for Abstained vote', () => {
+      const summary = getAtomicSummary(undefined, undefined, 'Abstained', 'importance');
+      expect(summary).toBe(TASK_VOTE_BASE_SUMMARY_MAP['Abstained']);
+    });
+  });
+
   describe('getAtomicVote', () => {
-    it('returns the current vote value correctly', () => {
+    it('returns an atomic vote with rank for a decided vote with an echo', () => {
       const result = getAtomicVote(mockTask, 'librarian', 'importance');
-      expect(result).toEqual(expect.objectContaining({
+      const rank = getVoteRank('importance', 'Critical');
+      expect(result).toEqual({
         member: 'librarian',
         voteProp: 'importance',
-        vote: 'Critical',
-        echo: 'Legacy',
-      }));
-      // rank should match the mapping
-      expect(result.rank).toBeDefined();
+        rank,
+        summary: rank,
+        echo: true, // has an echo vote of 'Legacy'
+      });
     });
 
-    it('returns the echo vote from audit if present', () => {
-      const result = getAtomicVote(mockTask, 'librarian', 'importance');
-      expect(result.echo).toBe('Legacy');
-    });
-
-    it('skips "Awaiting" votes in audit when finding echo', () => {
-      // Sceptic momentum:
-      // Current: Balanced
-      // Audit[0]: Awaiting (from defaultVotes)
-      // Audit[1]: Propulsive
-      const result = getAtomicVote(mockTask, 'sceptic', 'momentum');
-      expect(result.echo).toBe('Propulsive');
-    });
-
-    it('returns undefined for echo if no non-awaiting vote is found in audit', () => {
-      const result = getAtomicVote(mockTask, 'guardian', 'importance');
-      expect(result.echo).toBeUndefined();
-      expect(result.vote).toBe('Awaiting');
-    });
-
-    it('handles missing votes in audit gracefully', () => {
-      const partialAuditTask: UserTask = {
+    it('returns an atomic vote with summary from echo when current vote is awaiting', () => {
+      const taskWithAwaiting: UserTask = {
         ...mockTask,
-        audit: [
-          { ...mockTask.audit[0], votes: undefined },
-          { ...mockTask.audit[1] }
-        ]
+        votes: {
+          ...mockTask.votes,
+          momentum: { ...defaultVotes, sceptic: 'Awaiting' },
+        },
       };
-      const result = getAtomicVote(partialAuditTask, 'sceptic', 'momentum');
-      expect(result.echo).toBe('Propulsive');
+      // echo for sceptic/momentum is 'Propulsive'
+      const result = getAtomicVote(taskWithAwaiting, 'sceptic', 'momentum');
+      const echoRank = getVoteRank('momentum', 'Propulsive');
+      expect(result).toEqual({
+        member: 'sceptic',
+        voteProp: 'momentum',
+        rank: undefined,
+        summary: echoRank,
+        echo: true,
+      });
+    });
+
+    it('returns an atomic vote with base summary when vote is awaiting and no echo exists', () => {
+      const result = getAtomicVote(mockTask, 'guardian', 'momentum'); // All guardian votes are 'Awaiting'
+      expect(result).toEqual({
+        member: 'guardian',
+        voteProp: 'momentum',
+        rank: undefined,
+        summary: TASK_VOTE_BASE_SUMMARY_MAP['Awaiting'],
+        echo: false,
+      });
+    });
+
+    it('handles decided vote with no echo', () => {
+      const taskWithoutAudit: UserTask = { ...mockTask, audit: [] };
+      const result = getAtomicVote(taskWithoutAudit, 'librarian', 'importance');
+      const rank = getVoteRank('importance', 'Critical');
+      expect(result).toEqual({
+        member: 'librarian',
+        voteProp: 'importance',
+        rank,
+        summary: rank,
+        echo: false,
+      });
     });
   });
 
@@ -139,18 +175,35 @@ describe('votes-atomic', () => {
 
       const librarianImportance = result.find(v => v.member === 'librarian' && v.voteProp === 'importance');
       expect(librarianImportance).toBeDefined();
-      expect(librarianImportance?.vote).toBe('Critical');
-      expect(librarianImportance?.echo).toBe('Legacy');
+      const rank = getVoteRank('importance', 'Critical');
+      expect(librarianImportance).toEqual({
+        echo: true,
+        member: 'librarian',
+        rank,
+        summary: rank,
+        voteProp: 'importance',
+      });
 
       const scepticMomentum = result.find(v => v.member === 'sceptic' && v.voteProp === 'momentum');
       expect(scepticMomentum).toBeDefined();
-      expect(scepticMomentum?.vote).toBe('Balanced');
-      expect(scepticMomentum?.echo).toBe('Propulsive');
+      const scepticRank = getVoteRank('momentum', 'Balanced');
+      expect(scepticMomentum).toEqual({
+        echo: true,
+        member: 'sceptic',
+        rank: scepticRank,
+        summary: scepticRank,
+        voteProp: 'momentum',
+      });
 
       const guardianImportance = result.find(v => v.member === 'guardian' && v.voteProp === 'importance');
       expect(guardianImportance).toBeDefined();
-      expect(guardianImportance?.vote).toBe('Awaiting');
-      expect(guardianImportance?.echo).toBeUndefined();
+      expect(guardianImportance).toEqual({
+        echo: false,
+        member: 'guardian',
+        rank: undefined,
+        summary: TASK_VOTE_BASE_SUMMARY_MAP['Awaiting'],
+        voteProp: 'importance',
+      });
     });
   });
 });

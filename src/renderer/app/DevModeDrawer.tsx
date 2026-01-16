@@ -50,7 +50,7 @@ export const DevModeOverlay = () => {
   };
 
   return (
-    <Box sx={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1500, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <Box sx={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: expanded ? 1500: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {/* The Collapsible Content */}
       <Collapse in={expanded} sx={{ width: '100%' }}>
         <Paper elevation={4} sx={{ p: 2, borderRadius: 0, borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>

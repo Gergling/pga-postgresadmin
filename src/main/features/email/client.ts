@@ -1,4 +1,4 @@
-import { getEnvVar } from '../env';
+import { getEnvVar } from '../../env';
 import * as dotenv from 'dotenv';
 import { ImapFlow } from "imapflow";
 

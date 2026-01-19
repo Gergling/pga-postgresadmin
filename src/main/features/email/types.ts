@@ -1,4 +1,4 @@
-import { EmailFragment } from "../../shared/email/types";
+import { EmailFragment } from "../../../shared/email/types";
 
 export type EmailSync = {
   data: string;

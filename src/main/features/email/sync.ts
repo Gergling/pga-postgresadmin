@@ -1,9 +1,9 @@
 import { firestore } from 'firebase-admin';
 import { ImapFlow } from 'imapflow';
 import { simpleParser } from 'mailparser';
-import { EmailFragment } from '../../shared/email/types';
-import { getPlainDateTimeFromDate } from '../../shared/utilities/temporal';
-import { addFirebaseDoc, FirebaseCollectionName, FirebaseEmailFragment } from '../libs/firebase';
+import { EmailFragment } from '../../../shared/email/types';
+import { getPlainDateTimeFromDate } from '../../../shared/utilities/temporal';
+import { addFirebaseDoc, FirebaseCollectionName, FirebaseEmailFragment } from '../../libs/firebase';
 import { instantiateClient } from './client';
 import { fetchEmail, fetchRecentEmailIds } from './fetch';
 import { EmailSync } from './types';

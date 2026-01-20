@@ -32,6 +32,11 @@ const scoreConfig: {
     maximum: 0,
     minimum: TOTAL_COUNCILLORS,
   },
+  echoes: {
+    icon: RemoveCircleOutline,
+    maximum: TOTAL_COUNCILLORS * 2,
+    minimum: 0,
+  },
   importance: {
     icon: MilitaryTech,
     maximum: TASK_IMPORTANCE_RANKS_MAXIMUM,
@@ -82,9 +87,25 @@ const viewVoteScores: {
   proposed: ['mean', 'abstained', 'awaiting'],
 };
 
+// type HeroSubscorePropsTypeValue = { type: VoteProps; value: number; };
+// type HeroSubscoreProps = {
+//   hero?: HeroSubscorePropsTypeValue;
+//   subscore?: HeroSubscorePropsTypeValue;
+//   badge?: HeroSubscorePropsTypeValue;
+// };
+
 const HeroSubscore = ({ hero, subscore, badge, type }: { hero?: number; subscore?: number; badge?: number; type: VoteProps; }) => {
   return <Stack direction="row" spacing={1} sx={{ height: '100%' }}>
-    <Badge badgeContent={badge} color="error" invisible={!badge}>
+    <Badge
+      badgeContent={badge}
+      color="primary"
+      invisible={!badge}
+      sx={{
+        '& .MuiBadge-badge': {
+          top: 13,
+        },
+      }}
+    >
       {renderScore(hero ?? 0, type)}
       {subscore ? <Typography variant="caption" sx={{ opacity: 0.5 }}>({subscore})</Typography> : null}
     </Badge>
@@ -93,16 +114,16 @@ const HeroSubscore = ({ hero, subscore, badge, type }: { hero?: number; subscore
 
 export const TaskScoreCellRenderer: CellRenderer = ({ row: { scores } }) => {
   const { current } = useNavigation();
-  // TODO: This shouldn't happen (at least for long) so I guess dispplay an error.
+  // TODO: This shouldn't happen (at least for long) so I guess display an error.
   if (!current) return null;
 
   const view = current.name as TaskViewConfigName;
   const [hero, subscore, badge] = viewVoteScores[view];
 
   return <HeroSubscore
-    badge={badge && scores[badge]}
-    hero={scores[hero]}
-    subscore={subscore && scores[subscore]}
+    badge={badge && scores.task[badge]}
+    hero={scores.task[hero]}
+    subscore={subscore && scores.task[subscore]}
     type={hero}
   />;
 };

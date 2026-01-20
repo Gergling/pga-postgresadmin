@@ -4,7 +4,7 @@ import { UiUserTask } from "../types";
 const PAGE_SIZE = 10;
 
 export const TASK_GRID_PROPS: DataGridProps<UiUserTask> = {
-  checkboxSelection: true,
+  checkboxSelection: false,
   columns: [],
   disableRowSelectionOnClick: true,
   getRowClassName: ({ row: { view } }) => `task-row--${view}`,

@@ -1,5 +1,6 @@
 import { Optional } from "../../../shared/types";
 import { DiaryEntry, DiaryEntryStatus } from "../../../shared/features/diary/types";
+import { UserTask } from "../../../shared/features/user-tasks";
 import { mainFirebaseDb } from "../../libs/firebase";
 import { emitRitualTelemetry } from "../ai/ipc";
 import { generateTaskContent, generateProposedTasks, TriageTasksResponse } from "../tasks";
@@ -14,18 +15,17 @@ const simplifyEntry = ({
   id, text,
 });
 
-
-const getPartialEntries = (
-  processing: DiaryEntry[],
-  status: DiaryEntryStatus,
-) => processing.map(({ id }) => ({ id, status }));
-
 const batchUpdateFactory = (
   entries: DiaryEntry[],
 ) => (
   batch: FirebaseFirestore.WriteBatch,
   success: boolean,
-) => batchDiary(batch, getPartialEntries(entries, success ? 'processed' : 'committed'));
+) => {
+  const processed = entries.map((entry): DiaryEntry => ({ ...entry, status: success ? 'processed' : 'committed' }));
+  const partial = processed.map(({ id, status }) => ({ id, status }));
+  batchDiary(batch, partial);
+  return processed;
+};
 
 const updateProcessingEntries = async (committed: DiaryEntry[]) => {
   const processing: DiaryEntry[] = committed.map((props) => ({ ...props, status: 'processing' }));
@@ -38,12 +38,14 @@ const updateProcessingEntries = async (committed: DiaryEntry[]) => {
 
 const emit = (
   message: string,
-  entries: Optional<DiaryEntry, 'created' | 'text'>[]
+  entries: Optional<DiaryEntry, 'created' | 'text'>[],
+  tasks?: UserTask[],
 ) => {
   emitRitualTelemetry({
     message,
     triage: {
       diary: entries.map(({ id, created, status }) => ({ created, id, status })),
+      tasks,
     }
   });
 }
@@ -60,9 +62,11 @@ export const triageCommittedDiaryEntries = async (): Promise<TriageTasksResponse
 
     const analysis = await generateTaskContent(source, simplifiedEntryJson);
 
-    await generateProposedTasks(analysis, batchUpdateFactory(processing));
+    const { batchUpdatedResponse: processed, tasks } = await generateProposedTasks(analysis, batchUpdateFactory(processing));
 
-    return { source, status: 'success', message: `Updated ${processing.length} entries.` };
+    emit("Librarian has completed a diary triage.", processed, tasks);
+
+    return { source, status: 'success', message: `Updated ${processed.length} entries.` };
   } catch (error) {
     return { source, status: 'error', message: `Diary Triage Failed: ${error}` };
   }

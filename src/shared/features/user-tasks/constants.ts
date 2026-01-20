@@ -1,5 +1,5 @@
 import { TASK_IMPORTANCE, TASK_MOMENTUM, TASK_VOTE_BASE, VOTE_PROPS } from "./config";
-import { TaskImportance, TaskMomentum, TaskRanksMap, TaskVoteBase, TaskVoteBaseSummaryMap, VotePropsName, WorkflowFsm } from "./types";
+import { TaskImportance, TaskMomentum, TaskRanksMap, TaskVoteBaseNames, TaskVoteBaseSummaryMap, VotePropsName, WorkflowFsm } from "./types";
 
 export const {
   TASK_IMPORTANCE_RANKS,
@@ -66,7 +66,7 @@ export const {
     }
   },
   {
-    TASK_VOTE_BASE_NAMES: [] as TaskVoteBase[],
+    TASK_VOTE_BASE_NAMES: [] as TaskVoteBaseNames[],
     TASK_VOTE_BASE_SUMMARY_MAP: {} as TaskVoteBaseSummaryMap,
   }
 );

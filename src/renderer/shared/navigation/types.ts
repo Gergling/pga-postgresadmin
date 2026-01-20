@@ -1,8 +1,9 @@
-import { LoaderFunction } from "react-router-dom";
+import { LoaderFunction, RouteObject } from "react-router-dom";
 
 // Navigation config base
 export type UiNavigationConfigItem<T extends string = string> = {
   element?: React.ComponentType;
+  HydrateFallback?: RouteObject['HydrateFallback'];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   lazy?: () => Promise<{ Component: React.ComponentType<any> }>;
   loader?: LoaderFunction;

@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { reduceProposedTasks, reduceActiveTasks, reduceAbstainedTasks, reduceAwaitingTasks } from './view';
-import { UserTask, CouncilMemberNames, TaskVoteBase } from '../../../../shared/features/user-tasks';
+import { UserTask, CouncilMemberNames, TaskVoteBaseNames } from '../../../../shared/features/user-tasks';
 
 describe('view reducers', () => {
-  const defaultVotes: Record<CouncilMemberNames, TaskVoteBase> = {
+  const defaultVotes: Record<CouncilMemberNames, TaskVoteBaseNames> = {
     librarian: 'Awaiting',
     sceptic: 'Awaiting',
     guardian: 'Awaiting',

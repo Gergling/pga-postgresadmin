@@ -5,7 +5,7 @@ import {
   AtomicVoteValueMap,
   AtomicVoteValueSummary,
   CouncilMemberNames,
-  TaskVoteBase,
+  TaskVoteBaseNames,
   UserTask,
   VotePropsName
 } from "../types";
@@ -35,12 +35,12 @@ export const getAtomicSummary = <
 >(
   rank: number | undefined,
   echo: AtomicVoteValueMap[T] | undefined,
-  vote: U | TaskVoteBase,
+  vote: U | TaskVoteBaseNames,
   voteProp: T
 ): AtomicVoteValueSummary => {
   if (rank !== undefined) return rank;
   if (echo !== undefined) return getVoteRank(voteProp, echo);
-  return TASK_VOTE_BASE_SUMMARY_MAP[vote as TaskVoteBase];
+  return TASK_VOTE_BASE_SUMMARY_MAP[vote as TaskVoteBaseNames];
 };
 
 export const getAtomicVote = <
@@ -51,7 +51,7 @@ export const getAtomicVote = <
   member: CouncilMemberNames,
   voteProp: T
 ): AtomicVote<T> => {
-  const vote: U | TaskVoteBase = task.votes[voteProp][member] as U | TaskVoteBase;
+  const vote: U | TaskVoteBaseNames = task.votes[voteProp][member] as U | TaskVoteBaseNames;
   const echo = getEchoVote(task, member, voteProp);
   const rank = vote === 'Awaiting' || vote === 'Abstained'
     ? undefined
@@ -81,9 +81,9 @@ export const atomiseVotes = (
 
 export const getMeanAtomicVoteRank = (
   votes: AtomicVoteValueSummary[]
-): number => {
+): number | undefined => {
   const numericVotes = votes.filter((v): v is number => typeof v === 'number');
-  if (numericVotes.length === 0) return NaN;
+  if (numericVotes.length === 0) return undefined;
   const sum = numericVotes.reduce((sum, atom) => sum + atom, 0);
   return sum / numericVotes.length;
 };

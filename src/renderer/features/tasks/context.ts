@@ -69,4 +69,4 @@ export const {
     success,
     taskViews,
   };
-}, 'blog');
+}, 'tasks');

@@ -1,18 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { Temporal } from '@js-temporal/polyfill';
-import { 
-  collection, 
-  addDoc, 
-  query, 
-  orderBy, 
-  limit, 
-  onSnapshot 
-} from 'firebase/firestore';
-import { DiaryEntryDb } from '../../../../shared/features/diary/types';
-import { firebasedDb } from '../../../libs/firebase/config';
-import { mapDiaryEntryDbToUi, mapDiaryEntryUiToDb } from '../utilities';
-import { DiaryEntryUi } from '../types';
+import { DiaryProvider, useDiary } from '../context';
+import { DiaryTaskProcessingProgress } from './ProcessingProgress';
 
 // Styled Components
 const Container = styled.div`
@@ -48,46 +37,21 @@ const EntryCard = styled.div`
   .text { font-size: 0.95rem; color: #888; line-height: 1.5; }
 `;
 
-export const DiaryInterface = () => {
-  const [entries, setEntries] = useState<DiaryEntryUi[]>([]);
+const DiaryInterface = () => {
   const [input, setInput] = useState('');
+  const {
+    createDraftDiaryEntry,
+    diaryEntries,
+  } = useDiary();
 
-  // 1. Listen for entries (Real-time)
-  useEffect(() => {
-    const q = query(
-      collection(firebasedDb, "diary_entries"), 
-      orderBy("created", "desc"),
-      limit(20)
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-
-      const data = snapshot.docs.map(doc => mapDiaryEntryDbToUi({
-        id: doc.id,
-        ...doc.data()
-      } as DiaryEntryDb));
-      setEntries(data);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  // 2. Submit new vent
   const handleSubmit = async (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && e.ctrlKey && input.trim()) {
-      try {
-        await addDoc(collection(firebasedDb, "diary_entries"), mapDiaryEntryUiToDb({
-          text: input,
-          created: Temporal.Now.instant(),
-          status: 'draft',
-        }));
-        setInput(''); // Clear on success
-      } catch (err) {
-        console.error("Failed to vent:", err);
-      }
+      createDraftDiaryEntry(input);
+      setInput('');
     }
   };
 
+  // TODO: Should show when mutations and reloading are happening.
   return (
     <Container>
       <section>
@@ -102,9 +66,10 @@ export const DiaryInterface = () => {
 
       <section>
         <h3>Recent Telemetry</h3>
-        {entries.map(entry => (
+        <DiaryTaskProcessingProgress />
+        {diaryEntries.map(entry => (
           <EntryCard key={entry.id}>
-            <div className="time">{new Date(entry.created.toString()).toLocaleString()}</div>
+            <div className="time">{entry.created.toLocaleString()}</div>
             <div className="text">{entry.text}</div>
           </EntryCard>
         ))}
@@ -112,3 +77,5 @@ export const DiaryInterface = () => {
     </Container>
   );
 };
+
+export const Diary = () => <DiaryProvider><DiaryInterface /></DiaryProvider>;

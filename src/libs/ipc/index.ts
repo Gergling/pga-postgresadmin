@@ -1,6 +1,11 @@
 // TODO: These should be abstracted out.
 import { setupDockerChecklistSubscription } from "../../main/docker/ipc";
-import { CHANNEL_SUBSCRIBE_TO_DOCKER_CHECKLIST } from "../../shared/channels";
+import { setupRitualTelemetrySubscription } from "../../main/features/ai/ipc";
+import {
+  CHANNEL_SUBSCRIBE_TO_DOCKER_CHECKLIST,
+  CHANNEL_SUBSCRIBE_TO_RITUAL_TELEMETRY,
+} from "../../shared/channels";
+import { RitualTelemetrySubscriptionParams } from "../../shared/features/ai";
 import { DockerChecklistSubscriptionParams } from "../../shared/docker-postgres/types";
 
 // These types are used a couple of times, so they're shortened.
@@ -23,9 +28,11 @@ export type EventSubscriptionHandlerMapping<EventSubscriptionChannel extends str
   [K in EventSubscriptionHandlerProp]: EventSubscriptionHandler<EventSubscriptionChannel>;
 };
 
+type IpcInvocationConfigBaseFunction<T extends unknown[] = unknown[], U = unknown> = (...args: T) => U;
+
 // A base type for simplifying the invocation config type.
 export type IpcInvocationConfigBase<V extends ({
-  [K: string]: (...args: unknown[]) => unknown;
+  [K: string]: IpcInvocationConfigBaseFunction;
 })> = {
   [K in keyof V]: (...args: Parameters<V[K]>) => Promise<ReturnType<V[K]>>;
 };
@@ -112,6 +119,12 @@ export const preloadIpc = <
       ) => {
         console.log('subscribed to checklist: preload IPC edition')
         return setupDockerChecklistSubscription(ipcRenderer, listener);
+      },
+      [CHANNEL_SUBSCRIBE_TO_RITUAL_TELEMETRY]: (
+        listener: (update: RitualTelemetrySubscriptionParams) => void
+      ) => {
+        console.log('subscribed to ritual telemetry: preload IPC edition')
+        return setupRitualTelemetrySubscription(ipcRenderer, listener);
       },
     }
   );

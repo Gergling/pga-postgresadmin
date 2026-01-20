@@ -35,3 +35,5 @@ export type Swap<
 export type DeepPartial<T extends object> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };
+
+export type Envelope<T> = { id: string | number; content: T; created: number; };

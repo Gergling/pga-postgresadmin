@@ -4,6 +4,7 @@ import {
   TaskScoreCellRenderer,
   TaskStatusCellRenderer,
   TaskStatusControlCellRenderer,
+  TaskUpdatedCellRenderer,
   TaskVotesCellRenderer
 } from '../components';
 
@@ -17,12 +18,10 @@ export const TASKS_VIEW_COLUMNS: GridColDef<UiUserTask>[] = [
     width: 300,
   },
   {
-    // Needs a special editor because statuses have specific controls.
-    // There is no point to displaying this one in the proposed tasks view.
     field: 'status',
     headerName: 'Status',
     renderCell: TaskStatusCellRenderer,
-    width: 100,
+    width: 125,
   },
   {
     field: 'source',
@@ -33,13 +32,14 @@ export const TASKS_VIEW_COLUMNS: GridColDef<UiUserTask>[] = [
     // Could do with more time related data, e.g. an age, etc.
     field: 'updated',
     headerName: 'Last Updated',
+    renderCell: TaskUpdatedCellRenderer,
     width: 150,
   },
   {
     field: 'votes',
     headerName: 'Votes',
     renderCell: TaskVotesCellRenderer,
-    width: 150,
+    width: 75,
   },
   {
     field: 'scores',

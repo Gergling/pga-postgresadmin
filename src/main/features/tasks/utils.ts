@@ -3,14 +3,14 @@ import {
   COUNCIL_MEMBER,
   CouncilMemberNames,
   CouncilVotes,
-  createMemberVotes,
+  // createMemberVotes,
   TaskImportance,
   TaskMomentum,
-  TaskVoteBase,
+  TaskVoteBaseNames,
   UserTask
 } from "../../../shared/features/user-tasks";
 
-type InitialVoteState = Record<CouncilMemberNames, Exclude<TaskVoteBase, 'Abstained'>>;
+type InitialVoteState = Record<CouncilMemberNames, Exclude<TaskVoteBaseNames, 'Abstained'>>;
 const createInitialVotes = <T extends TaskImportance | TaskMomentum>(
   state: DeepPartial<CouncilVotes<T>> = {} as InitialVoteState
 ): CouncilVotes<T> => COUNCIL_MEMBER.reduce((acc, { id }) => ({
@@ -26,7 +26,6 @@ export const createUserTask = (task: Optional<
   >,
   'audit' | 'updated' | 'source' | 'status'
 >): UserTask => {
-  const initialVotes = createMemberVotes();
   return {
     status: 'proposed',
     source: 'manual',
@@ -34,7 +33,7 @@ export const createUserTask = (task: Optional<
     audit: [],
     ...task,
     votes: {
-      momentum: { ...initialVotes, ...createInitialVotes(task.votes?.momentum) },
+      momentum: createInitialVotes(task.votes?.momentum),
       importance: createInitialVotes(task.votes?.importance),
     },
   };

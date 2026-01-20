@@ -4,7 +4,7 @@ import { UserTask } from '../../../../shared/features/user-tasks';
 import { useIpc } from '../../../shared/ipc/hook';
 import { TaskViewConfigName } from '../../../shared/navigation';
 import { getTaskListFactory, getTaskViewColumns } from '../utilities';
-import { useNavigation } from '../../../shared/navigation/hooks';
+import { useNavigation } from '../../../shared/navigation/hooks/hook';
 import { BreadcrumbActiveNavigationItem, UiNavigationConfigItem } from '../../../shared/navigation/types';
 import { UiUserTask } from '../types';
 import { TASK_VIEW_CONFIG } from '../../../shared/navigation/constants/routes';

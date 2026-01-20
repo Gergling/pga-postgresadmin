@@ -1,6 +1,6 @@
 import { DataGridProps, GridColDef } from "@mui/x-data-grid";
 import {
-  TaskVotes,
+  TaskVoteSummary,
   UserTask,
   WorkflowEvent,
   WorkflowEventConfigItem
@@ -8,7 +8,7 @@ import {
 import { GridCellRenderer } from "../../shared/grid";
 
 export type UiUserTask = UserTask & {
-  scores: TaskVotes;
+  scores: TaskVoteSummary;
   view: 'edge' | 'outdated' | 'transitioning';
 };
 

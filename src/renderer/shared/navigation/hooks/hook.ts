@@ -1,8 +1,9 @@
 import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
-import { NAVIGATION_TREE } from "./constants";
-import { BreadcrumbActiveNavigation } from "./types";
-import { reduceActiveNavigationFactory, reduceFlatBreadcrumbMappingFactory, reduceRoutes } from "./utilities";
+import { NAVIGATION_TREE } from "../constants";
+import { BreadcrumbActiveNavigation } from "../types";
+import { reduceActiveNavigationFactory, reduceFlatBreadcrumbMappingFactory, reduceRoutes } from "../utilities";
+import { useNavigationHistory } from "./history";
 
 const reduceFlatBreadcrumbMapping = reduceFlatBreadcrumbMappingFactory();
 const breadcrumbsMap = reduceFlatBreadcrumbMapping({}, NAVIGATION_TREE);
@@ -28,10 +29,20 @@ export const useNavigation = () => {
     },
     [pathname]
   );
+  const frequency = useNavigationHistory();
+  const recent = useMemo(
+    () => frequency
+      .map((path) => breadcrumbsMap[path])
+      .sort((a, b) => a.label.localeCompare(b.label))
+    ,
+    [frequency]
+  );
 
   return {
     breadcrumbs,
     current,
+    pathname,
+    recent,
     routes,
   };
 };

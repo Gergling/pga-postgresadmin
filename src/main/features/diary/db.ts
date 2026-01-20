@@ -17,15 +17,17 @@ export const diaryEntryCollection = () => mainFirebaseDb
   .collection('diary_entries')
   .withConverter(converter);
 
-export const createNewDiaryEntry: DiaryIpc['create']['entry'] = async (entry) => {
+export const createNewDiaryEntry: DiaryIpc['create']['entry'] = async (entryEnvelope) => {
+  // Envelope id is a temporary id generated from the renderer. It should simply be returned.
+  const entry = entryEnvelope.content;
   const record: DiaryEntryDb = {
     created: Date.now(),
     status: 'draft',
     ...entry
   };
   try {
-    await diaryEntryCollection().add(record);
-    return fetchRecentDiaryEntries();
+    const { id } = await diaryEntryCollection().add(record);
+    return { ...entryEnvelope, content: { ...record, id } };
   } catch (error) {
     console.error("Create Failed:", error);
     throw error;

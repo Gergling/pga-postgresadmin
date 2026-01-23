@@ -31,7 +31,7 @@ type Colours = keyof typeof colours;
 export const log = (
   message: string,
   colour: Colours = 'default'
-) => console.log([
+) => console.info([
   `[${new Date().toLocaleString()}]:`,
   [
     colours[colour],

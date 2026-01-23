@@ -1,7 +1,7 @@
 import { Optional } from "../../../shared/types";
-import { DiaryEntry, DiaryEntryStatus } from "../../../shared/features/diary/types";
+import { DiaryEntry } from "../../../shared/features/diary/types";
 import { UserTask } from "../../../shared/features/user-tasks";
-import { mainFirebaseDb } from "../../libs/firebase";
+import { getFirebaseDb } from "../../libs/firebase";
 import { emitRitualTelemetry } from "../ai/ipc";
 import { generateTaskContent, generateProposedTasks, TriageTasksResponse } from "../tasks";
 import { batchDiary, fetchCommittedDiaryEntries } from "./db";
@@ -29,7 +29,7 @@ const batchUpdateFactory = (
 
 const updateProcessingEntries = async (committed: DiaryEntry[]) => {
   const processing: DiaryEntry[] = committed.map((props) => ({ ...props, status: 'processing' }));
-  const batch = mainFirebaseDb.batch();
+  const batch = getFirebaseDb().batch();
 
   batchDiary(batch, processing.map(({ id, status }) => ({ id, status })));
   await batch.commit();

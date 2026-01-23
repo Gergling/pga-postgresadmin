@@ -1,7 +1,7 @@
 import { firestore } from "firebase-admin";
 import { DiaryEntry, DiaryIpc } from "../../../shared/features/diary/types";
 import { Mandatory, Optional } from "../../../shared/types";
-import { mainFirebaseDb } from "../../libs/firebase";
+import { getFirebaseDb } from "../../libs/firebase";
 
 type DiaryEntryDb = Optional<DiaryEntry, 'id'>;
 
@@ -13,7 +13,7 @@ const converter: firestore.FirestoreDataConverter<Optional<DiaryEntry, 'id'>> = 
   }
 };
 
-export const diaryEntryCollection = () => mainFirebaseDb
+export const diaryEntryCollection = () => getFirebaseDb()
   .collection('diary_entries')
   .withConverter(converter);
 
@@ -36,21 +36,26 @@ export const createNewDiaryEntry: DiaryIpc['create']['entry'] = async (entryEnve
 
 // Mainly for rendering.
 export const fetchRecentDiaryEntries = async (): Promise<DiaryEntry[]> => {
-  const ref = diaryEntryCollection();
-  const recentQuery = ref.orderBy('created', 'desc').limit(10);
-  const statusQuery = ref.where('status', 'in', ['processing', 'committed', 'draft']);
-
-  const [recentSnapshot, statusSnapshot] = await Promise.all([
-    recentQuery.get(),
-    statusQuery.get(),
-  ]);
-
-  const entryMap = new Map();
-
-  recentSnapshot.forEach(doc => entryMap.set(doc.id, { id: doc.id, ...doc.data() }));
-  statusSnapshot.forEach(doc => entryMap.set(doc.id, { id: doc.id, ...doc.data() }));
-
-  return Array.from(entryMap.values()).sort((a, b) => b.created - a.created);
+  try {
+    const ref = diaryEntryCollection();
+    const recentQuery = ref.orderBy('created', 'desc').limit(10);
+    const statusQuery = ref.where('status', 'in', ['processing', 'committed', 'draft']);
+  
+    const [recentSnapshot, statusSnapshot] = await Promise.all([
+      recentQuery.get(),
+      statusQuery.get(),
+    ]);
+  
+    const entryMap = new Map();
+  
+    recentSnapshot.forEach(doc => entryMap.set(doc.id, { id: doc.id, ...doc.data() }));
+    statusSnapshot.forEach(doc => entryMap.set(doc.id, { id: doc.id, ...doc.data() }));
+  
+    return Array.from(entryMap.values()).sort((a, b) => b.created - a.created);
+  } catch (error) {
+    console.error("Fetch Failed:", error);
+    throw error;
+  }
 };
 
 // For processing.

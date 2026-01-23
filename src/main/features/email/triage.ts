@@ -1,5 +1,5 @@
 import { EmailFragment, EmailFragmentStatus } from "../../../shared/email/types";
-import { mainFirebaseDb } from "../../libs/firebase";
+import { getFirebaseDb } from "../../libs/firebase";
 import { emitRitualTelemetry } from "../ai/ipc";
 import { generateProposedTasks, generateTaskContent, TriageTasksResponse } from "../tasks";
 import { batchEmail, fetchInboxFragments } from "./db";
@@ -36,7 +36,7 @@ const getPartialFragments = (
 
 const updateProcessingFragments = async (newFragments: EmailFragment[]) => {
   const processing: EmailFragment[] = newFragments.map((props) => ({ ...props, status: 'processing' }));
-  const batch = mainFirebaseDb.batch();
+  const batch = getFirebaseDb().batch();
 
   batchEmail(batch, processing.map(({ id, status }) => ({ id, status })));
   await batch.commit();

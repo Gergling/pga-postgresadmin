@@ -1,5 +1,5 @@
 import { firestore } from "firebase-admin";
-import { mainFirebaseDb } from "../../libs/firebase";
+import { getFirebaseDb } from "../../libs/firebase";
 import { UserTask } from "../../../shared/features/user-tasks/types";
 import { createUserTask } from "./utils";
 import { getUserTaskAudit } from "./audit";
@@ -12,7 +12,7 @@ const converter: firestore.FirestoreDataConverter<UserTask> = {
   }
 };
 
-export const userTaskCollection = () => mainFirebaseDb
+export const userTaskCollection = () => getFirebaseDb()
   .collection('user_tasks')
   .withConverter(converter);
 
@@ -32,7 +32,7 @@ export const updateTask = async (taskId: string, newData: Partial<UserTask>): Pr
   const taskRef = userTaskCollection().doc(taskId);
 
   try {
-    const result = await mainFirebaseDb.runTransaction(async (transaction) => {
+    const result = await getFirebaseDb().runTransaction(async (transaction) => {
       const taskDoc = await transaction.get(taskRef);
       const previousState = taskDoc.data();
       if (!previousState) throw new Error("Task not found");

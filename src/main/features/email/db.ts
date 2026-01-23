@@ -1,7 +1,7 @@
 import { firestore } from "firebase-admin";
 import { EmailFragment } from "../../../shared/email/types";
 import { Mandatory } from "../../../shared/types";
-import { mainFirebaseDb } from "../../libs/firebase";
+import { getFirebaseDb } from "../../libs/firebase";
 
 const firestoreEmailFragmentProps: (keyof Omit<EmailFragment, 'db'>)[] = [
   'body', 'from', 'id', 'receivedAt', 'source', 'status', 'subject'
@@ -28,7 +28,7 @@ const fragmentConverter: firestore.FirestoreDataConverter<EmailFragment> = {
   }
 };
 
-export const inboxFragmentCollection = () => mainFirebaseDb
+export const inboxFragmentCollection = () => getFirebaseDb()
   .collection('inbox_fragments')
   .withConverter(fragmentConverter);
 

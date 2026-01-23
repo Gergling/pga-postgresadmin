@@ -4,10 +4,10 @@ import { TaskComparisonFunction } from "../types";
 const compareTasksFactory = (
   prop: keyof TaskVotes
 ): TaskComparisonFunction => (a, b) => {
-  if (b.scores[prop] === a.scores[prop]) return 0;
-  if (b.scores[prop] === undefined) return -1;
-  if (a.scores[prop] === undefined) return 1;
-  return b.scores[prop] - a.scores[prop];
+  if (b.scores.task[prop] === a.scores.task[prop]) return 0;
+  if (b.scores.task[prop] === undefined) return -1;
+  if (a.scores.task[prop] === undefined) return 1;
+  return b.scores.task[prop] - a.scores.task[prop];
 };
 
 // Undefined scores go to the bottom. This means none of the council members
@@ -26,14 +26,14 @@ const compareTasksByImportance = compareTasksFactory('importance');
 export const compareProposedTasks: TaskComparisonFunction = (a, b) => {
   // The first sort should put the abstentions at the top.
   // Proposed tasks are usually going to have only one vote by the librarian.
-  const abstention = b.scores.abstained - a.scores.abstained;
+  const abstention = b.scores.task.abstained - a.scores.task.abstained;
   if (abstention !== 0) return abstention;
 
   // If the number of abstained council members is equal, the mean voting score should be used.
   const mean = compareTasksByVoteScore(a, b);
   if (mean !== 0) return mean;
 
-  return b.scores.awaiting - a.scores.awaiting;
+  return b.scores.task.awaiting - a.scores.task.awaiting;
 };
 
 // * Quick: All tasks which aren't "proposed" or already done, sorted "quick".
@@ -60,7 +60,7 @@ export const compareImportantTasks: TaskComparisonFunction = (a, b) => {
 // missing opinions, possibly due to the quality of the task description, and
 // why.
 export const compareAbstainedTasks: TaskComparisonFunction = (a, b) => {
-  const abstention = b.scores.abstained - a.scores.abstained;
+  const abstention = b.scores.task.abstained - a.scores.task.abstained;
   if (abstention !== 0) return abstention;
 
   return compareTasksByVoteScore(a, b);
@@ -73,7 +73,7 @@ export const compareAbstainedTasks: TaskComparisonFunction = (a, b) => {
 // "missing" for short periods after passing proposal, if the librarian
 // underestimated the momentum or importance.
 export const compareAwaitingTasks: TaskComparisonFunction = (a, b) => {
-  const awaiting = b.scores.awaiting - a.scores.awaiting;
+  const awaiting = b.scores.task.awaiting - a.scores.task.awaiting;
   if (awaiting !== 0) return awaiting;
 
   return compareTasksByVoteScore(a, b);

@@ -1,9 +1,6 @@
-import { MutationResponse } from "../../shared/types";
+import { GetEnvironment, SetEnvironment } from "../shared/environment";
 
-export type EnvironmentProps = 'dev' | 'prod';
-export type GetEnvironment = () => Promise<EnvironmentProps>;
-export type SetEnvironment = (env: EnvironmentProps) => Promise<MutationResponse<EnvironmentProps>>;
 export type ManageEnvironment = {
-  get: GetEnvironment;
+  get: () => Promise<ReturnType<GetEnvironment>>;
   set: SetEnvironment;
 };

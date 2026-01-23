@@ -10,7 +10,8 @@ import {
 import { GeneralResponse, Mandatory, MutationResponse } from '../shared/types';
 import { DiaryEntry, DiaryIpc, DiaryIpcCreateEntry } from '../shared/features/diary/types';
 import { TriageTasksParameters, TriageTasksResponse } from '../main/features/tasks/types';
-import { EnvironmentProps, ManageEnvironment } from '../main/environment/types';
+import { ManageEnvironment } from '../main/environment/types';
+import { EnvironmentProps } from '../main/shared/environment';
 
 // Minimalist configuration type for the renderer side.
 // IpcInvocationConfigBase really just makes these functions return promises.

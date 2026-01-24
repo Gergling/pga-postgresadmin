@@ -1,4 +1,4 @@
 export * from './Bluetooth';
-export * from './MagicCircle';
+export * from './Librarian';
 export * from './ProposedTasks';
 export * from './Sceptic';

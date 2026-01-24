@@ -1,9 +1,8 @@
 import { CSSProperties } from "@mui/material";
-import { ProposedTasks, Sceptic } from "./svgs";
+import { Librarian, ProposedTasks, Sceptic } from "./svgs";
 
 const galleryMap = {
-  // 'Bluetooth': Bluetooth,
-  // 'Magic Circle': MagicCircle,
+  'Librarian': Librarian,
   'Proposed Tasks': ProposedTasks,
   'Sceptic': Sceptic,
 };

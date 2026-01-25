@@ -12,39 +12,25 @@ export const GalleryItem = ({
 }) => {
   const { theme: { colors: { primary } } } = useTheme();
   return <div>
+    <div style={{
+      backgroundImage: `
+        linear-gradient(45deg, #300 25%, transparent 25%),
+        linear-gradient(-45deg, #300 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #300 75%),
+        linear-gradient(-45deg, transparent 75%, #300 75%)
+      `,
+      backgroundSize: '20px 20px',
+      backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
+      zoom
+    }}>
+      {children}
+    </div>
     <Typography variant="body2" style={{
       textAlign: 'center',
       textShadow: `0 0 20px #900`,
-      color: primary.main
+      color: primary.main,
+      width: 100,
     }}>{label}</Typography>
-
-    <div style={{ display: 'flex', zoom }}>
-      <div style={{
-        backgroundImage: `
-          linear-gradient(45deg, #300 25%, transparent 25%),
-          linear-gradient(-45deg, #300 25%, transparent 25%),
-          linear-gradient(45deg, transparent 75%, #300 75%),
-          linear-gradient(-45deg, transparent 75%, #300 75%)
-        `,
-        backgroundSize: '20px 20px',
-        backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
-      }}>
-        {children}
-      </div>
-      {/* <div style={{
-        backgroundColor: '#eee', // Fallback
-        backgroundImage: `
-          linear-gradient(45deg, #ccc 25%, transparent 25%),
-          linear-gradient(-45deg, #ccc 25%, transparent 25%),
-          linear-gradient(45deg, transparent 75%, #ccc 75%),
-          linear-gradient(-45deg, transparent 75%, #ccc 75%)
-        `,
-        backgroundSize: '20px 20px',
-        backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
-      }}>
-        <Component />
-      </div> */}
-    </div>
   </div>;
 }
 
@@ -75,7 +61,7 @@ export const Gallery = ({
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '10px' }}>
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
         {items.map(({ Component, label }, key) => <GalleryItem key={key} label={label}><Component /></GalleryItem>)}
       </div>
     </div>

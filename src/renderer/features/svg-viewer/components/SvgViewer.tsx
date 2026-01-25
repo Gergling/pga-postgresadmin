@@ -8,10 +8,19 @@ import {
 } from "./svgs";
 
 const map = {
+  'Architect': Placeholder,
+  'Diplomat': Placeholder,
+  'Guardian': Placeholder,
+  'Important Tasks': Placeholder,
   'Librarian': Librarian,
+  'Philosopher': Placeholder,
   'Placeholder': Placeholder,
   'Proposed Tasks': ProposedTasks,
+  'Quick Wins': Placeholder,
   'Sceptic': Sceptic,
+  'Strategist': Placeholder,
+  'Tasks Awaiting Votes': Placeholder,
+  'Tasks Width Abstentions': Placeholder,
 };
 type Key = keyof typeof map;
 const selected: Key = 'Placeholder';

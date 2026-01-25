@@ -3,6 +3,7 @@ import { RuneGenerator } from "./RuneGenerator";
 import {
   Architect,
   Diplomat,
+  Guardian,
   Librarian,
   Placeholder,
   ProposedTasks,
@@ -12,7 +13,7 @@ import {
 const map = {
   'Architect': Architect,
   'Diplomat': Diplomat,
-  'Guardian': Placeholder,
+  'Guardian': Guardian,
   'Home': Placeholder,
   'Important Tasks': Placeholder,
   'Librarian': Librarian,
@@ -26,7 +27,7 @@ const map = {
   'Tasks Width Abstentions': Placeholder,
 };
 type Key = keyof typeof map;
-const selected: Key = 'Diplomat';
+const selected: Key = 'Guardian';
 
 const items = Object.entries(map).map(([label, Component]) => ({ label, Component }));
 

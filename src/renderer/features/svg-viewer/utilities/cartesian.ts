@@ -1,5 +1,7 @@
+import { Point } from "../types";
+
 // Get the x and y co-ordinates for the radius, circling clockwise.
-export const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => {
+export const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number): Point => {
   // SVG angles usually start from the right (0°), but rituals often start from the top.
   // We subtract 90 to make 0° the "North" pole.
   const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;

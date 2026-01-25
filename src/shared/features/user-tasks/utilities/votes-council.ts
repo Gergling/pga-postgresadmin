@@ -23,11 +23,11 @@ const getCouncilMemberSummary = (
   summaries: AtomicVoteValueSummary[],
 ): AtomicVoteValueSummary[] => {
   // If both numeric, we take the mean.
-  const allNumeric = summaries.every((atom) => typeof atom === 'number') && summaries.length > 0;
+  const allNumeric = summaries.every((atom) => typeof atom === 'number');
   if (allNumeric) {
     // We return a single mean array value.
     const mean = getMeanAtomicVoteRank(summaries);
-    return [mean];
+    if (mean !== undefined) return [mean];
   }
 
   // If identical, we return either.

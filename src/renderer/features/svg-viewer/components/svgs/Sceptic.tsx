@@ -12,13 +12,12 @@ const right: Line[] = [
   { start: { x: xCenter, y: yBottom }, end: { x: xTip, y: yTop } },
   { start: { x: xCenter, y: yBottom }, end: { x: xCenter, y: yTop } },
 ];
-const left: Line[] = right.map((line) => flipLine(line));
+const left: Line[] = right.map((line) => flipLine(line, 'horizontal'));
 
 export const Sceptic = () => {
   const d = [
     ...right,
     ...left,
-    // 'M -5 5 L -10 5',
   ].map((line) => `M ${line.start.x} ${line.start.y} L ${line.end.x} ${line.end.y}`).join(' ');
 
   return <SvgNeonBlood>

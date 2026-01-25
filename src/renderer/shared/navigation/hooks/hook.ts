@@ -33,6 +33,7 @@ export const useNavigation = () => {
   const recent = useMemo(
     () => frequency
       .map((path) => breadcrumbsMap[path])
+      .filter(Boolean)
       .sort((a, b) => a.label.localeCompare(b.label))
     ,
     [frequency]

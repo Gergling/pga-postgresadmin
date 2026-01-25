@@ -17,3 +17,20 @@ export const reduceInitialObject = <
   },
   {} as T
 );
+
+// This is explicitly intended to take "any"-typed parameters.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const deepMerge = <T>(target: any, source: any): T => {
+  // If either is not an object (or is null), return the source (overwrite/value)
+  if (typeof target !== 'object' || !target || typeof source !== 'object' || !source) {
+    return source;
+  }
+
+  const output = { ...target };
+
+  Object.keys(source).forEach((key) => {
+    output[key] = deepMerge(output[key], source[key]);
+  });
+
+  return output;
+};

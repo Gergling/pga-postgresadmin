@@ -1,26 +1,23 @@
-import { CSSProperties } from "@mui/material";
-import { Librarian, ProposedTasks, Sceptic } from "./svgs";
-
-const galleryMap = {
-  'Librarian': Librarian,
-  'Proposed Tasks': ProposedTasks,
-  'Sceptic': Sceptic,
-};
-
-type Key = keyof typeof galleryMap;
+import { useTheme } from "@gergling/ui-components";
+import { CSSProperties, Typography } from "@mui/material";
+import { PropsWithChildren, ReactNode } from "react";
 
 export const GalleryItem = ({
-  isItemMode = false,
+  children,
   label,
   zoom = '100%',
-}: {
-  isItemMode?: boolean;
-  label: Key;
+}: PropsWithChildren & {
+  label?: string;
   zoom?: CSSProperties['zoom'];
 }) => {
-  const Component = galleryMap[label];
+  const { theme: { colors: { primary } } } = useTheme();
   return <div>
-    {isItemMode && label}
+    <Typography variant="body2" style={{
+      textAlign: 'center',
+      textShadow: `0 0 20px #900`,
+      color: primary.main
+    }}>{label}</Typography>
+
     <div style={{ display: 'flex', zoom }}>
       <div style={{
         backgroundImage: `
@@ -32,7 +29,7 @@ export const GalleryItem = ({
         backgroundSize: '20px 20px',
         backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
       }}>
-        <Component />
+        {children}
       </div>
       {/* <div style={{
         backgroundColor: '#eee', // Fallback
@@ -51,17 +48,36 @@ export const GalleryItem = ({
   </div>;
 }
 
-export const Gallery = ({ label }: { label: Key; }) => <div>
-  <div style={{ display: 'flex' }}>
-    <div style={{ zoom: '500%' }}><GalleryItem label={label} /></div>
+export const Gallery = ({
+  items, selected
+}: {
+  items: { Component: () => ReactNode; label: string; }[];
+  selected: string;
+}) => {
+  const selectedItem = items.find(({ label }) => label === selected);
+
+  if (!selectedItem) {
+    throw new Error(`No component found for label: ${selected}`);
+  }
+
+  const { Component: SelectedComponent } = selectedItem;
+
+  return (
     <div>
-      <div style={{ zoom: '300%' }}><GalleryItem label={label} /></div>
       <div style={{ display: 'flex' }}>
-        <div style={{ zoom: '200%' }}><GalleryItem label={label} /></div>
-        <div style={{ zoom: '100%' }}><GalleryItem label={label} /></div>
+        <GalleryItem zoom={'500%'}><SelectedComponent /></GalleryItem>
+        <div>
+          <GalleryItem zoom={'300%'}><SelectedComponent /></GalleryItem>
+          <div style={{ display: 'flex' }}>
+            <GalleryItem zoom={'200%'}><SelectedComponent /></GalleryItem>
+            <GalleryItem zoom={'100%'}><SelectedComponent /></GalleryItem>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: '10px' }}>
+        {items.map(({ Component, label }, key) => <GalleryItem key={key} label={label}><Component /></GalleryItem>)}
       </div>
     </div>
-  </div>
-
-  {Object.keys(galleryMap).map(key => <GalleryItem key={key} label={key as Key} isItemMode />)}
-</div>;
+  );
+};

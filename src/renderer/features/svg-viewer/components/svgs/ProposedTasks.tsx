@@ -1,6 +1,9 @@
 import { GUIDES } from "../../config";
+import { getPathLibrarian } from "../../paths";
 import { describeArc, scaleRadius } from "../../utilities";
 import { SvgNeonBlood } from "../themes";
+
+const librarian = getPathLibrarian(38);
 
 export const ProposedTasks = () => {
   const glitchStart = 0;
@@ -18,5 +21,6 @@ export const ProposedTasks = () => {
       d={d}
       fill="none" 
     />
+    <path d={librarian} fill="none" />
   </SvgNeonBlood>
 };

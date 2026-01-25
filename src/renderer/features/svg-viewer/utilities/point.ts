@@ -1,6 +1,6 @@
-import { Point } from "../types";
+import { Orientation, Point } from "../types";
 
-export const flipPoint = ({ x, y }: Point, horizontal = true): Point => ({
-  x: horizontal ? -x : x,
-  y: horizontal ? y : -y,
+export const flipPoint = ({ x, y }: Point, orientation: Orientation = 'horizontal'): Point => ({
+  x: orientation !== 'vertical' ? -x : x,
+  y: orientation !== 'horizontal' ? -y : y,
 });

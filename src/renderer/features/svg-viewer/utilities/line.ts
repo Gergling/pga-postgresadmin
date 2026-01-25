@@ -1,7 +1,12 @@
-import { Line } from "../types";
+import { Line, Orientation, Point } from "../types";
 import { flipPoint } from "./point";
 
-export const flipLine = (line: Line, horizontal = true) => ({
-  start: flipPoint(line.start, horizontal),
-  end: flipPoint(line.end, horizontal),
+export const flipLine = (line: Line, orientation: Orientation = 'horizontal'): Line => ({
+  start: flipPoint(line.start, orientation),
+  end: flipPoint(line.end, orientation),
+});
+
+export const getLineScalePoint = ({ start, end }: Line, scale: number): Point => ({
+  x: ((end.x - start.x) * scale) + start.x,
+  y: ((end.y - start.y) * scale) + start.y,
 });

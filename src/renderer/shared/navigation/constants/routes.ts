@@ -3,13 +3,14 @@ import {
   Balance,
   Checklist,
   Home,
+  Image,
   Menu,
   MilitaryTech,
   PauseCircle,
   Rocket
 } from "@mui/icons-material";
 import { redirect } from "react-router-dom";
-import { HomeView } from "../../../views";
+import { HomeView, SvgViewerView, View404 } from "../../../views";
 import { TaskViewConfigName, UiNavigationConfigItem } from "../types";
 import { getNavigationItem, lazyImport } from "./utilities";
 
@@ -90,9 +91,16 @@ const config: UiNavigationConfigItem = {
       ],
     },
     {
-      // Need some proper 404 options JIC.
+      icon: Image,
+      label: 'SVG Viewer',
+      // lazy: lazyImports.svgViewer,
+      element: SvgViewerView,
+      path: 'svgs',
+    },
+    {
+      // Need some proper 404 options JIC. Welcome to the void. Maybe it's time for that eye in your nightmare.
       path: '*',
-      element: HomeView,
+      element: View404,
       omitBreadcrumb: true,
     },
   ],

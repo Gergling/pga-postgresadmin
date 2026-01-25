@@ -5,9 +5,11 @@ import { PropsWithChildren, ReactNode } from "react";
 export const GalleryItem = ({
   children,
   label,
+  selected = false,
   zoom = '100%',
 }: PropsWithChildren & {
   label?: string;
+  selected?: boolean;
   zoom?: CSSProperties['zoom'];
 }) => {
   const { theme: { colors: { primary } } } = useTheme();
@@ -21,6 +23,9 @@ export const GalleryItem = ({
       `,
       backgroundSize: '20px 20px',
       backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
+      borderColor: selected ? '#ffcc00' : 'transparent',
+      borderStyle: 'solid',
+      borderWidth: '1px',
       zoom
     }}>
       {children}
@@ -62,7 +67,7 @@ export const Gallery = ({
       </div>
 
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-        {items.map(({ Component, label }, key) => <GalleryItem key={key} label={label}><Component /></GalleryItem>)}
+        {items.map(({ Component, label }, key) => <GalleryItem key={key} label={label} selected={label === selected}><Component /></GalleryItem>)}
       </div>
     </div>
   );

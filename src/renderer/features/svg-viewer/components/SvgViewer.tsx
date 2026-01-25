@@ -1,6 +1,7 @@
 import { Gallery } from "./Gallery";
 import { RuneGenerator } from "./RuneGenerator";
 import {
+  Architect,
   Librarian,
   Placeholder,
   ProposedTasks,
@@ -8,9 +9,10 @@ import {
 } from "./svgs";
 
 const map = {
-  'Architect': Placeholder,
+  'Architect': Architect,
   'Diplomat': Placeholder,
   'Guardian': Placeholder,
+  'Home': Placeholder,
   'Important Tasks': Placeholder,
   'Librarian': Librarian,
   'Philosopher': Placeholder,
@@ -23,7 +25,7 @@ const map = {
   'Tasks Width Abstentions': Placeholder,
 };
 type Key = keyof typeof map;
-const selected: Key = 'Placeholder';
+const selected: Key = 'Architect';
 
 const items = Object.entries(map).map(([label, Component]) => ({ label, Component }));
 

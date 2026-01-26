@@ -11,8 +11,12 @@ export type Line = {
 };
 
 export type Box = {
-  topLeft: Point;
-  bottomRight: Point;
+  corner: Point;
+  opposite: Point;
 };
 
 export type PathFunction = (scale: number) => string;
+
+export type SvgLayer = React.SVGProps<SVGUseElement>;
+export type NeonPlasmaGlowKey = 'halo' | 'structure' | 'core' | 'filament';
+export type NeonPlasmaGlow = Record<NeonPlasmaGlowKey, SvgLayer>;

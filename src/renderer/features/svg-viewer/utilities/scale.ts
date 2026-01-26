@@ -10,7 +10,7 @@ export const scalePoint = (point: Point, to: number): Point => ({
   y: point.y * to,
 });
 
-export const scaleBox = ({ topLeft, bottomRight }: Box, to: number): Box => ({
-  topLeft: scalePoint(topLeft, to),
-  bottomRight: scalePoint(bottomRight, to),
+export const scaleBox = ({ corner, opposite }: Box, to: number): Box => ({
+  corner: scalePoint(corner, to),
+  opposite: scalePoint(opposite, to),
 });

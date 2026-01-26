@@ -4,6 +4,8 @@ import {
   Architect,
   Diplomat,
   Guardian,
+  Home,
+  ImportantTasks,
   Librarian,
   Placeholder,
   ProposedTasks,
@@ -14,8 +16,8 @@ const map = {
   'Architect': Architect,
   'Diplomat': Diplomat,
   'Guardian': Guardian,
-  'Home': Placeholder,
-  'Important Tasks': Placeholder,
+  'Home': Home,
+  'Important Tasks': ImportantTasks,
   'Librarian': Librarian,
   'Philosopher': Placeholder,
   'Placeholder': Placeholder,
@@ -25,17 +27,16 @@ const map = {
   'Strategist': Placeholder,
   'Tasks Awaiting Votes': Placeholder,
   'Tasks Width Abstentions': Placeholder,
+  'Workflower': Placeholder,
 };
 type Key = keyof typeof map;
-const selected: Key = 'Guardian';
+const selected: Key = 'Important Tasks';
 
 const items = Object.entries(map).map(([label, Component]) => ({ label, Component }));
 
 export const SvgViewer = () => {
   return <div style={{ color: 'white' }}>
     <Gallery items={items} selected={selected} />
-
-    Things to "rune": Home, Triple Root, Quick Tasks (some kinda rune rocket?), Abstained tasks can be an equals inside a hexagon, 
 
     <RuneGenerator/>
   </div>;

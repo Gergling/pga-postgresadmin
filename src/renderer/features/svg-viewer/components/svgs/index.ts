@@ -2,6 +2,8 @@ export * from './Architect';
 export * from './Bluetooth';
 export * from './Diplomat';
 export * from './Guardian';
+export * from './Home';
+export * from './ImportantTasks';
 export * from './Librarian';
 export * from './Placeholder';
 export * from './ProposedTasks';

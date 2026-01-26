@@ -11,21 +11,21 @@ export const getPathLibrarian: PathFunction = (scale) => {
   const bottomRight: Line = flipLine(topRight, 'vertical');
   
   const innerBox: Box = scaleBox({
-    topLeft: getLineScalePoint(topLeft, 0.5),
-    bottomRight: getLineScalePoint(bottomRight, 0.5),
+    corner: getLineScalePoint(topLeft, 0.5),
+    opposite: getLineScalePoint(bottomRight, 0.5),
   }, 0.8);
   
   const topLine: Line = {
-    start: { x: innerBox.topLeft.x + (0.05 * scale), y: innerBox.topLeft.y },
-    end: flipPoint({ x: innerBox.topLeft.x + (0.05 * scale), y: innerBox.topLeft.y })
+    start: { x: innerBox.corner.x + (0.05 * scale), y: innerBox.corner.y },
+    end: flipPoint({ x: innerBox.corner.x + (0.05 * scale), y: innerBox.corner.y })
   };
   const middleLine: Line = {
-    start: { x: innerBox.topLeft.x + (0.1 * scale), y: 0 },
-    end: flipPoint({ x: innerBox.topLeft.x - (0.1 * scale), y: 0 })
+    start: { x: innerBox.corner.x + (0.1 * scale), y: 0 },
+    end: flipPoint({ x: innerBox.corner.x - (0.1 * scale), y: 0 })
   };
   const bottomLine: Line = {
-    start: { x: -innerBox.bottomRight.x, y: innerBox.bottomRight.y },
-    end: { x: innerBox.bottomRight.x - (0.15 * scale), y: innerBox.bottomRight.y }
+    start: { x: -innerBox.opposite.x, y: innerBox.opposite.y },
+    end: { x: innerBox.opposite.x - (0.15 * scale), y: innerBox.opposite.y }
   };
   
   return [

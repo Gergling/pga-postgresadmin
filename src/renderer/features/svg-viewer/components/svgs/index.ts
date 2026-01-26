@@ -5,6 +5,7 @@ export * from './Guardian';
 export * from './Home';
 export * from './ImportantTasks';
 export * from './Librarian';
+export * from './Philosopher';
 export * from './Placeholder';
 export * from './ProposedTasks';
 export * from './Sceptic';

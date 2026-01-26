@@ -7,6 +7,7 @@ import {
   Home,
   ImportantTasks,
   Librarian,
+  Philosopher,
   Placeholder,
   ProposedTasks,
   Sceptic
@@ -19,7 +20,7 @@ const map = {
   'Home': Home,
   'Important Tasks': ImportantTasks,
   'Librarian': Librarian,
-  'Philosopher': Placeholder,
+  'Philosopher': Philosopher,
   'Placeholder': Placeholder,
   'Proposed Tasks': ProposedTasks,
   'Quick Wins': Placeholder,
@@ -30,7 +31,7 @@ const map = {
   'Workflower': Placeholder,
 };
 type Key = keyof typeof map;
-const selected: Key = 'Important Tasks';
+const selected: Key = 'Philosopher';
 
 const items = Object.entries(map).map(([label, Component]) => ({ label, Component }));
 

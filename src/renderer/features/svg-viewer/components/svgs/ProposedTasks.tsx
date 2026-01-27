@@ -1,22 +1,24 @@
 import { GUIDES } from "../../config";
+import { NeonBloodIcon, SIZE_CONFIG } from "../../config/neon";
 import { getPathLibrarian } from "../../paths";
-import { describeArc, scaleRadius } from "../../utilities";
+import { describeArc } from "../../utilities";
 import { SvgNeonBlood } from "../themes";
 
-const librarian = getPathLibrarian(38);
 
-export const ProposedTasks = () => {
+export const ProposedTasks: NeonBloodIcon = (props) => {
+  const scale = SIZE_CONFIG[props.size];
+  const librarian = getPathLibrarian(38 * scale / 100);
   const glitchStart = 0;
   const glitchMiddle = 60;
   const glitchEnd = 120;
-  const outerMainPath = describeArc(0, 0, scaleRadius(GUIDES.outerRadius), glitchEnd, glitchStart, { largeArc: true });
-  const innerMainPath = describeArc(0, 0, scaleRadius(GUIDES.innerRadius), glitchEnd, glitchStart, { largeArc: true });
+  const outerMainPath = describeArc(0, 0, GUIDES.outerRadius * scale, glitchEnd, glitchStart, { largeArc: true });
+  const innerMainPath = describeArc(0, 0, GUIDES.innerRadius * scale, glitchEnd, glitchStart, { largeArc: true });
   const glitchRadius = (GUIDES.innerRadius + GUIDES.outerRadius) / 2;
-  const glitchInnerPath = describeArc(5, -5, scaleRadius(GUIDES.innerRadius), glitchStart, glitchMiddle);
-  const glitchOuterPath = describeArc(5, 0, scaleRadius(glitchRadius), glitchMiddle, glitchEnd);
+  const glitchInnerPath = describeArc(5, -5, GUIDES.innerRadius * scale, glitchStart, glitchMiddle);
+  const glitchOuterPath = describeArc(5, 0, glitchRadius * scale, glitchMiddle, glitchEnd);
   const d = [outerMainPath, innerMainPath, glitchInnerPath, glitchOuterPath].join(' ');
 
-  return <SvgNeonBlood>
+  return <SvgNeonBlood {...props}>
     <path
       d={d}
       fill="none" 

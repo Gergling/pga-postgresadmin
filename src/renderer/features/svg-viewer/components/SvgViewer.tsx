@@ -1,4 +1,4 @@
-import { Gallery } from "./Gallery";
+import { Gallery, GalleryGroup, GalleryProps } from "./Gallery";
 import { RuneGenerator } from "./RuneGenerator";
 import {
   Architect,
@@ -10,30 +10,60 @@ import {
   Philosopher,
   Placeholder,
   ProposedTasks,
+  QuickWins,
   Sceptic
 } from "./svgs";
+import { NeonBloodIcon } from "../config/neon";
 
-const map = {
-  'Architect': Architect,
-  'Diplomat': Diplomat,
-  'Guardian': Guardian,
-  'Home': Home,
-  'Important Tasks': ImportantTasks,
-  'Librarian': Librarian,
-  'Philosopher': Philosopher,
-  'Placeholder': Placeholder,
-  'Proposed Tasks': ProposedTasks,
-  'Quick Wins': Placeholder,
-  'Sceptic': Sceptic,
-  'Strategist': Placeholder,
-  'Tasks Awaiting Votes': Placeholder,
-  'Tasks Width Abstentions': Placeholder,
-  'Workflower': Placeholder,
-};
-type Key = keyof typeof map;
-const selected: Key = 'Philosopher';
+const getGalleryConfig = <Name extends string,>(
+  config: Record<GalleryGroup, Partial<Record<Name, NeonBloodIcon>>>,
+) => (
+  selected: Name,
+): {
+  items: GalleryProps<Name>;
+  selected: Name;
+} => ({
+  items: Object.keys(config).reduce((acc, key) => ({
+    ...acc,
+    [key]: Object.keys(config[key as GalleryGroup]).reduce((acc, label) => [
+      ...acc,
+      {
+        label,
+        Component: config[key as GalleryGroup][label as Name],
+      },
+    ], []),
+  }), {} as GalleryProps<Name>),
+  selected: selected as Name,
+});
 
-const items = Object.entries(map).map(([label, Component]) => ({ label, Component }));
+const {
+  items,
+  selected,
+} = getGalleryConfig({
+  councillor: {
+    'Architect': Architect,
+    'Diplomat': Diplomat,
+    'Guardian': Guardian,
+    'Librarian': Librarian,
+    'Philosopher': Philosopher,
+    'Sceptic': Sceptic,
+    'Strategist': Placeholder,
+  },
+  navigation: {
+    'Home': Home,
+  },
+  other: {
+    'Placeholder': Placeholder,
+    'Workflower': Placeholder,
+  },
+  tasks: {
+    'Important Tasks': ImportantTasks,
+    'Proposed Tasks': ProposedTasks,
+    'Quick Wins': QuickWins,
+    'Tasks Awaiting Votes': Placeholder,
+    'Tasks Width Abstentions': Placeholder,
+  },
+})('Quick Wins');
 
 export const SvgViewer = () => {
   return <div style={{ color: 'white' }}>

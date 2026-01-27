@@ -1,6 +1,7 @@
 import { useTheme } from "@gergling/ui-components";
 import { CSSProperties, Typography } from "@mui/material";
-import { PropsWithChildren, ReactNode } from "react";
+import { PropsWithChildren } from "react";
+import { NeonBloodIcon, NeonPlasmaGlowConfigNames, SizeName } from "../config/neon";
 
 export const GalleryItem = ({
   children,
@@ -39,13 +40,23 @@ export const GalleryItem = ({
   </div>;
 }
 
-export const Gallery = ({
+const galleryGroups = ['councillor', 'tasks', 'navigation', 'other'] as const;
+export type GalleryGroup = typeof galleryGroups[number];
+export type GalleryItemProps<T extends string> = { Component: NeonBloodIcon; label: T; };
+export type GalleryProps<T extends string> = Record<GalleryGroup, GalleryItemProps<T>[]>;
+
+const defaultColour: NeonPlasmaGlowConfigNames = 'blood';
+const defaultSize: SizeName = 'large';
+
+export const Gallery = <T extends string,>({
   items, selected
 }: {
-  items: { Component: () => ReactNode; label: string; }[];
+  items: GalleryProps<T>;
   selected: string;
 }) => {
-  const selectedItem = items.find(({ label }) => label === selected);
+  const allItems = Object.keys(items).reduce((acc, key) => ([ ...acc, ...items[key as GalleryGroup]]), []);
+  const selectedItem = allItems.find(({ label }) => label === selected);
+  const { theme: { colors: { primary } } } = useTheme();
 
   if (!selectedItem) {
     throw new Error(`No component found for label: ${selected}`);
@@ -56,19 +67,49 @@ export const Gallery = ({
   return (
     <div>
       <div style={{ display: 'flex' }}>
-        <GalleryItem zoom={'500%'}><SelectedComponent /></GalleryItem>
+        <GalleryItem zoom={'500%'}><SelectedComponent size={defaultSize} /></GalleryItem>
         <div>
-          <GalleryItem zoom={'300%'}><SelectedComponent /></GalleryItem>
+          <GalleryItem zoom={'300%'}><SelectedComponent size={defaultSize} /></GalleryItem>
           <div style={{ display: 'flex' }}>
-            <GalleryItem zoom={'200%'}><SelectedComponent /></GalleryItem>
-            <GalleryItem zoom={'100%'}><SelectedComponent /></GalleryItem>
+            <GalleryItem zoom={'200%'}><SelectedComponent size={defaultSize} /></GalleryItem>
+            <div>
+              <GalleryItem zoom={'100%'}><SelectedComponent size={defaultSize} /></GalleryItem>
+              <div style={{ display: 'flex' }}>
+                <GalleryItem><SelectedComponent size={'medium'} /></GalleryItem>
+                <GalleryItem><SelectedComponent size={'small'} /></GalleryItem>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-        {items.map(({ Component, label }, key) => <GalleryItem key={key} label={label} selected={label === selected}><Component /></GalleryItem>)}
-      </div>
+      {galleryGroups.map((groupName) => <div key={groupName}>
+        <Typography variant="h6" sx={{
+          textShadow: `0 0 5px ${primary.main}`,
+          color: primary.main,
+          textTransform: 'uppercase',
+        }}>{groupName}</Typography>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          {items[groupName].map(({ Component, label }, key) => <GalleryItem
+            key={key}
+            label={label}
+            selected={label === selected}
+          >
+            <Component color={defaultColour} size={defaultSize} />
+            <div style={{ display: 'flex' }}>
+              <Component color={defaultColour} size={'medium'} />
+              <Component color={defaultColour} size={'small'} />
+            </div>
+            {groupName === 'councillor' && <>
+              <Component size={defaultSize} />
+              <div style={{ display: 'flex' }}>
+                <Component size={'medium'} />
+                <Component size={'small'} />
+              </div>
+            </>}
+          </GalleryItem>)}
+        </div>
+      </div>)}
     </div>
   );
 };

@@ -1,10 +1,11 @@
+import { NeonBloodIcon, SIZE_CONFIG } from "../../config/neon";
 import { getPathGuardian } from "../../paths";
 import { SvgNeonBlood } from "../themes";
 
-const d = getPathGuardian(100);
 
-export const Guardian = () => {
-  return <SvgNeonBlood>
+export const Guardian: NeonBloodIcon = (props) => {
+  const d = getPathGuardian(SIZE_CONFIG[props.size]);
+  return <SvgNeonBlood color={'green'} {...props}>
     <path
       d={d}
       fill="none" 

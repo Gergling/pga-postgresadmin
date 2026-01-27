@@ -1,10 +1,10 @@
-import { NEON_PLASMA_GLOW_CONFIG } from "../../config/neon";
-import { useUniqueId } from "../../hooks";
+import { NEON_PLASMA_GLOW_CONFIG, NeonBloodIcon } from "../../config/neon";
+import { useSize, useUniqueId } from "../../hooks";
 import { getPathImportantTasksBody, getPathImportantTasksCrown } from "../../paths/important-tasks";
 import { getPlasmaGlowLayers, getSvgFilter } from "../themes/neon";
 import { getGeometryGroup } from "../themes/utilities";
 
-export const ImportantTasks = () => {
+export const ImportantTasks: NeonBloodIcon = ({ size }) => {
   const {
     plasmaGlowId,
     lowerGeometryId,
@@ -15,19 +15,21 @@ export const ImportantTasks = () => {
     'upperGeometryId',
   ]);
 
-  const lowerGeometry = getPathImportantTasksBody(100);
-  const upperGeometry = getPathImportantTasksCrown(100);
+  const { translation, ...svgProps } = useSize(size);
 
-  return <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  const lowerGeometry = getPathImportantTasksBody(svgProps.width);
+  const upperGeometry = getPathImportantTasksCrown(svgProps.width);
+
+  return <svg version="1.1" xmlns="http://www.w3.org/2000/svg" {...svgProps}>
     <defs>
       {getSvgFilter(plasmaGlowId)}
     </defs>
 
-    {getGeometryGroup(upperGeometryId, <path
+    {getGeometryGroup(upperGeometryId, translation, <path
       d={upperGeometry}
       fill="none" 
     />)}
-    {getGeometryGroup(lowerGeometryId, <path
+    {getGeometryGroup(lowerGeometryId, translation, <path
       d={lowerGeometry}
       fill="none" 
     />)}

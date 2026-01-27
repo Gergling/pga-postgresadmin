@@ -8,4 +8,5 @@ export * from './Librarian';
 export * from './Philosopher';
 export * from './Placeholder';
 export * from './ProposedTasks';
+export * from './QuickWins';
 export * from './Sceptic';

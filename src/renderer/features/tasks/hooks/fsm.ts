@@ -13,7 +13,7 @@ export const useFsm = (status: WorkflowState) => {
   const config: WorkflowEventConfig = useMemo(() => ({
     approve: { label: 'Approve', icon: Forward, color: colors.success.main },
     dismiss: { label: 'Dismiss', icon: DeleteForever, color: darken(colors.error.main, 0.1) },
-    finalize: { label: 'Finalize', icon: Check, color: colors.success.main },
+    finalize: { label: 'Complete', icon: Check, color: colors.success.main },
     pause: { label: 'Pause', icon: Pause, color: colors.info.main },
     start: { label: 'Start', icon: PlayArrow, color: colors.warning.main },
   }), [colors]);

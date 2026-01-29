@@ -109,13 +109,16 @@ const getPathRunetator = ({
   runes
 }: RunetatorState, scale: number): string => {
   const runeSize = middleMargin * scale * 0.95;
-  const scaleRune = scaleLine(runeSize);
+  const innerRadius = GUIDES.innerRadius * scale;
+  const scaleRuneRing = scaleLine(runeSize);
+  const scaleRuneCentre = scaleLine(innerRadius * 1.5);
   const outerMainPath = outer ? describeArc(0, 0, GUIDES.outerRadius * scale, 0, -0.01, { largeArc: true }) : '';
-  const innerMainPath = inner ? describeArc(0, 0, GUIDES.innerRadius * scale, 0, -0.01, { largeArc: true }) : '';
+  const innerMainPath = inner ? describeArc(0, 0, innerRadius, 0, -0.01, { largeArc: true }) : '';
   return councillorKeys.reduce((acc, councillorKey) => {
     const runeTranslation = councillorKey === 'centre'
       ? { x: 0, y: 0 } :
       polarToCartesian(0, 0, middleRadius * scale, councillorKey * 60);
+    const scaleRune = councillorKey === 'centre' ? scaleRuneCentre : scaleRuneRing;
     const runeOrientationState = runes[councillorKey];
     const runeLines = getInitialRuneLines();
     return orientationKeys.reduce((acc, orientation) => {

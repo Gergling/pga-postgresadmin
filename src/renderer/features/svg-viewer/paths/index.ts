@@ -8,3 +8,4 @@ export * from './line';
 export * from './magic-circle';
 export * from './philosopher';
 export * from './rectangle';
+export * from './strategist';

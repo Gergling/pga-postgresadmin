@@ -20,7 +20,7 @@ export const Sceptic: NeonBloodIcon = (props) => {
   const d = [
     ...right,
     ...left,
-  ].map((line) => scaleLine(line, scale)).map((line) => `M ${line.start.x} ${line.start.y} L ${line.end.x} ${line.end.y}`).join(' ');
+  ].map(scaleLine(scale)).map((line) => `M ${line.start.x} ${line.start.y} L ${line.end.x} ${line.end.y}`).join(' ');
 
   return <SvgNeonBlood color={'purple'} {...props}>
     <path

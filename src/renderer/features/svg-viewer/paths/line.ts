@@ -1,5 +1,5 @@
 import { Line } from "../types";
 
-export const getLinePath = (lines: Line[]): string => lines.map(
-  (line) => `M ${line.start.x} ${line.start.y} L ${line.end.x} ${line.end.y}`
-).join(' ');
+export const getLinePath = (lines: Line[]): string => lines.map(mapLinePath).join(' ');
+
+export const mapLinePath = ({ start, end }: Line): string => `M ${start.x} ${start.y} L ${end.x} ${end.y}`;

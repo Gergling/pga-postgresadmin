@@ -8,8 +8,8 @@ const d = [
   "M40 80 L50 60"        // Lower feather 2
 ].join(' ');
 
-export const QuickWins: NeonBloodIcon = () => {
-  return <SvgNeonBlood>
+export const QuickWins: NeonBloodIcon = (props) => {
+  return <SvgNeonBlood {...props}>
     <path
       d={d}
       fill="none" 

@@ -10,3 +10,4 @@ export * from './Placeholder';
 export * from './ProposedTasks';
 export * from './QuickWins';
 export * from './Sceptic';
+export * from './Strategist';

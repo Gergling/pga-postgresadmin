@@ -11,7 +11,8 @@ import {
   Placeholder,
   ProposedTasks,
   QuickWins,
-  Sceptic
+  Sceptic,
+  Strategist
 } from "./svgs";
 import { NeonBloodIcon } from "../config/neon";
 
@@ -41,13 +42,13 @@ const {
   selected,
 } = getGalleryConfig({
   councillor: {
+    'Philosopher': Philosopher,
     'Architect': Architect,
     'Diplomat': Diplomat,
     'Guardian': Guardian,
     'Librarian': Librarian,
-    'Philosopher': Philosopher,
+    'Strategist': Strategist,
     'Sceptic': Sceptic,
-    'Strategist': Placeholder,
   },
   navigation: {
     'Home': Home,
@@ -63,7 +64,7 @@ const {
     'Tasks Awaiting Votes': Placeholder,
     'Tasks Width Abstentions': Placeholder,
   },
-})('Quick Wins');
+})('Strategist');
 
 export const SvgViewer = () => {
   return <div style={{ color: 'white' }}>

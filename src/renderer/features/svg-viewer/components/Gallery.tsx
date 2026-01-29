@@ -31,12 +31,12 @@ export const GalleryItem = ({
     }}>
       {children}
     </div>
-    <Typography variant="body2" style={{
+    {label && <Typography variant="body2" style={{
       textAlign: 'center',
       textShadow: `0 0 20px #900`,
       color: primary.main,
       width: 100,
-    }}>{label}</Typography>
+    }}>{label}</Typography>}
   </div>;
 }
 

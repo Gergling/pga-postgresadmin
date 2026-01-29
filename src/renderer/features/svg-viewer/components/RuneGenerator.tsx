@@ -1,87 +1,238 @@
-type RuneConfig = {
-  size: number;
-  glowColor: string;
-  coreColor: string;
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Typography } from "@mui/material";
+import { useTheme } from "@gergling/ui-components";
+import { GUIDES } from "../config";
+import { NEON_PLASMA_GLOW_CONFIG_NAMES, NeonPlasmaGlowConfigNames, SIZE_CONFIG, SizeName } from "../config/neon";
+import { mapLinePath } from "../paths";
+import { Line, Point } from "../types";
+import { describeArc, mapLine, polarToCartesian, scaleLine, translateLine } from "../utilities";
+import { SvgNeonBlood } from "./themes";
+import { GalleryItem } from "./Gallery";
+
+const getInitialRuneLines = (): Record<RuneOrientationKey, Line[]> => {
+  const totalPoints = 6;
+  const centre: Point = { x: 0, y: 0 };
+  const points = Array.from({ length: totalPoints }, (_, i) => {
+    const angleDegrees = (i / totalPoints) * 360;
+    return polarToCartesian(0, 0, GUIDES.outerRadius, angleDegrees);
+  });
+  const ring = points.map(mapLine);
+  const star = points.map((point): Line => ({ start: centre, end: point }));
+  return { ring, star };
 };
 
-const getStateStr = (state: boolean[]) => state.map(s => s ? '1' : '0').join('');
-
 /**
- * Generates all possible boolean combinations for a set of dimensions.
- * @param dimensions - The number of "switches" (e.g., 6 segments in a rune).
- * @returns An array of boolean arrays representing every state.
+ * Converts a string into a 32-bit signed integer seed.
+ * Uses a bitwise approach to ensure "abc" and "cba" produce different results.
  */
-function generateRuneStates(dimensions: number): boolean[][] {
-  const combinations: boolean[][] = [];
-  const totalStates = Math.pow(2, dimensions);
-
-  for (let i = 0; i < totalStates; i++) {
-    // Convert the index to a binary string and pad with zeros
-    const binary = i.toString(2).padStart(dimensions, '0');
-    const state = binary.split('').map(bit => bit === '1');
-    combinations.push(state);
+const stringToSeed = (str: string): number => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash |= 0; // Convert to 32bit integer
   }
+  return hash;
+};
 
-  return combinations;
+function getGenerator(seed: number) {
+  return function() {
+    let t = seed += 0x6D2B79F5;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
 }
 
-const grid = generateRuneStates(6);
+type HexagonalKey = 0 | 1 | 2 | 3 | 4 | 5;
+type RuneState = Record<HexagonalKey, boolean>; // 24 states
+type RuneOrientationKey = 'ring' | 'star';
+type RuneOrientationState = Record<RuneOrientationKey, RuneState>;
+type RuneCouncillorKey = HexagonalKey | 'centre';
+type RuneCouncillorState = Record<RuneCouncillorKey, RuneOrientationState>; // 24 * 7 = 168
+type RunetatorState = { // 168 * 4 = 672
+  circle: {
+    outer: boolean;
+    inner: boolean;
+  };
+  runes: RuneCouncillorState;
+};
+const hexagonalKeys = Array.from({ length: 6 }, (_, i) => i as HexagonalKey);
+const orientationKeys: RuneOrientationKey[] = ['ring', 'star'];
+const councillorKeys: RuneCouncillorKey[] = [...hexagonalKeys, 'centre'];
 
-function generateRuneSVG(state: boolean[], config: RuneConfig): string {
-  const { size, glowColor, coreColor } = config;
-  
-  // Define the 6 segments of a central-spine hexagon rune (like Bluetooth)
-  // These coordinates assume a 100x100 viewbox
-  const segments = [
-    "M50 50 L50 5",   // Top Spine
-    "M50 50 L50 95",  // Bottom Spine
-    "M50 5 L85 25",   // Top-Right Diagonal
-    "M85 25 L50 50",  // Mid-Right Return
-    "M50 50 L85 75",  // Mid-Right Diagonal
-    "M85 75 L50 95",  // Bottom-Right Return
+const getSeededStateHexagonal = <T,>(
+  get: () => T
+) => hexagonalKeys.reduce(
+  (acc, key) => ({ ...acc, [key]: get() }),
+  {} as Record<HexagonalKey, T>
+);
+const getSeededStateOrientation = (
+  generate: () => boolean
+) => {
+  const generateRuneState = () => getSeededStateHexagonal(generate);
+  return orientationKeys.reduce((acc, orientation) => {
+    const runeState: RuneState = generateRuneState();
+    return { ...acc, [orientation]: runeState };
+  }, {} as RuneOrientationState);
+};
+const getRunetatorState = (
+  generateBoolean: () => boolean,
+): RunetatorState => {
+  const getSeededCouncillorState = () => getSeededStateOrientation(generateBoolean);
+  return {
+    circle: {
+      outer: generateBoolean(),
+      inner: generateBoolean(),
+    },
+    runes: {
+      centre: getSeededCouncillorState(),
+      ...getSeededStateHexagonal(getSeededCouncillorState),
+    },
+  };
+};
+const getFullState = () => getRunetatorState(() => true);
+const getSeededState = (seed: number): RunetatorState => {
+  const generate = getGenerator(seed);
+  const generateBool = () => generate() > 0.5;
+  return getRunetatorState(generateBool);
+};
 
-    // "M50 95 L15 75",  // Bottom-Left Diagonal
-    // "M15 75 L50 50",  // Mid-Left Return
-    // "M50 50 L15 25",  // Mid-Left Diagonal
-    // "M15 25 L50 5",   // Top-Left Return
-  ];
+const middleRadius = (GUIDES.outerRadius + GUIDES.innerRadius) / 2;
+const middleMargin = GUIDES.outerRadius - GUIDES.innerRadius;
 
-  // Only render the paths where the state is 'true'
-  const activePaths = segments
-    .filter((_, index) => state[index])
-    .join(" ");
+const getPathRunetator = ({
+  circle: {
+    outer,
+    inner,
+  },
+  runes
+}: RunetatorState, scale: number): string => {
+  const runeSize = middleMargin * scale * 0.95;
+  const scaleRune = scaleLine(runeSize);
+  const outerMainPath = outer ? describeArc(0, 0, GUIDES.outerRadius * scale, 0, -0.01, { largeArc: true }) : '';
+  const innerMainPath = inner ? describeArc(0, 0, GUIDES.innerRadius * scale, 0, -0.01, { largeArc: true }) : '';
+  return councillorKeys.reduce((acc, councillorKey) => {
+    const runeTranslation = councillorKey === 'centre'
+      ? { x: 0, y: 0 } :
+      polarToCartesian(0, 0, middleRadius * scale, councillorKey * 60);
+    const runeOrientationState = runes[councillorKey];
+    const runeLines = getInitialRuneLines();
+    return orientationKeys.reduce((acc, orientation) => {
+      const runeState = runeOrientationState[orientation];
+      const runeOrientationLines = runeLines[orientation].map(scaleRune);
+      return hexagonalKeys.reduce((acc, key) => {
+        const state = runeState[key];
+        if (state) {
+          const line = translateLine(runeOrientationLines[key], runeTranslation);
+          const path = mapLinePath(line);
+          return `${acc} ${path}`;
+        }
+        return acc;
+      }, acc);
+    }, acc);
+  }, [
+    outerMainPath,
+    innerMainPath,
+  ].join(' '));
+};
 
-  return `
-    <svg viewBox="0 0 100 100" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <filter id="flicker-glow">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="glow"/>
-          <feMerge>
-            <feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-      </defs>
-      <g fill="none" stroke-linecap="round" stroke-linejoin="bevel" filter="url(#flicker-glow)">
-        <path d="${activePaths}" stroke="${glowColor}" stroke-width="6" opacity="0.4" />
-        <path d="${activePaths}" stroke="${coreColor}" stroke-width="2.5" />
-        <path d="${activePaths}" stroke="#ffcc00" stroke-width="0.5" opacity="0.8" />
-      </g>
-    </svg>
-  `;
-}
+type RunetatorPropsBase = {
+  color?: NeonPlasmaGlowConfigNames;
+  flicker?: boolean; // Will cause changes in path segments to "flicker" in and out.
+  fade?: boolean; // Will cause changes in path segments to fade in and out.
+  runes?: Partial<Record<RuneCouncillorKey, Line[]>>;
+} & (
+  {
+    fill: true;
+  } | {
+    state: RunetatorState;
+  } | {
+    seed: number;
+  } | {
+    seedStr: string;
+  }
+);
+type RunetatorProps = RunetatorPropsBase & { size: SizeName; };
+
+export const Runetator: React.FC<RunetatorProps> = ({
+  flicker,
+  ...props
+}) => {
+  const state = useMemo((): RunetatorState => {
+    if ('fill' in props) return getFullState();
+    if ('state' in props) return props.state;
+    const seed = 'seed' in props ? props.seed : stringToSeed(props.seedStr);
+    return getSeededState(seed);
+  }, [flicker, props]);
+  const scale = useMemo(() => SIZE_CONFIG[props.size], [props.size]);
+  const d = useMemo(() => getPathRunetator(state, scale), [state, scale]);
+  return <SvgNeonBlood color={'green'} {...props}>
+    <path
+      d={d}
+      fill="none" 
+      strokeLinejoin="bevel"
+    />
+  </SvgNeonBlood>;
+};
+
+const DemoRunetator: React.FC<RunetatorPropsBase> = (
+  props
+) => <GalleryItem>
+  <Runetator size={'large'} {...props} />
+  <div style={{ display: 'flex' }}>
+    <Runetator size={'medium'} {...props} />
+    <Runetator size={'small'} {...props} />
+  </div>
+</GalleryItem>;
+
+const DemoRow: React.FC<RunetatorPropsBase & { label: string; }> = ({
+  label, ...props
+}) => {
+  const { theme: { colors: { primary } } } = useTheme();
+  return <>
+    <Typography variant="h6" sx={{
+      textShadow: `0 0 5px ${primary.main}`,
+      color: primary.main,
+      textTransform: 'uppercase',
+    }}>{label}</Typography>
+    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+      {NEON_PLASMA_GLOW_CONFIG_NAMES.map((colour) => <DemoRunetator key={colour} color={colour} {...props} />)}
+    </div>
+  </>;
+};
+
+const useTicker = <T,>(cb: () => T, timeout: number, initialState?: T) => {
+  const [state, setState] = useState<T | undefined>(initialState);
+
+  const handleTimeout = useCallback(() => {
+    setState(cb());
+    return setTimeout(handleTimeout, timeout);
+  }, [cb, setState, timeout]);
+
+  useEffect(() => {
+    const handle = handleTimeout();
+    return () => {
+      clearTimeout(handle);
+    };
+  }, []);
+
+  return state;
+};
 
 export const RuneGenerator = () => {
+  const { theme: { colors: { primary } } } = useTheme();
+  const seed = useTicker(() => Date.now(), 1997);
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '10px' }}>
-      {grid.map((state, i) => (<div key={i} style={{ margin: 'auto' }}>
-        <div 
-          dangerouslySetInnerHTML={{ 
-            __html: generateRuneSVG(state, { size: 20, glowColor: '#700', coreColor: '#ff3300' }) 
-          }} 
-        />
-        <div>{getStateStr(state)}</div>
-      </div>
-      ))}
-    </div>
+    <>
+      <Typography variant="h5" sx={{
+        textShadow: `0 0 5px ${primary.main}`,
+        color: primary.main,
+        textTransform: 'uppercase',
+      }}>Rune Tators</Typography>
+      <DemoRow label="Filled" fill />
+      <DemoRow label="Seeded" seed={seed || 0} />
+      <DemoRow label="'Workflower'" seedStr={'Workflower'} />
+    </>
   );
 };

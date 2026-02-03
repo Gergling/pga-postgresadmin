@@ -7,6 +7,7 @@ import {
   Menu,
   MilitaryTech,
   PauseCircle,
+  QuestionMark,
   Rocket
 } from "@mui/icons-material";
 import { redirect } from "react-router-dom";
@@ -86,8 +87,22 @@ const config: UiNavigationConfigItem = {
           // If we're putting everything through the same view outlet provider, these don't need to be routes.
           // So we could have an omitRoute
           ...item,
+          index: undefined,
           lazy: lazyImports.tasks,
+          children: [
+            {
+              label: '(Unnamed Task)', // Find a way to omit this.
+              path: ':taskId',
+              icon: QuestionMark, // Find a way to omit this.
+              element: () => 'Task Detail View',
+            }
+          ],
         })),
+        {
+          path: '*',
+          element: () => 'Tasks 404',
+          omitBreadcrumb: true,
+        },
       ],
     },
     {

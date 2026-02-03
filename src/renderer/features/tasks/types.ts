@@ -7,10 +7,13 @@ import {
 } from "../../../shared/features/user-tasks";
 import { GridCellRenderer } from "../../shared/grid";
 
-export type UiUserTask = UserTask & {
-  scores: TaskVoteSummary;
-  view: 'edge' | 'outdated' | 'transitioning';
-};
+export type UiUserTask<T extends boolean = false> =
+  & Omit<UserTask, 'id'>
+  & Pick<T extends true ? Required<UserTask> : UserTask, 'id'>
+  & {
+    scores: TaskVoteSummary;
+    view: 'edge' | 'outdated' | 'transitioning';
+  };
 
 export type TaskComparisonFunction = (a: UiUserTask, b: UiUserTask) => number;
 export type TaskFilterFunction = (task: UiUserTask) => boolean;

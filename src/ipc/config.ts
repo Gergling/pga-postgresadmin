@@ -35,6 +35,7 @@ export type IpcInvocationConfig = IpcInvocationConfigBase<{
   triageTasks: (params: TriageTasksParameters) => TriageTasksResponse;
 
   readIncompleteTasks: () => UserTask[];
+  readTaskForId: (taskId: string) => UserTask;
   updateTask: (taskId: string, newData: Partial<UserTask>) => UserTask;
 
   getEnvironment: () => EnvironmentProps;
@@ -95,8 +96,13 @@ export const ipcHandlerConfig: IpcHandlerConfig<
   // Everything below this comment is in use.
   triageTasks: async ({
     args: [params],
-    triage: { triageTasks } }) => triageTasks(params),
+    triage: { triageTasks }
+  }) => triageTasks(params),
   readIncompleteTasks: ({ tasks: { read: { incomplete } } }) => incomplete(),
+  readTaskForId: ({
+    args: [taskId],
+    tasks: { read: { forId } },
+  }) => forId(taskId),
   updateTask: ({
     args: [taskId, newData],
     tasks: { update: { set } },

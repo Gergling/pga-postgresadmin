@@ -28,7 +28,7 @@ export const createUserTask = (task: Optional<
 >): UserTask => {
   return {
     status: 'proposed',
-    source: 'manual',
+    source: { type: 'manual' },
     updated: Date.now(),
     audit: [],
     ...task,

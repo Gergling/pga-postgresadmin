@@ -7,7 +7,7 @@ const isNotEdgeTask: TaskFilterFunction = ({ view }) => view !== 'edge';
 const isNotProposedTask: TaskFilterFunction = ({ status }) => status !== 'proposed';
 const isProposedTask: TaskFilterFunction = ({ status }) => status === 'proposed';
 
-const createUiUserTask = (task: UserTask & { view?: UiUserTask['view']; }): UiUserTask => {
+export const createUiUserTask = (task: UserTask & { view?: UiUserTask['view']; }): UiUserTask => {
   const scores = getVoteSummary(task);
   
   return {

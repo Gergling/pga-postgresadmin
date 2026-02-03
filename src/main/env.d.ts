@@ -1,6 +1,7 @@
 declare namespace NodeJS {
   interface ProcessEnv {
     readonly FIREBASE_SERVICE_ACCOUNT_PATH: string;
+    readonly FIREBASE_SERVICE_ACCOUNT_PATH_DEV: string;
 
     readonly IMAP_HOST: string;
     readonly IMAP_USER: string;

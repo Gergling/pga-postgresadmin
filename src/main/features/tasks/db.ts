@@ -27,6 +27,16 @@ export const fetchIncompleteUserTasks = async (): Promise<UserTask[]> => {
   }));
 };
 
+export const fetchUserTask = async (taskId: string): Promise<UserTask> => {
+  const snapshot = await userTaskCollection().doc(taskId).get();
+  const data = snapshot.data();
+  if (!data) throw new Error(`Task not found for id: ${taskId}.`);
+  return createUserTask({
+    ...data,
+    id: snapshot.id,
+  });
+};
+
 export const updateTask = async (taskId: string, newData: Partial<UserTask>): Promise<UserTask> => {
   // newData should have at least one property.
   const taskRef = userTaskCollection().doc(taskId);

@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useIpc } from '../../../shared/ipc';
 import { UiUserTask } from '../types';
 
-export const useUpdateTask = (viewKey: string) => {
+export const useUpdateTask = () => {
   const queryClient = useQueryClient();
   const { updateTask } = useIpc();
 
@@ -16,13 +16,13 @@ export const useUpdateTask = (viewKey: string) => {
     onMutate: async (variables) => {
       console.log('onMutate', variables)
       // Cancel any outgoing refetches so they don't overwrite our optimistic update
-      await queryClient.cancelQueries({ queryKey: ['tasks', viewKey] });
+      await queryClient.cancelQueries({ queryKey: ['tasks'] });
 
       // Snapshot the previous value
-      const previousTasks = queryClient.getQueryData<UiUserTask[]>(['tasks', viewKey]);
+      const previousTasks = queryClient.getQueryData<UiUserTask[]>(['tasks']);
 
       // Optimistically update the cache
-      queryClient.setQueryData<UiUserTask[]>(['tasks', viewKey], (old) => {
+      queryClient.setQueryData<UiUserTask[]>(['tasks'], (old) => {
         return old?.map((task) => 
           task.id === variables.taskId 
             ? { ...task, ...variables.newData, view: 'transitioning' } // Tag as Ghost
@@ -39,7 +39,7 @@ export const useUpdateTask = (viewKey: string) => {
       // TODO: Check if this item should continue to be in the current view.
       // If not, view should be set to "outdated".
       // For now we're keeping "edge".
-      queryClient.setQueryData<UiUserTask[]>(['tasks', viewKey], (old) => {
+      queryClient.setQueryData<UiUserTask[]>(['tasks'], (old) => {
         return old?.map((task): UiUserTask => 
           task.id === variables.taskId ? {
             ...task,
@@ -53,7 +53,7 @@ export const useUpdateTask = (viewKey: string) => {
     // 4. Error: Rollback the Ghost state if the transaction failed
     onError: (err, variables, context) => {
       if (context?.previousTasks) {
-        queryClient.setQueryData(['tasks', viewKey], context.previousTasks);
+        queryClient.setQueryData(['tasks'], context.previousTasks);
       }
       console.error("Task update failed:", err);
     },

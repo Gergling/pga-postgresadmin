@@ -1,10 +1,10 @@
-import { TaskSource } from "../../../shared/features/user-tasks";
+import { TaskSourceType } from "../../../shared/features/user-tasks";
 
 export type TriageTasksStatus = 'success' | 'error';
 
 export type TriageTasksResponse = {
   message: string;
-  source: TaskSource;
+  source: TaskSourceType;
   status: TriageTasksStatus;
 };
 

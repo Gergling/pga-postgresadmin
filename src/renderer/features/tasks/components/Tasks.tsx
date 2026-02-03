@@ -1,14 +1,38 @@
-import { Tab, Tabs } from '@mui/material';
+import { Skeleton, Tab, Tabs } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { useNavigate } from 'react-router-dom';
 import { useUserTasks } from '../context';
+import { TaskDetail } from './Detail';
 
-export const UserTasks = () => {
+const View = () => {
   const {
-    currentView,
+    currentTask,
     grid,
-    message,
-    success,
+    isListView,
+    // message,
+    // successListView,
+    taskIsLoading,
+  } = useUserTasks();
+
+  // Catch errors before we do anything else.
+  // if (!successListView) return <div>An error occurred{message ? `: ${message}` : '. No error details are provided.'}</div>;
+
+  // Display grid for list views.
+  if (isListView) return <DataGrid {...grid} />;
+
+  // Display task details for detail views.
+  if (currentTask) return <TaskDetail task={currentTask} />;
+
+  // Display a skeleton when the task is loading.
+  if (taskIsLoading) return <Skeleton variant='rectangular' />;
+
+  // Otherwise we can conclude the task has other issues.
+  return <>Invalid task.</>
+};
+
+const Navigate = () => {
+  const {
+    activeTab: { colour, name },
     taskViews,
   } = useUserTasks();
   const navigate = useNavigate();
@@ -17,17 +41,18 @@ export const UserTasks = () => {
     newValue: string
   ) => navigate(newValue);
 
+  return <Tabs textColor={colour} onChange={handleClickTab} value={name} centered>
+    {taskViews.map(({ icon: Icon, path }) => {
+      return <Tab key={path} icon={<Icon />} value={path} />;
+    })}
+  </Tabs>;
+};
+
+export const UserTasks = () => {
   return (
     <div>
-      <Tabs onChange={handleClickTab} value={currentView?.name}>
-        {taskViews.map(({ icon: Icon, path }) => {
-          return <Tab key={path} icon={<Icon />} value={path} />;
-        })}
-      </Tabs>
-      {!success && <div>An error occurred{message ? `: ${message}` : '.'}</div>}
-      <DataGrid
-        {...grid}
-      />
+      <Navigate />
+      <View />
     </div>
   );
 };

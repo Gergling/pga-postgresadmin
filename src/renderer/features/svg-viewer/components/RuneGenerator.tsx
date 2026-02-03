@@ -156,7 +156,7 @@ type RunetatorPropsBase = {
     seedStr: string;
   }
 );
-type RunetatorProps = RunetatorPropsBase & { size: SizeName; };
+export type RunetatorProps = RunetatorPropsBase & { size: SizeName; };
 
 export const Runetator: React.FC<RunetatorProps> = ({
   flicker,
@@ -170,7 +170,7 @@ export const Runetator: React.FC<RunetatorProps> = ({
   }, [flicker, props]);
   const scale = useMemo(() => SIZE_CONFIG[props.size], [props.size]);
   const d = useMemo(() => getPathRunetator(state, scale), [state, scale]);
-  return <SvgNeonBlood color={'green'} {...props}>
+  return <SvgNeonBlood color={'blood'} {...props}>
     <path
       d={d}
       fill="none" 

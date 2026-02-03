@@ -1,4 +1,5 @@
-import { LoaderFunction, RouteObject } from "react-router-dom";
+import { Optional } from "../../../shared/types";
+import { LoaderFunction, RouteMatch, RouteObject } from "react-router-dom";
 
 // Navigation config base
 export type UiNavigationConfigItem<T extends string = string> = {
@@ -51,6 +52,27 @@ export type BreadcrumbNavigationItem = {
   name: string;
   path: string;
 };
+
+type BreadcrumbNavigationHistoryItemBase = Pick<BreadcrumbNavigationItem, 'label' | 'path'>;
+type BreadcrumbNavigationHistoryItemHardcoded = BreadcrumbNavigationHistoryItemBase
+  & { type?: undefined; };
+export type BreadcrumbNavigationHistoryItemParametric = BreadcrumbNavigationHistoryItemBase & {
+  type: 'task';
+  id: string;
+};
+export type BreadcrumbNavigationHistoryItemLocalStorage = 
+  | BreadcrumbNavigationHistoryItemHardcoded
+  | BreadcrumbNavigationHistoryItemParametric
+;
+export type BreadcrumbNavigationHistoryItem = 
+  & Omit<BreadcrumbNavigationHistoryItemHardcoded, 'type'>
+  & Pick<BreadcrumbNavigationItem, 'icon'>
+  & { status: 'success' | 'error' | 'loading' | 'ready'; }
+;
+
+export type BreadcrumbHistoryRequestItemFunction = (match: RouteMatch<string, RouteObject>) => Promise<
+  Optional<BreadcrumbNavigationHistoryItem, 'path'>
+>;
 
 export type BreadcrumbNavigationMapping = Record<string, BreadcrumbNavigationItem>;
 

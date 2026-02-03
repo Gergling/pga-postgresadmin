@@ -14,4 +14,16 @@ export type WorkflowEvent =
   | 'start'
 ;
 
-export type TaskSource = 'manual' | 'email' | 'diary' | 'instructions';
+type TaskSourceTypeManual = 'manual';
+type TaskSourceTypeAutomated = 'email' | 'diary' | 'instructions';
+export type TaskSourceType = TaskSourceTypeManual | TaskSourceTypeAutomated;
+
+export type TaskSource = {
+  id: string;
+  type: TaskSourceTypeAutomated;
+} | {
+  // If the type is manual, we don't want an id.
+  // The type should always be compatiable with TaskSourceType.
+  id?: never;
+  type: TaskSourceTypeManual;
+};

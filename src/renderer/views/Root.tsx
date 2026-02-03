@@ -1,8 +1,9 @@
 import { useTheme } from "@gergling/ui-components";
-import { useEffect } from "react";
+import { PropsWithChildren, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { NavigationBreadcrumbs } from "../shared/navigation";
 import { DevModeOverlay } from "../app/DevModeDrawer";
+import { ErrorBoundary } from "../shared/common/components/ErrorBoundary";
 
 const useApp = () => {
   const { setTheme } = useTheme();
@@ -12,15 +13,19 @@ const useApp = () => {
   }, [setTheme]);
 };
 
+const NavigationFallback = ({ children }: PropsWithChildren) => <>{children} <a style={{ color: 'white' }} href="/">Return Home</a></>;
+
 export const RootView = () => {
   useApp();
 
   return (
-    <div>
+    <ErrorBoundary fallback={<NavigationFallback>Something bad has happened.</NavigationFallback>}>
       <DevModeOverlay />
-      <NavigationBreadcrumbs />
+      <ErrorBoundary fallback={<NavigationFallback>Navigation has failed.</NavigationFallback>}>
+        <NavigationBreadcrumbs />
+      </ErrorBoundary>
       <Outlet />
-    </div>
+    </ErrorBoundary>
   );
 };
 

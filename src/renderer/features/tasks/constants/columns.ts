@@ -2,6 +2,7 @@ import { GridColDef } from '@mui/x-data-grid';
 import { UiUserTask } from "../types";
 import {
   TaskScoreCellRenderer,
+  TaskSourceCellRenderer,
   TaskStatusCellRenderer,
   TaskStatusControlCellRenderer,
   TaskUpdatedCellRenderer,
@@ -26,6 +27,7 @@ export const TASKS_VIEW_COLUMNS: GridColDef<UiUserTask>[] = [
   {
     field: 'source',
     headerName: 'Source',
+    renderCell: TaskSourceCellRenderer,
     width: 75,
   },
   {

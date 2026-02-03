@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from "react";
 import { WorkflowEvent } from "../../../../shared/features/user-tasks";
-import { useNavigation } from "../../../shared/navigation";
 import { TaskAction, UiUserTask } from "../types";
 import { reduceFsm } from "../utilities/fsm";
 import { useFsm } from "./fsm";
@@ -9,11 +8,11 @@ import { useUpdateTask } from "./update";
 export const useUserTask = (task: UiUserTask) => {
   const { id, status } = task;
   const { events } = useFsm(status);
-  const { current } = useNavigation();
   const {
     mutate: updateTask,
     status: mutationStatus,
-  } = useUpdateTask(current?.name || '');
+  } = useUpdateTask();
+
   const actionFactory = useCallback((event: WorkflowEvent) => () => {
     if (!id) return;
 

@@ -10,10 +10,7 @@ export type ProposedTask = {
   momentum: TaskMomentum | TaskVoteBaseNames;
   reasoning: string;
   summary: string;
-  source: {
-    id: string;
-    type: TaskSource;
-  };
+  source: TaskSource;
 };
 
 export type ProposedAnalysisResponse = {

@@ -1,14 +1,14 @@
 import { readFileSync } from 'fs';
-import { TASK_IMPORTANCE, TASK_MOMENTUM, TaskSource, UserTask } from '../../../../shared/features/user-tasks';
+import { TASK_IMPORTANCE, TASK_MOMENTUM, TaskSourceType, UserTask } from '../../../../shared/features/user-tasks';
 import { analyseLanguage } from '../../ai';
 import { validateLanguageModelResponse } from '../../../llm/shared';
 import { proposedTaskAnalysisResponseSchema } from './validation';
 import { ProposedAnalysisResponse } from './proposed';
-import { mainFirebaseDb } from '../../../libs/firebase';
+import { getFirebaseDb } from '../../../libs/firebase';
 import { userTaskCollection } from '../db';
 import { createUserTask } from '../utils';
 
-const getInstructionsAbstract = (source: TaskSource) => {
+const getInstructionsAbstract = (source: TaskSourceType) => {
   if (source === 'email') return 'Propose new tasks from the following fragments of emails received. Look for explicit or implicit requests.';
   if (source === 'instructions') return 'Propose new tasks from the following instructions.';
   if (source === 'diary') return 'Propose new tasks from the following diary entries.';
@@ -16,7 +16,7 @@ const getInstructionsAbstract = (source: TaskSource) => {
   throw new Error(`No instructions implementation for '${source}'.`);
 };
 
-const getAnalysisDataContext = (source: TaskSource) => {
+const getAnalysisDataContext = (source: TaskSourceType) => {
   if (source === 'email') return 'The email fragments are as follows:';
   if (source === 'instructions') return 'The instructions are as follows:';
   if (source === 'diary') return 'The diary entries are as follows:';
@@ -25,7 +25,7 @@ const getAnalysisDataContext = (source: TaskSource) => {
 };
 
 export const buildTriagePrompt = (
-  source: TaskSource,
+  source: TaskSourceType,
   analysisData: string,
 ) => {
   const instructionsAbstract = getInstructionsAbstract(source);
@@ -71,7 +71,7 @@ export const getPromptAnalysis = (responseText: string): ProposedAnalysisRespons
 }
 
 export const generateTaskContent = async (
-  source: TaskSource,
+  source: TaskSourceType,
   data: string,
 ) => {
   const prompt = buildTriagePrompt(source, data);
@@ -86,20 +86,22 @@ export const generateProposedTasks = async <T>(
   batchUpdatedResponse: T;
   tasks: UserTask[];
 }> => {
-  const batch = mainFirebaseDb.batch();
+  const batch = getFirebaseDb().batch();
 
   try {
     // Create suggested tasks
-    const tasks = analysis.proposed.map(({ summary, importance, momentum, reasoning }) => {
+    const tasks = analysis.proposed.map(({ summary, importance, momentum, reasoning, source }) => {
       const taskRef = userTaskCollection().doc();
       const task = createUserTask({
+        children: [],
         summary,
         description: reasoning,
         votes: {
           importance: { librarian: importance },
           momentum: { librarian: momentum },
         },
-        source: 'email',
+        source,
+        timeline: {},
         // Status is set to proposed by default, and the updated property should also be automatically set.
       });
 

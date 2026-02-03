@@ -1,7 +1,7 @@
-import { mainFirebaseDb } from "./config";
+import { getFirebaseDb } from "./config";
 import { FirebaseAddDoc } from "./types";
 
 export const addFirebaseDoc: FirebaseAddDoc = (
   collectionName,
   fragment
-) => mainFirebaseDb.collection(collectionName).add(fragment);
+) => getFirebaseDb().collection(collectionName).add(fragment);

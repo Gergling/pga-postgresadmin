@@ -17,7 +17,6 @@ export const {
     diaryEntriesSaved,
     ipcStatus,
     rejectDiaryEntry,
-    // setAboutToInitiateConvergence,
     triageTasks,
   } = useDiaryIpc();
 
@@ -29,19 +28,21 @@ export const {
   } = useMemo(() => getConvergenceSummary(diaryEntriesSaved), [diaryEntriesSaved]);
 
   const handleConvergence = useCallback(() => {
-    if (!canInitiateConvergence) return;
-    console.log('triage triggered')
-    // triageTasks({ source: 'diary', type: 'committed' });
+    triageTasks({ source: 'diary', type: 'committed' })
+      .then(console.log)
+      .catch(console.error);
   }, [triageTasks]);
 
   // Trigger A: Inactivity (30s)
-  useInactivityDebounce(handleConvergence, 30000);
+  useInactivityDebounce(() => {
+    if (!canInitiateConvergence) return;
+    handleConvergence();
+  }, 30000);
 
   // Trigger B: Threshold (1000 chars)
   useEffect(() => {
-    if (shouldInitiateConvergence) {
-      handleConvergence();
-    }
+    if (!shouldInitiateConvergence) return;
+    handleConvergence();
   }, [handleConvergence, shouldInitiateConvergence]);
 
   return {

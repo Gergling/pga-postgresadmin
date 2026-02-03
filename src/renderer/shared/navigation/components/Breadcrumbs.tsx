@@ -1,11 +1,10 @@
-import { NavigateNext as NavigateNextIcon } from '@mui/icons-material';
-import { Box, Breadcrumbs, Chip, IconButton, Link } from '@mui/material';
+import { Breadcrumbs, Chip, IconButton, Link } from '@mui/material';
 import { BreadcrumbDropdown } from './BreadcrumbDropdown';
 import { useNavigation } from '../hooks';
 import { PropsWithChildren } from 'react';
 import { BreadcrumbActiveNavigationItem } from '../types';
 import { Link as RouterLink } from 'react-router-dom';
-import { HistoryChips } from './Breadcrumbs.style';
+import { HistoryChips, NavigationBarContainer } from './Breadcrumbs.style';
 
 const CurrentBreadcrumb = ({ children }: PropsWithChildren) => <IconButton
   component='div'
@@ -37,8 +36,8 @@ export function NavigationBreadcrumbs() {
   } = useNavigation();
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', width: 360 }}>
-      <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
+    <NavigationBarContainer>
+      <Breadcrumbs separator={'//'} aria-label="breadcrumb">
         {breadcrumbs.map((props) => <BreadcrumbItem {...props} />)}
       </Breadcrumbs>
       <HistoryChips>
@@ -53,6 +52,6 @@ export function NavigationBreadcrumbs() {
           >{label}</Link>}
         />)}
       </HistoryChips>
-    </Box>
+    </NavigationBarContainer>
   );
 }

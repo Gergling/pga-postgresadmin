@@ -1,6 +1,7 @@
-import { Skeleton, Tab, Tabs } from '@mui/material';
+import { Skeleton } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { useNavigate } from 'react-router-dom';
+import { useMemo } from 'react';
+import { NavigationTabs } from '../../../shared/navigation';
 import { useUserTasks } from '../context';
 import { TaskDetail } from './Detail';
 
@@ -31,21 +32,10 @@ const View = () => {
 };
 
 const Navigate = () => {
-  const {
-    activeTab: { colour, name },
-    taskViews,
-  } = useUserTasks();
-  const navigate = useNavigate();
-  const handleClickTab = (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    newValue: string
-  ) => navigate(newValue);
+  const { taskViews } = useUserTasks();
+  const tabs = useMemo(() => taskViews.map(({ icon, path }) => ({ icon, path })), [taskViews]);
 
-  return <Tabs textColor={colour} onChange={handleClickTab} value={name} centered>
-    {taskViews.map(({ icon: Icon, path }) => {
-      return <Tab key={path} icon={<Icon />} value={path} />;
-    })}
-  </Tabs>;
+  return <NavigationTabs tabs={tabs} />;
 };
 
 export const UserTasks = () => {

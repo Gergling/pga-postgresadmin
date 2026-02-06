@@ -1,14 +1,14 @@
 import { firestore } from "firebase-admin";
 import { getFirebaseDb } from "../../libs/firebase";
-import { UserTask } from "../../../shared/features/user-tasks/types";
-import { createUserTask } from "./utils";
+import { createUserTask, updateUserTask } from "./utils";
 import { getUserTaskAudit } from "./audit";
+import { UserTaskDb } from "./types";
 
-const converter: firestore.FirestoreDataConverter<UserTask> = {
+const converter: firestore.FirestoreDataConverter<UserTaskDb> = {
   toFirestore: (task) => task,
   fromFirestore(snapshot) {
     const data = snapshot.data();
-    return createUserTask(data as UserTask);
+    return createUserTask(data as UserTaskDb);
   }
 };
 
@@ -16,7 +16,7 @@ export const userTaskCollection = () => getFirebaseDb()
   .collection('user_tasks')
   .withConverter(converter);
 
-export const fetchIncompleteUserTasks = async (): Promise<UserTask[]> => {
+export const fetchIncompleteUserTasks = async (): Promise<UserTaskDb[]> => {
   const snapshot = await userTaskCollection()
     .where('status', '!=', 'done')
     .get();
@@ -27,7 +27,7 @@ export const fetchIncompleteUserTasks = async (): Promise<UserTask[]> => {
   }));
 };
 
-export const fetchUserTask = async (taskId: string): Promise<UserTask> => {
+export const fetchUserTask = async (taskId: string): Promise<UserTaskDb> => {
   const snapshot = await userTaskCollection().doc(taskId).get();
   const data = snapshot.data();
   if (!data) throw new Error(`Task not found for id: ${taskId}.`);
@@ -37,7 +37,7 @@ export const fetchUserTask = async (taskId: string): Promise<UserTask> => {
   });
 };
 
-export const updateTask = async (taskId: string, newData: Partial<UserTask>): Promise<UserTask> => {
+export const updateTask = async (taskId: string, newData: Partial<UserTaskDb>): Promise<UserTaskDb> => {
   // newData should have at least one property.
   const taskRef = userTaskCollection().doc(taskId);
 
@@ -53,12 +53,13 @@ export const updateTask = async (taskId: string, newData: Partial<UserTask>): Pr
       // via [last, ...previous] or Array.prototype.find.
       const audit = [auditEntry, ...previousState.audit];
 
-      const updatedState: UserTask = {
+      const updatedState: UserTaskDb = updateUserTask({
         ...previousState,
         ...newData,
         audit,
+        id: taskRef.id,
         updated: Date.now(),
-      };
+      });
 
       transaction.update(taskRef, { ...updatedState });
 

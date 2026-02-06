@@ -1,4 +1,4 @@
-import { PropsWithChildren, useCallback, useEffect, useMemo } from "react";
+import { PropsWithChildren, useCallback, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { contextFactory } from "@gergling/ui-components";
 import { GridRowParams } from "@mui/x-data-grid";
@@ -12,17 +12,11 @@ import {
   useNavigationRegister
 } from "../../shared/navigation";
 import { TASK_GRID_PROPS } from "./constants";
-import { UiUserTask } from "./types";
+import { TaskView, UiUserTask } from "./types";
 import { createUiUserTask, getViewTasks } from "./utilities";
 import { useTaskQueryCache } from "./hooks/cache";
-import { getTaskHistoryItem, getTaskPath } from "./utilities/route";
+import { getTaskPath } from "./utilities/route";
 import { TabsProps } from "@mui/material";
-
-type TaskView = {
-  icon: Required<UiNavigationConfigItem>['icon'];
-  label: string;
-  path: string;
-};
 
 const reduceTaskView = (
   acc: TaskView[],
@@ -43,7 +37,7 @@ export const {
   const viewNames = useMemo(() => taskViews.map(({ path }) => path), [taskViews]);
   const { readIncompleteTasks, readTaskForId } = useIpc();
   const { breadcrumbs, current: currentView } = useNavigation();
-  const { register, subscribe } = useNavigationRegister();
+  const { register } = useNavigationRegister();
 
   // Fetch a specific task. if it's already loaded, use that one.
   const { taskId } = useParams();
@@ -103,21 +97,8 @@ export const {
     success: false,
   }, [data]);
 
+  // TODO: Should be able to do this once from a/the task mutation hook.
   useTaskQueryCache(taskIsSuccess, currentTask);
-
-  useEffect(() => {
-    // This is to make sure we have a displayable history of icons and labels
-    // for specific tasks that may be missing because they've been completed,
-    // for example.
-    return subscribe(async ({ params: { taskId }, pathname }) => {
-      if (!taskId) throw new Error('No task ID found');
-      // Which of viewNames is found in pathname?
-      const pathViewName = viewNames.find((name) => pathname.includes(name));
-      const task = await readTaskForId(taskId);
-
-      return getTaskHistoryItem(createUiUserTask(task), pathViewName);
-    });
-  }, [readTaskForId, subscribe, viewNames]);
 
   return {
     activeTab,

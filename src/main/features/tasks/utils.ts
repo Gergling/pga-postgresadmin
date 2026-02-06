@@ -3,12 +3,11 @@ import {
   COUNCIL_MEMBER,
   CouncilMemberNames,
   CouncilVotes,
-  // createMemberVotes,
   TaskImportance,
   TaskMomentum,
   TaskVoteBaseNames,
-  UserTask
 } from "../../../shared/features/user-tasks";
+import { UserTaskDb } from "./types";
 
 type InitialVoteState = Record<CouncilMemberNames, Exclude<TaskVoteBaseNames, 'Abstained'>>;
 const createInitialVotes = <T extends TaskImportance | TaskMomentum>(
@@ -18,23 +17,53 @@ const createInitialVotes = <T extends TaskImportance | TaskMomentum>(
   [id]: acc[id] || 'Awaiting',
 }), state as CouncilVotes<T>);
 
-export const createUserTask = (task: Optional<
+// If an id goes in, an id should come out.
+// So the input type is essentially either ComplicatedPartial<UserTaskWithId | UserTaskWithoutId>
+// The output type is essentially either UserTaskWithId | UserTaskWithoutId.
+type CreateUserTaskProps = Optional<
   Swap<
-    UserTask,
+    UserTaskDb,
     'votes',
-    DeepPartial<UserTask['votes']>
+    DeepPartial<UserTaskDb['votes']>
   >,
-  'audit' | 'updated' | 'source' | 'status'
->): UserTask => {
+  'audit' | 'updated' | 'source' | 'status' | 'relationships'
+>;
+
+export const createUserTaskWithoutId = (
+  task: Omit<CreateUserTaskProps, 'id'>
+): Omit<UserTaskDb, 'id'> => {
   return {
-    status: 'proposed',
-    source: { type: 'manual' },
-    updated: Date.now(),
     audit: [],
+    relationships: {
+      children: [],
+      predecessors: [],
+      successors: [],
+    },
+    source: { type: 'manual' },
+    status: 'proposed',
+    updated: Date.now(),
     ...task,
     votes: {
       momentum: createInitialVotes(task.votes?.momentum),
       importance: createInitialVotes(task.votes?.importance),
     },
+  };
+};
+export const createUserTask = (
+  task: CreateUserTaskProps
+): UserTaskDb => {
+  return {
+    ...createUserTaskWithoutId(task),
+    id: task.id,
+  };
+};
+
+// This is a "safety catch" for when types change without migration.
+export const updateUserTask = (
+  task: UserTaskDb
+): UserTaskDb => {
+  return {
+    ...createUserTaskWithoutId(task),
+    ...task,
   };
 };

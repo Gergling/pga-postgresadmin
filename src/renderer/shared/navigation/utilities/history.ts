@@ -15,7 +15,7 @@ export const getFallbackHistoryItem = (path: string): BreadcrumbNavigationHistor
 export const getLoadingHistoryItem = (path: string): BreadcrumbNavigationHistoryItem => ({
   icon: NavigationLoadingHistoryIcon,
   label: 'Loading...',
-  status: 'loading',
+  status: 'request',
   path,
 });
 

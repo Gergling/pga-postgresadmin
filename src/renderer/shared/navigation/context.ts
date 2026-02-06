@@ -11,7 +11,6 @@ const store = create<{
   error: (path: string) => void;
   loading: (path: string) => void;
   map: Record<string, BreadcrumbNavigationHistoryItem>;
-  ready: (path: string) => void;
   register: (item: Optional<BreadcrumbNavigationHistoryItem, 'status'>) => void;
   removeCallback: (requestItem: BreadcrumbHistoryRequestItemFunction) => void;
   requestCallbacks: BreadcrumbHistoryRequestItemFunction[];
@@ -26,9 +25,6 @@ const store = create<{
     map: { ...state.map, [path]: getLoadingHistoryItem(path) },
   })),
   map: {},
-  ready: (path) => set((state) => ({
-    map: { ...state.map, [path]: { ...getLoadingHistoryItem(path), status: 'ready' } },
-  })),
   register: (item) => set((state) => ({
     map: { ...state.map, [item.path]: { status: 'success', ...item } },
   })),
@@ -46,7 +42,7 @@ export const {
   // Store setup.
   const {
     addCallback, removeCallback,
-    error, loading, ready, register,
+    error, loading, register,
     map,
     requestCallbacks,
   } = store();
@@ -55,8 +51,8 @@ export const {
   const items = useMemo(() => Object.values(map), [map]);
 
   // All items which are ready for an asynchronous load.
-  const readyPaths = useMemo(() => items
-    .filter(({ status }) => status === 'ready')
+  const requestPaths = useMemo(() => items
+    .filter(({ status }) => status === 'request')
     .map(({ path }) => path),
     [items]
   );
@@ -68,13 +64,13 @@ export const {
 
   // Load up all ready items.
   const queries = useQueries({
-    queries: readyPaths.map((path): UseQueryOptions<BreadcrumbNavigationHistoryItem, Error, BreadcrumbNavigationHistoryItem, readonly unknown[]> => ({
+    queries: requestPaths.map((path): UseQueryOptions<BreadcrumbNavigationHistoryItem, Error, BreadcrumbNavigationHistoryItem, readonly unknown[]> => ({
       queryFn: () => request(path),
       queryKey: getNavigationHistoryKey(path),
     })),
     combine: (results) => results.map((result, index) => ({
       ...result,
-      path: readyPaths[index], 
+      path: requestPaths[index], 
     })),
   });
 
@@ -84,24 +80,20 @@ export const {
     return () => removeCallback(requestItem);
   }, [addCallback, removeCallback]);
 
-  // Set anything "ready" to "loading".
   useEffect(() => {
-    readyPaths.forEach((path) => {
-      loading(path);
-    });
-  }, [readyPaths, loading]);
-  useEffect(() => {
-    queries.forEach(({ data, path }) => {
-      if (!data) {
+    queries.forEach(({ data, error: errorMessage, isError, path }) => {
+      if (isError) {
         error(path);
+        console.warn(`Error loading path: ${path}`, errorMessage);
         return;
       }
+      if (!data) return;
       register(data);
     });
-  }, [queries]);
+  }, [error, queries, register]);
 
   return {
-    ready, register,
+    loading, register,
     items, map,
     request, subscribe,
   };

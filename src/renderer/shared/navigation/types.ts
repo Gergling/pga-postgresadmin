@@ -67,7 +67,7 @@ export type BreadcrumbNavigationHistoryItemLocalStorage =
 export type BreadcrumbNavigationHistoryItem = 
   & Omit<BreadcrumbNavigationHistoryItemHardcoded, 'type'>
   & Pick<BreadcrumbNavigationItem, 'icon'>
-  & { status: 'success' | 'error' | 'loading' | 'ready'; }
+  & { status: 'success' | 'error' | 'request'; }
 ;
 
 export type BreadcrumbHistoryRequestItemFunction = (match: RouteMatch<string, RouteObject>) => Promise<

@@ -1,5 +1,5 @@
 import { TypesaurusCore } from 'typesaurus'
-import { Company, Person } from '../../../shared/types';
+import { Company, Employment, Person } from '../../../shared/types';
 import { docsReduction, fetchMany } from '../../shared/db';
 import { CompanyModelType, ContactModelType, crmDb, CrmSchema, EmploymentModelType } from './schema';
 
@@ -54,6 +54,8 @@ export const fetchManyEmployments = async (employmentIds: CrmSchema['employment'
       };
       const baseEmployment = {
         ...employment,
+        company: baseCompany,
+        contact: baseContact,
         id: employmentId,
       };
 
@@ -77,15 +79,18 @@ export const fetchManyEmployments = async (employmentIds: CrmSchema['employment'
           employment: baseEmployment,
         }],
       });
+      const employments = acc.employments.set(employmentId, baseEmployment);
 
       return {
         companies,
         contacts,
+        employments,
       };
     },
     {
       companies: new Map<TypesaurusCore.Id<"companies">, Company>(),
       contacts: new Map<TypesaurusCore.Id<'people'>, Person>(),
+      employments: new Map<TypesaurusCore.Id<'employment'>, Employment & { company: Company, contact: Person }>(),
     }
   );
 };

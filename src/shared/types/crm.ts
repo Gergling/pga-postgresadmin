@@ -24,4 +24,6 @@ export type Employment = {
 
   // Relationship Metadata
   role?: string;        // e.g., "Full-stack Dev", "Consultant"
+  company: Company;
+  person: Person;
 };

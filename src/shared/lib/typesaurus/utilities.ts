@@ -4,7 +4,7 @@ import { ArchetypeDefault, ArchetypeDoc, ArchetypeMapEntryDefault } from "./type
 export const createSchema = <T extends ArchetypeDefault>(
   collectionNames: T['collectionName'][]
 ): TypesaurusCore.DB<T['collections']> => schema<T['collections'], TypesaurusCore.Options>(
-  ($) => collectionNames.reduce((acc, collectionName) => ({ [collectionName]: $.collection() }), {})
+  ($) => collectionNames.reduce((acc, collectionName) => ({ ...acc, [collectionName]: $.collection() }), {})
 );
 
 export const createCollectionMap = <

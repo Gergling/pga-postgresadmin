@@ -1,5 +1,6 @@
 export type UncertainBoolean = 'yes' | 'no' | 'unknown';
 
+// Command types
 export type CommandResponse = {
   error?: string;
   stderr?: string;
@@ -10,6 +11,7 @@ export type CommandStatusResponse<T = boolean> = CommandResponse & {
   status: T;
 };
 
+// Response types
 export type GeneralResponse = {
   success: boolean;
   error?: string;
@@ -25,6 +27,7 @@ export type MutationResponse<T> = {
   success: false;
 };
 
+// Common types
 export type Optional<T, K extends keyof T> = Partial<Pick<T, K>> & Omit<T, K>;
 export type Mandatory<T, K extends keyof T> = Required<Pick<T, K>> & Partial<Omit<T, K>>;
 export type Swap<

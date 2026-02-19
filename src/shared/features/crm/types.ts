@@ -6,6 +6,7 @@ type Company = {
     contact: Person;
     employment: Employment;
   }[];
+  name: string;
 };
 
 type Person = {

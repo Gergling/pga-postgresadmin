@@ -20,7 +20,7 @@ const getFrequentPaths = (
     .map(([path, frequency]) => ({ path, frequency }))
     .sort((a, b) => b.frequency - a.frequency)
     .map(({ path }) => path)
-    .slice(0, 20)
+    .slice(0, 5)
   ;
   return mostFrequentPaths;
 };

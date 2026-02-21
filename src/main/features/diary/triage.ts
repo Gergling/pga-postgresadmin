@@ -1,9 +1,8 @@
 import { Optional } from "../../../shared/types";
 import { DiaryEntry } from "../../../shared/features/diary/types";
-import { UserTask } from "../../../shared/features/user-tasks";
 import { getFirebaseDb } from "../../libs/firebase";
 import { emitRitualTelemetry } from "../ai/ipc";
-import { generateTaskContent, generateProposedTasks, TriageTasksResponse } from "../tasks";
+import { generateTaskContent, generateProposedTasks, TriageTasksResponse, UserTaskDb } from "../tasks";
 import { batchDiary, fetchCommittedDiaryEntries } from "./db";
 
 const source = 'diary';
@@ -39,7 +38,7 @@ const updateProcessingEntries = async (committed: DiaryEntry[]) => {
 const emit = (
   message: string,
   entries: Optional<DiaryEntry, 'created' | 'text'>[],
-  tasks?: UserTask[],
+  tasks?: UserTaskDb[],
 ) => {
   emitRitualTelemetry({
     message,

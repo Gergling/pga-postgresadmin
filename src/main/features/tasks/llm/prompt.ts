@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-import { TASK_IMPORTANCE, TASK_MOMENTUM, TaskSourceType, UserTask } from '../../../../shared/features/user-tasks';
+import { TASK_IMPORTANCE, TASK_MOMENTUM, TaskSourceType } from '../../../../shared/features/user-tasks';
 import { analyseLanguage } from '../../ai';
 import { validateLanguageModelResponse } from '../../../llm/shared';
 import { proposedTaskAnalysisResponseSchema } from './validation';
@@ -7,6 +7,7 @@ import { ProposedAnalysisResponse } from './proposed';
 import { getFirebaseDb } from '../../../libs/firebase';
 import { userTaskCollection } from '../db';
 import { createUserTask } from '../utils';
+import { UserTaskDb } from '../types';
 
 const getInstructionsAbstract = (source: TaskSourceType) => {
   if (source === 'email') return 'Propose new tasks from the following fragments of emails received. Look for explicit or implicit requests.';
@@ -84,7 +85,7 @@ export const generateProposedTasks = async <T>(
   batchUpdate: (batch: FirebaseFirestore.WriteBatch, success: boolean) => T,
 ): Promise<{
   batchUpdatedResponse: T;
-  tasks: UserTask[];
+  tasks: UserTaskDb[];
 }> => {
   const batch = getFirebaseDb().batch();
 
@@ -92,17 +93,25 @@ export const generateProposedTasks = async <T>(
     // Create suggested tasks
     const tasks = analysis.proposed.map(({ summary, importance, momentum, reasoning, source }) => {
       const taskRef = userTaskCollection().doc();
+      // Created from scratch. No id.
       const task = createUserTask({
-        children: [],
-        summary,
         description: reasoning,
+        id: taskRef.id,
+        // TODO: Relationships should be volunteered by the librarian.
+        relationships: {
+          parent: undefined,
+          children: [],
+          predecessors: [],
+          successors: [],
+        },
+        source,
+        summary,
+        // TODO: The timeline should ultimately be volunteered by the librarian.
+        timeline: {},
         votes: {
           importance: { librarian: importance },
           momentum: { librarian: momentum },
         },
-        source,
-        timeline: {},
-        // Status is set to proposed by default, and the updated property should also be automatically set.
       });
 
       batch.set(taskRef, task);

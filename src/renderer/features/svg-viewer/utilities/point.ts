@@ -52,3 +52,31 @@ export const limitPointFactory = (scale: number) => {
     },
   };
 };
+
+const gradientAnalysis = (gradient: number) => {
+  if (gradient === Infinity || gradient === -Infinity) return 'vertical';
+  if (gradient === 0) return 'horizontal';
+  if (gradient > 0) return 'positive';
+  return 'negative';
+};
+
+export const deltaPoint = (
+  start: Point,
+  end: Point,
+) => {
+  const x = end.x - start.x;
+  const y = end.y - start.y;
+  const hypotenuse = Math.hypot(x, y);
+  const value = x === 0 ? Infinity * y : y / x;
+  const analysis = gradientAnalysis(value);
+  return {
+    x,
+    y,
+    gradient: {
+      analysis,
+      value,
+    },
+    hypotenuse,
+  };
+
+}

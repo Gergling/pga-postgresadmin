@@ -1,1 +1,2 @@
-export * from './hooks/people';
+export * from './hooks';
+export * from './types';

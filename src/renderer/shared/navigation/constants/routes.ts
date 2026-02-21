@@ -1,52 +1,24 @@
 import {
-  Assignment,
-  Balance,
   Checklist,
-  Home,
+  // Home,
   Image,
   Menu,
-  MilitaryTech,
-  PauseCircle,
-  QuestionMark,
-  Rocket
+  // QuestionMark,
+  WorkOutline
 } from "@mui/icons-material";
 import { redirect } from "react-router-dom";
-import { HomeView, SvgViewerView, View404 } from "../../../views";
-import { TaskViewConfigName, UiNavigationConfigItem } from "../types";
+import { Home, Placeholder } from "../../../features/svg-viewer/components";
+import {
+  HomeView,
+  JobSearchView,
+  SvgViewerView,
+  View404
+} from "../../../views";
+import { UiNavigationConfigItem } from "../types";
 import { getNavigationItem, lazyImport } from "./utilities";
-
-export const TASK_VIEW_CONFIG: UiNavigationConfigItem<TaskViewConfigName>[] = [
-  {
-    label: 'Proposed Tasks',
-    path: 'proposed',
-    icon: Assignment
-  },
-  {
-    label: 'Quick Tasks',
-    path: 'quick',
-    icon: Rocket
-  },
-  {
-    label: 'Important Tasks',
-    path: 'important',
-    icon: MilitaryTech
-  },
-  // {
-  //   label: 'Deep Work', // High mass proposal
-  //   path: '/deep',
-  //   icon: <Engineering />
-  // },
-  {
-    label: 'Abstained',
-    path: 'abstained',
-    icon: PauseCircle
-  },
-  {
-    label: 'Awaiting Votes',
-    path: 'awaiting',
-    icon: Balance
-  },
-];
+import { TASK_VIEW_CONFIG } from "./tasks";
+import { JOB_SEARCH_VIEW_CONFIG } from "./job-search";
+import { getNavigationIcon } from "../components/getNavigationIcon";
 
 const lazyImports = {
   root: lazyImport(() => import('../../../views/Root')),
@@ -56,7 +28,7 @@ const lazyImports = {
 
 const config: UiNavigationConfigItem = {
   HydrateFallback: () => null,
-  icon: Menu,
+  icon: getNavigationIcon(Placeholder),
   label: 'Root',
   lazy: lazyImports.root,
   path: '/',
@@ -68,13 +40,13 @@ const config: UiNavigationConfigItem = {
     },
     {
       element: HomeView,
-      icon: Home,
+      icon: getNavigationIcon(Home),
       label: 'Home',
       path: 'home',
     },
     {
       lazy: lazyImports.tasks,
-      icon: Checklist,
+      icon: getNavigationIcon(Placeholder),
       label: 'Tasks',
       path: 'tasks',
       children: [
@@ -88,12 +60,11 @@ const config: UiNavigationConfigItem = {
           // So we could have an omitRoute
           ...item,
           index: undefined,
-          lazy: lazyImports.tasks,
           children: [
             {
               label: '(Unnamed Task)', // Find a way to omit this.
               path: ':taskId',
-              icon: QuestionMark, // Find a way to omit this.
+              icon: getNavigationIcon(Placeholder), // Find a way to omit this.
               element: () => 'Task Detail View',
             }
           ],
@@ -106,7 +77,14 @@ const config: UiNavigationConfigItem = {
       ],
     },
     {
-      icon: Image,
+      icon: getNavigationIcon(Placeholder),
+      label: 'Job Search',
+      element: JobSearchView,
+      path: 'jobsearch',
+      children: JOB_SEARCH_VIEW_CONFIG,
+    },
+    {
+      icon: getNavigationIcon(Placeholder),
       label: 'SVG Viewer',
       // lazy: lazyImports.svgViewer,
       element: SvgViewerView,

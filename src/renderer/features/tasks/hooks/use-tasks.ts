@@ -7,7 +7,7 @@ import { getTaskListFactory, getTaskViewColumns } from '../utilities';
 import { useNavigation } from '../../../shared/navigation/hooks/hook';
 import { BreadcrumbActiveNavigationItem, UiNavigationConfigItem } from '../../../shared/navigation/types';
 import { UiUserTask } from '../types';
-import { TASK_VIEW_CONFIG } from '../../../shared/navigation/constants/routes';
+import { TASK_VIEW_CONFIG } from '../../../shared/navigation/constants';
 
 const dataGridProps: DataGridProps<UiUserTask> = {
   checkboxSelection: true,

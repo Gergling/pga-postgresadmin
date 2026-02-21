@@ -1,6 +1,8 @@
+// TODO: Do we need this?
 import { UserTask, UserTaskAudit } from "../../../shared/features/user-tasks";
+import { UserTaskDb } from "./types";
 
-export const getUserTaskAudit = (previous: UserTask, latest: Partial<UserTask>): UserTaskAudit => {
+export const getUserTaskAudit = (previous: UserTaskDb, latest: Partial<UserTask>): UserTaskDb['audit'][number] => {
   // Cycle through "latest" object properties. We will assume it has at least one property.
   // Deep compare value of every property to the previous object.
   // Return the property and state of every changed property.

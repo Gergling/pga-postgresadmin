@@ -35,6 +35,3 @@ export const getNavigationItem = (
     index: false,
   };
 };
-
-
-// TODO: Check if ham in the fridge is defrosted.

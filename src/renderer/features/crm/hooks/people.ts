@@ -1,33 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArchetypeMapEntryDefault } from "../../../../shared/lib/typesaurus";
+import { useCallback } from "react";
+import { Mandatory } from "../../../../shared/types";
 import { CrmArchetype } from "../../../../shared/features/crm";
 import { useIpc } from "../../../shared/ipc";
-
-const queryClient = useQueryClient();
-
-const setQueryDataFactory = <T extends ArchetypeMapEntryDefault['base']>(
-  keyBase: string
-) => {
-  const key = [keyBase];
-  return (
-    updatedData: T
-  ) => {
-    queryClient.setQueryData<T>([...key, updatedData.id], updatedData);
-
-    queryClient.setQueryData<T[]>(key, (originalData) => {
-      if (!originalData) return [updatedData];
-      
-      const exists = originalData.find(p => p.id === updatedData.id);
-      if (exists) {
-        // It was an update
-        return originalData.map(p => p.id === updatedData.id ? updatedData : p);
-      } else {
-        // It was a creation
-        return [...originalData, updatedData];
-      }
-    });
-  };
-};
+import { useQueryDataFactory } from "../../../libs/react-query/hooks";
 
 // TODO: Employments absolutely needs to update the cache for the other two collections
 const getCollectionKey = <T extends CrmArchetype['collectionName']>(collectionName: T, id?: CrmArchetype['id'][T]) => {
@@ -39,11 +15,19 @@ export const useCrmPeople = () => {
   // Fetch people and companies (most recent and by search).
   // Create new people and companies.
   // Update people and companies.
-  const { createPerson, fetchRecentPeople, updatePerson } = useIpc();
-    const {
+  const { createPerson: createPersonIpc, fetchRecentPeople, updatePerson } = useIpc();
+  const setQueryData = useQueryDataFactory<CrmArchetype['base']['people']>('people');
+  const createPerson = useCallback(
+    (newPerson: Mandatory<CrmArchetype['modelType']['people'], 'name'>) => createPersonIpc({
+      ...newPerson,
+      contactId: {},
+    }),
+    [createPersonIpc]
+  );
+  const {
     data: people,
-    isLoading: isLoadingRecentPeople,
-    isError: isFetchRecentPeopleError,
+    isLoading: fetchRecentPeopleIsLoading,
+    isError: fetchRecentPeopleIsError,
     error: fetchRecentPeopleError,
   } = useQuery({
     queryKey: getCollectionKey('people'), // Will need to manage cache when a person is created.
@@ -55,7 +39,7 @@ export const useCrmPeople = () => {
     error: createPersonError,
   } = useMutation({
     mutationFn: createPerson,
-    onSuccess: setQueryDataFactory('people'),
+    onSuccess: setQueryData,
   });
   const {
     mutate: updatePersonMutation,
@@ -63,26 +47,19 @@ export const useCrmPeople = () => {
     error: updatePersonError,
   } = useMutation({
     mutationFn: updatePerson,
-    onSuccess: setQueryDataFactory('people'),
+    onSuccess: setQueryData,
   });
-  
 
   return {
-    create: {
-      error: createPersonError,
-      isError: createPersonIsError,
-      mutate: createPersonMutation,
-    },
-    read: {
-      error: fetchRecentPeopleError,
-      isError: isFetchRecentPeopleError,
-      isLoading: isLoadingRecentPeople,
-      people,
-    },
-    update: {
-      error: updatePersonError,
-      isError: updatePersonIsError,
-      mutate: updatePersonMutation,
-    },
+    createPersonError,
+    createPersonIsError,
+    createPerson: createPersonMutation,
+    fetchRecentPeopleError,
+    fetchRecentPeopleIsError,
+    fetchRecentPeopleIsLoading,
+    people,
+    updatePersonError,
+    updatePersonIsError,
+    updatePerson: updatePersonMutation,
   };
 };

@@ -84,6 +84,14 @@ const brackets = (
   return positions.map(p => bracket(p, color, options)).join('');
 };
 
+export const Parenthesis = styled.div<{
+  color?: string;
+  position?: BracketPosition;
+} & BracketPropsOptions>`
+  position: relative;
+  ${(({ color = COLORS.bloodGlow, position = 'top', size = 20, thickness = 3, roundness = 40 }) => bracket(position, color, { roundness, size, thickness }))}
+`;
+
 export const ParentheticalContainer = styled.div<{
   color?: string;
   dimension?: BracketDimension;

@@ -1,14 +1,24 @@
 import { Box, Point } from "../types";
 
-const defaultSize = 100;
+type ScaleFunction<T> = (value: T) => T;
+export const scale = (to: number) => {
+  const rescale = (value: number) => scale(value * to);
+  const point: ScaleFunction<Point> = (value) => ({
+    x: value.x * to,
+    y: value.y * to,
+  });
+  const box: ScaleFunction<Box> = ({ corner, opposite }) => ({
+    corner: point(corner),
+    opposite: point(opposite),
+  });
+  return {
+    box,
+    point,
+    rescale,
+  };
+};
 
-const scale = (value: number, by = defaultSize) => value * by;
-export const scaleRadius = (value: number, size = defaultSize) => scale(value, size);
-
-export const scalePoint = (point: Point, to: number): Point => ({
-  x: point.x * to,
-  y: point.y * to,
-});
+export const scalePoint = (point: Point, to: number): Point => scale(to).point(point);
 
 export const scaleBox = ({ corner, opposite }: Box, to: number): Box => ({
   corner: scalePoint(corner, to),

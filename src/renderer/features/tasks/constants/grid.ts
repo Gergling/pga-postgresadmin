@@ -37,5 +37,12 @@ export const TASK_GRID_PROPS: DataGridProps<UiUserTask> = {
       cursor: 'wait',
       backgroundColor: 'rgba(255, 255, 255, 0.05)', // Subtle "busy" highlight
     },
+    '& .MuiDataGrid-row': {
+      cursor: 'pointer',
+      transition: 'background-color 0.2s',
+      '&:hover': {
+        backgroundColor: 'rgba(119, 0, 0, 0.1)', // Faint Blood Red glow
+      },
+    },
   },
 };

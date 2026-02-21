@@ -1,4 +1,9 @@
-import { TaskSourceType } from "../../../shared/features/user-tasks";
+import {
+  TaskRelationshipBase,
+  TaskSourceType,
+  UserTask,
+  UserTaskAudit
+} from "../../../shared/features/user-tasks";
 
 export type TriageTasksStatus = 'success' | 'error';
 
@@ -15,4 +20,9 @@ export type TriageTasksParameters = {
   source: 'diary';
   type: 'single';
   id: string;
+};
+
+export type UserTaskDb = UserTask & {
+  audit: UserTaskAudit<UserTaskDb>[];
+  relationships: TaskRelationshipBase<string>;
 };

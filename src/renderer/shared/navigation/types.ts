@@ -26,8 +26,10 @@ export type UiNavigationConfigItem<T extends string = string> = {
   omitBreadcrumb?: false;
   path: T;
 } | {
-  icon?: undefined;
-  label?: undefined;
+  // If the breadcrumb is being omitted, it won't be showing the icon and label.
+  // HOWEVER, it may appear in the history.
+  icon?: React.ComponentType;
+  label?: string;
   omitBreadcrumb: true;
   path?: T;
 });

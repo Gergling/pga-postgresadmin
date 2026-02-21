@@ -98,6 +98,7 @@ export const VoteHexagon: React.FC<VoteHexagonProps> = ({ scores, size = 100 }) 
           angle={index * 60} 
           color={c.color} 
           distance={36}
+          key={c.id}
           label={c.label}
           score={scores[c.id]}
         />

@@ -12,6 +12,8 @@ import { DiaryEntry, DiaryIpc, DiaryIpcCreateEntry } from '../shared/features/di
 import { TriageTasksParameters, TriageTasksResponse } from '../main/features/tasks/types';
 import { ManageEnvironment } from '../main/environment/types';
 import { EnvironmentProps } from '../main/shared/environment';
+import { CrmIpc, CrmIpcAwaited } from '../main/features/crm';
+import { JobSearchIpc, JobSearchIpcAwaited } from '../main/features/job-search';
 
 // Minimalist configuration type for the renderer side.
 // IpcInvocationConfigBase really just makes these functions return promises.
@@ -48,13 +50,29 @@ export type IpcInvocationConfig = IpcInvocationConfigBase<{
     newData: Partial<DiaryEntry>,
     immediateConvergence?: boolean
   ) => Mandatory<DiaryEntry, 'id'>;
+
+  // CRM and job search.
+  assignEmployment: CrmIpcAwaited['create']['employment'];
+  createApplication: JobSearchIpcAwaited['create']['application'];
+  createCompany: CrmIpcAwaited['create']['company'];
+  createInteraction: JobSearchIpcAwaited['create']['interaction'];
+  createPerson: CrmIpcAwaited['create']['person'];
+  deleteEmployment: CrmIpcAwaited['delete']['employment'];
+  fetchActiveApplications: JobSearchIpcAwaited['read']['activeApplications'];
+  fetchRecentCompanies: CrmIpcAwaited['read']['recentCompanies'];
+  fetchRecentPeople: CrmIpcAwaited['read']['recentPeople'];
+  updateApplication: JobSearchIpcAwaited['update']['application'];
+  updateCompany: CrmIpcAwaited['update']['company'];
+  updatePerson: CrmIpcAwaited['update']['person'];
 }>;
 
 export type IpcAdditionalParameters = {
+  crm: CrmIpc
   database: IpcHandlerDatabase;
   docker: DockerCommands;
   diary: DiaryIpc;
   environment: ManageEnvironment;
+  jobSearch: JobSearchIpc;
   tasks: TasksIpc;
   triage: {
     triageEmailTasks: () => Promise<TriageTasksResponse>;
@@ -125,6 +143,53 @@ export const ipcHandlerConfig: IpcHandlerConfig<
     args: [id, newData, immediateConvergence],
     diary: { update: { set } },
   }) => set(id, newData, immediateConvergence),
+
+  // CRM and job search.
+  assignEmployment: ({
+    args: [employment],
+    crm: { create: { employment: createEmployment } },
+  }) => createEmployment(employment),
+  createApplication: ({
+    args: [application],
+    jobSearch: { create: { application: createApplication } },
+  }) => createApplication(application),
+  createCompany: ({
+    args: [company],
+    crm: { create: { company: createCompany } },
+  }) => createCompany(company),
+  createInteraction: ({
+    args: [interaction],
+    jobSearch: { create: { interaction: createInteraction } },
+  }) => createInteraction(interaction),
+  createPerson: ({
+    args: [person],
+    crm: { create: { person: createPerson } },
+  }) => createPerson(person),
+  deleteEmployment: ({
+    args: [employmentId],
+    crm: { delete: { employment: deleteEmployment } },
+  }) => deleteEmployment(employmentId),
+  fetchActiveApplications: ({
+    jobSearch: { read: { activeApplications } },
+  }) => activeApplications(),
+  fetchRecentCompanies: ({
+    crm: { read: { recentCompanies } },
+  }) => recentCompanies(),
+  fetchRecentPeople: ({
+    crm: { read: { recentPeople } },
+  }) => recentPeople(),
+  updateApplication: ({
+    args: [application],
+    jobSearch: { update: { application: updateApplication } },
+  }) => updateApplication(application),
+  updateCompany: ({
+    args: [company],
+    crm: { update: { company: updateCompany } },
+  }) => updateCompany(company),
+  updatePerson: ({
+    args: [person],
+    crm: { update: { person: updatePerson } },
+  }) => updatePerson(person),
 };
 
 export const EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED = 'window-focused';

@@ -1,69 +1,95 @@
-// const createConfigFactory = <
-//   PartialConfig extends object,
-//   FullConfig extends PartialConfig = PartialConfig
-// >(hydration: FullConfig = {} as FullConfig) => <ActualConfig extends PartialConfig>(
-//   config: ActualConfig
-// ): ActualConfig => ({
-//   ...hydration,
-//   ...config,
-// });
-
-const createConfig = <ActualConfig extends Readonly<{
+const createEventConfig = <ActualConfig extends {
   name: string;
-  event: string;
-  action?: string;
-}[]>>(config: Readonly<ActualConfig>): ActualConfig => config;
-// const createConfig = <ActualConfig extends {
-//   name: string;
-//   event: string;
-//   action?: string;
-// }[]>(config: ActualConfig): ActualConfig => config;
+  label: string;
+  agency: boolean;
+}[]>(config: ActualConfig): ActualConfig => config;
+
+export const APPLICATION_EVENTS = createEventConfig([
+  {
+    name: 'advanced',
+    label: 'The client has advanced the application',
+    agency: false,
+  },
+  {
+    name: 'pursue',
+    label: 'Pursue the application',
+    agency: true,
+  },
+  {
+    name: 'rejected',
+    label: 'The client has rejected the application',
+    agency: false,
+  },
+  {
+    name: 'withdraw',
+    label: 'Withdraw from the application',
+    agency: true,
+  },
+] as const);
+
+export type ApplicationEvent = typeof APPLICATION_EVENTS[number]['name'];
+export type ApplicationPhase = {
+  description: string;
+  name: string;
+};
+const createConfig = <ActualConfig extends Readonly<ApplicationPhase[]>>(config: Readonly<ActualConfig>): ActualConfig => config;
 
 export const APPLICATION_PHASE = createConfig([
   {
     name: 'sourced',
-    event: 'Contacted by agent, or suitable job listing found',
-    action: 'Apply for the job',
+    description: 'Contacted by agent',
+  },
+  {
+    name: 'queued',
+    description: 'Suitable job listing found',
   },
   {
     name: 'submitted',
-    event: 'Application submitted',
-    action: 'Wait for the verdict',
+    description: 'Application has been submitted',
+  },
+  // Booked is computed by the presence of a scheduled interview. It probably shouldn't be stored.
+  {
+    name: 'booked',
+    description: 'Interview is scheduled',
   },
   {
-    name: 'scheduled',
-    event: 'Interview or test deadline is scheduled',
-    action: 'Prepare for interview or complete test',
+    name: 'equipped',
+    description: 'Prepped for a scheduled interview',
+  },
+  {
+    name: 'primed',
+    description: 'Prepped for an imminent interview',
+  },
+  {
+    name: 'issued',
+    description: 'A test has been issued',
   },
   {
     name: 'tested',
-    event: 'Completed the test',
-    action: 'Wait for the verdict',
+    description: 'A test has been completed',
   },
+  // This is computed by the presence of an ongoing interview.
+  {
+    name: 'interviewing',
+    description: 'An interview is in progress right now',
+  },
+  // This is computed by the presence of a past interview.
   {
     name: 'interviewed',
-    event: 'Interviewed',
-    action: 'Wait for the verdict',
+    description: 'An interview has been completed and the results are being awaited',
+  },
+  {
+    name: 'offered',
+    description: 'An offer has been made',
   },
   {
     name: 'rejected',
-    event: 'Rejected',
+    description: 'Rejected',
   },
   {
     name: 'successful',
-    event: 'Successful',
+    description: 'Successful',
   },
 ] as const);
 
-export type ApplicationPhase = typeof APPLICATION_PHASE[number]['name'];
-
-export const APPLICATION_PHASE_NEXT: Omit<
-  Record<ApplicationPhase, ApplicationPhase[]>,
-  'successful' | 'rejected'
-> = {
-  sourced: ['submitted'],
-  submitted: ['scheduled', 'rejected'],
-  scheduled: ['interviewed', 'tested'],
-  tested: ['interviewed', 'rejected', 'successful'],
-  interviewed: ['rejected', 'successful'],
-};
+export type ApplicationPhaseName = typeof APPLICATION_PHASE[number]['name'];

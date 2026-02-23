@@ -17,7 +17,6 @@ const useQueryData = () => useQueryDataFactory<Application>('applications');
 
 const useJobSearchApplicationsIpcCreate = () => {
   const { createApplication: createApplicationIpc } = useIpc();
-  // const setQueryData = useQueryDataFactory<Application>('applications');
   const setQueryData = useQueryData();
 
   const {

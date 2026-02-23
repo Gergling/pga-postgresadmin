@@ -6,7 +6,7 @@ type Props = Optional<JobSearchArchetype['base']['interactions'], 'id'>;
 
 const initial: Optional<Props, 'id'> = {
   notes: '',
-  timestamp: Date.now(),
+  timeperiod: { start: Date.now() },
   source: {
     entry: 'manual',
   },

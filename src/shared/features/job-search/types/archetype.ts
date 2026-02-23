@@ -101,7 +101,7 @@ type InteractionPayload = {
 
 // This describes whether the source material was handled by manual input or an
 // llm as part of the overall source description.
-type JobSearchInteractionSource = {
+export type JobSearchInteractionSource = {
   entry: 'manual' | 'llm';
 } & (InteractionPayload | Partial<Record<JobSearchInteractionType, never>>);
 
@@ -112,9 +112,8 @@ type JobSearchInteraction = {
   notes: string; // When all other forms of structured data fail...
   person?: CrmArchetype['base']['people']; // If a person can be tied to the interaction, great.
   source: JobSearchInteractionSource;
-  timestamp: number;
+  timeperiod: { start: number; end?: number; };
 };
-
 
 type JobSearchInteractionModelType = Omit<JobSearchInteraction, 'application' | 'person'> & {
   applicationId?: ApplicationId;

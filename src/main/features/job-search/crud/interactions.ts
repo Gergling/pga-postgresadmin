@@ -18,10 +18,25 @@ export const fetchManyInteractions = async (
   }));
 };
 
-export const createInteraction = (
-  interaction: JobSearchArchetype['modelType']['interactions']
-) => {
-  return jobSearchDb.interactions.add(interaction);
+export const createInteraction = async (
+  interaction: Omit<JobSearchArchetype['base']['interactions'], 'id'>
+): Promise<JobSearchArchetype['base']['interactions']> => {
+  const {
+    person,
+    ...rest
+  } = interaction;
+
+  const data: JobSearchArchetype['modelType']['interactions'] = {
+    ...rest,
+    personId: person?.id,
+  };
+
+  const ref = await jobSearchDb.interactions.add(data);
+
+  return {
+    ...interaction,
+    id: ref.id,
+  };
 };
 
 // TODO: Will probably want to "page" at some point, so find out best practise
@@ -34,3 +49,23 @@ export const fetchRecentInteractions = async (): Promise<JobSearchArchetype['bas
   const models = await jobSearchDb.interactions.query(($) => []);
   return createQueryList<JobSearchArchetype, 'interactions'>(models);
 };
+
+export const updateInteraction = async (
+  interaction: JobSearchArchetype['base']['interactions']
+): Promise<JobSearchArchetype['base']['interactions']> => {
+  const {
+    id,
+    person,
+    ...rest
+  } = interaction;
+
+  const data: JobSearchArchetype['modelType']['interactions'] = {
+    ...rest,
+    personId: person?.id,
+  };
+
+  await jobSearchDb.interactions.update(id, data);
+
+  return interaction;
+};
+

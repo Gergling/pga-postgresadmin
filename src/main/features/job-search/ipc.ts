@@ -1,5 +1,5 @@
 import { createCrudConfig, IpcCrudConfig } from "../../ipc/utilities";
-import { createApplication, createInteraction, fetchActiveApplications, updateApplication } from "./crud";
+import { createApplication, createInteraction, fetchActiveApplications, fetchRecentInteractions, updateApplication, updateInteraction } from "./crud";
 
 export const jobSearchIpc = createCrudConfig({
   create: {
@@ -8,10 +8,11 @@ export const jobSearchIpc = createCrudConfig({
   },
   read: {
     activeApplications: fetchActiveApplications,
-    // fetching a list of interactions on its own doesn't seem that important yet
+    recentInteractions: fetchRecentInteractions,
   },
   update: {
     application: updateApplication,
+    interaction: updateInteraction,
   },
 });
 

@@ -1,20 +1,31 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Grid, GridProps, List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
 import { HourglassTop } from "@mui/icons-material";
 import { hydrateJobSearchApplication } from "../../../../shared/features/job-search";
+import { Accordion } from "../../../shared/accordion";
 import { Parenthesis } from "../../../shared/brackets";
 import { JobSearchSelectPerson } from "./SelectPerson";
 import { PersonOptionType } from "../../crm";
 import { useJobSearchApplicationsIpc } from "../hooks";
-import { interactionStore } from "../stores";
+import { interactionStore, jobSearchDashboardLayoutStore } from "../stores";
 import { InteractionCreation } from "./InteractionCreation";
+import { JobSearchInteractionList } from "./InteractionList";
 
-type ColumnPosition = 'left' | 'center' | 'right';
+type ColumnPosition =
+  | 'left'
+  // | 'center'
+  | 'right';
 
 const columnPositionSize: Record<ColumnPosition, number> = {
-  left: 2,
-  center: 2,
-  right: 8,
+  left: 6,
+  // center: 2,
+  right: 6,
+};
+
+const columnPositionSizeInteractionEditor: Record<ColumnPosition, number> = {
+  left: 12,
+  // center: 2,
+  right: 0,
 };
 
 const Column = ({
@@ -33,31 +44,19 @@ const Column = ({
 
 export const JobSearchDashboard = () => {
   const {
-    interaction: {
-      application,
-      person,
-    },
-    setPerson,
-  } = interactionStore();
-  const {
-    createApplication,
-  } = useJobSearchApplicationsIpc();
+    interactionCreator,
+    toggleInteractionCreator,
+    interactionEditor,
+    closeInteractionEditor,
+    openInteractionEditor,
+  } = jobSearchDashboardLayoutStore();
 
-  const createNewApplication = useCallback(() => {
-    console.log('application', application)
-    if (!application) return;
-    createApplication(hydrateJobSearchApplication(application));
-  }, [application, createApplication]);
-
-  const selectedPerson = useMemo((): PersonOptionType | null => {
-    if (!person) return null;
-    return { title: person.name };
-  }, [person]);
-
-  useEffect(() => {
-    console.log('create new application', application)
-    createNewApplication();
-  }, [createNewApplication]);
+  const columns = useMemo(
+    () => interactionEditor
+      ? columnPositionSizeInteractionEditor
+      : columnPositionSize,
+    [interactionEditor]
+  );
 
   return <>
     Job Search Workflows
@@ -71,26 +70,29 @@ export const JobSearchDashboard = () => {
         <ListItemText>An existing application has an update. It might not result in a status change for the application.</ListItemText>
       </ListItem>
     </List>
+    {/* <Accordion expanded={showInteractionCreation} onChange={() => setShowInteractionCreation(!showInteractionCreation)}> */}
+    <Accordion expanded={interactionCreator} onChange={toggleInteractionCreator} summary="Log Interaction"><InteractionCreation /></Accordion>
+    CSS animation for opening:
+    1. List fades out, right column fades out.
+    2. Width increases, creation form shuts.
+    3. Detail view fades in.
     <Grid container spacing={2} sx={{ color: 'white' }}>
-      <Column columnPosition={'left'}>
-        Interactions in order of descending recency
+      <Column columnPosition={'left'} size={columns.left}>
+        <JobSearchInteractionList edit={openInteractionEditor} />
       </Column>
-      <Column columnPosition={'center'}>
+      {/* <Column columnPosition={'center'}>
         Active Applications in order of priority.
-      </Column>
-      <Column columnPosition={'right'}>
+      </Column> */}
+      <Column columnPosition={'right'} size={columns.right}>
         <ul>
-          <li>Person</li>
-          <li>Application</li>
-          <li>Time (and Date)</li>
+          <li>Active Applications in order of priority.</li>
+          <li>Most recently featured companies (provide company ratings)</li>
+          <li>Most recently featured people (provide people ratings)</li>
         </ul>
-        <InteractionCreation />
-
-        <JobSearchSelectPerson
-          person={selectedPerson}
-          setPerson={setPerson}
-        />
       </Column>
+      {/* <Column columnPosition={'right'}>
+        <InteractionCreation />
+      </Column> */}
     </Grid>
   </>;
 };

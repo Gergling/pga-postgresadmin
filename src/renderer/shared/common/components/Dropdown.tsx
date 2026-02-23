@@ -7,7 +7,7 @@ export interface DropdownOption {
   label: ReactNode;
 }
 
-type DropdownProps = {
+export type DropdownProps = {
   icon: React.ReactNode;
   onSelect: (value: string | number) => void;
   options: DropdownOption[];

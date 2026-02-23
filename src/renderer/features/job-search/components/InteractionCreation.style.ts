@@ -5,7 +5,7 @@ export const FormContainer = styled(Paper)`
   background: rgba(10, 10, 15, 0.9);
   border: 1px solid rgba(255, 0, 51, 0.3);
   padding: 24px;
-  max-width: 500px;
+  // max-width: 500px;
   backdrop-filter: blur(10px);
   border-radius: 4px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);

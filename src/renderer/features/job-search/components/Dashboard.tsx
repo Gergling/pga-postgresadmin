@@ -1,46 +1,31 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Grid, GridProps, List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
+import { forwardRef, PropsWithChildren, useMemo } from "react";
+import { Box, Button, List, ListItem, ListItemIcon, ListItemText, styled } from "@mui/material";
 import { HourglassTop } from "@mui/icons-material";
-import { hydrateJobSearchApplication } from "../../../../shared/features/job-search";
+import { motion, AnimatePresence } from 'framer-motion';
 import { Accordion } from "../../../shared/accordion";
 import { Parenthesis } from "../../../shared/brackets";
-import { JobSearchSelectPerson } from "./SelectPerson";
-import { PersonOptionType } from "../../crm";
-import { useJobSearchApplicationsIpc } from "../hooks";
-import { interactionStore, jobSearchDashboardLayoutStore } from "../stores";
+import { jobSearchDashboardLayoutStore } from "../stores";
 import { InteractionCreation } from "./InteractionCreation";
 import { JobSearchInteractionList } from "./InteractionList";
 
-type ColumnPosition =
-  | 'left'
-  // | 'center'
-  | 'right';
-
-const columnPositionSize: Record<ColumnPosition, number> = {
-  left: 6,
-  // center: 2,
-  right: 6,
-};
-
-const columnPositionSizeInteractionEditor: Record<ColumnPosition, number> = {
-  left: 12,
-  // center: 2,
-  right: 0,
-};
-
-const Column = ({
+const Column = styled(motion.create(forwardRef<HTMLDivElement, PropsWithChildren>(({
   children,
-  columnPosition,
   ...props
-}: GridProps & { columnPosition: ColumnPosition; }) => {
-  const size = useMemo(() => columnPositionSize[columnPosition], [columnPosition]);
-  return <Grid size={size} {...props}>
-    <Parenthesis roundness={8} />
+}: PropsWithChildren, ref) => {
+  return <div ref={ref} {...props}>
+    <motion.div layout>
+      <Parenthesis roundness={8} />
+    </motion.div>
     <div style={{ padding: 20 }}>
       {children}
     </div>
-  </Grid>;
-};
+  </div>;
+})))({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '16px',
+  height: '100%',
+});
 
 export const JobSearchDashboard = () => {
   const {
@@ -51,12 +36,7 @@ export const JobSearchDashboard = () => {
     openInteractionEditor,
   } = jobSearchDashboardLayoutStore();
 
-  const columns = useMemo(
-    () => interactionEditor
-      ? columnPositionSizeInteractionEditor
-      : columnPositionSize,
-    [interactionEditor]
-  );
+  const isEditing = useMemo(() => !!interactionEditor, [interactionEditor]);
 
   return <>
     Job Search Workflows
@@ -71,28 +51,81 @@ export const JobSearchDashboard = () => {
       </ListItem>
     </List>
     {/* <Accordion expanded={showInteractionCreation} onChange={() => setShowInteractionCreation(!showInteractionCreation)}> */}
-    <Accordion expanded={interactionCreator} onChange={toggleInteractionCreator} summary="Log Interaction"><InteractionCreation /></Accordion>
+    <Accordion
+      expanded={interactionCreator}
+      onChange={toggleInteractionCreator}
+      summary="Log Interaction"
+    >
+      <InteractionCreation />
+    </Accordion>
     CSS animation for opening:
     1. List fades out, right column fades out.
-    2. Width increases, creation form shuts.
+    2. List width increases, creation form shuts.
     3. Detail view fades in.
-    <Grid container spacing={2} sx={{ color: 'white' }}>
-      <Column columnPosition={'left'} size={columns.left}>
-        <JobSearchInteractionList edit={openInteractionEditor} />
+    <Box sx={{ 
+      display: 'flex', 
+      // The gap only exists when we aren't in "Surgical/Full" mode
+      gap: isEditing ? 0 : '24px', 
+      width: '100%',
+      transition: 'gap 0.5s ease',
+      color: 'white',
+    }}>
+      
+      {/* LEFT COLUMN: Remains mounted, transforms width */}
+      <Column
+        layout
+        key="primary-column"
+        style={{ 
+          // If editing, take 100%. If not, take flex-basis 50%
+          flex: isEditing ? '1 0 100%' : '1 0 calc(50% - 12px)' 
+        }}
+        transition={{ duration: 0.5, ease: "easeInOut" }}
+      >
+        <AnimatePresence mode="wait">
+          {isEditing ? (
+            <motion.div
+              key="editor-content"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ delay: 0.3 }} // Step 3: Fade in after expansion starts
+            >
+              <Button onClick={closeInteractionEditor}>Back to list</Button>
+              Editor component!
+            </motion.div>
+          ) : (
+            <motion.div
+              key="list-content"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }} // Step 1: Fade out content
+            >
+              <JobSearchInteractionList edit={openInteractionEditor}/>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </Column>
-      {/* <Column columnPosition={'center'}>
-        Active Applications in order of priority.
-      </Column> */}
-      <Column columnPosition={'right'} size={columns.right}>
-        <ul>
-          <li>Active Applications in order of priority.</li>
-          <li>Most recently featured companies (provide company ratings)</li>
-          <li>Most recently featured people (provide people ratings)</li>
-        </ul>
-      </Column>
-      {/* <Column columnPosition={'right'}>
-        <InteractionCreation />
-      </Column> */}
-    </Grid>
+
+      {/* RIGHT COLUMN: Unmounts and shrinks width to 0 */}
+      <AnimatePresence>
+        {!isEditing && (
+          <Column
+            key="secondary-column"
+            initial={{ opacity: 0, width: 'calc(50% - 12px)' }}
+            animate={{ opacity: 1, width: 'calc(50% - 12px)' }}
+            exit={{ 
+              opacity: 0, 
+              width: 0, // Step 1: Shrink width to 0 to prevent "The Drop"
+              transition: { duration: 0.4 } 
+            }}
+            style={{ flexShrink: 0 }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+          >
+            Application list
+          </Column>
+        )}
+      </AnimatePresence>
+
+    </Box>
   </>;
 };

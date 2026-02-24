@@ -55,7 +55,7 @@ const store = create<{
   },
 }));
 
-export const useDiaryIpc = () => {
+export const useDiaryIpc = (isListFetchingEnabled: boolean) => {
   const {
     aboutToInitiateConvergence,
     addUnsavedEntry,
@@ -116,6 +116,7 @@ export const useDiaryIpc = () => {
   } = useQuery({
     queryKey: ['diary'],
     queryFn: fetchRecentDiaryEntries,
+    enabled: isListFetchingEnabled,
   });
 
   const commitDiaryEntry = useCallback(

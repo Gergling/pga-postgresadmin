@@ -2,6 +2,7 @@ import styled from '@emotion/styled';
 import { useDiary } from '../context';
 import { DiaryEntryItem } from './DiaryEntryItem';
 import { DiaryEntryInput } from './DiaryEntryInput';
+import { useEffect } from 'react';
 
 const Container = styled.div`
   display: flex;
@@ -13,7 +14,9 @@ const Container = styled.div`
 `;
 
 const DiaryInterface = () => {
-  const { diaryEntries } = useDiary();
+  const { diaryEntries, drawer } = useDiary();
+
+  useEffect(() => drawer.setIsAvailable(false), [drawer.setIsAvailable]);
 
   // TODO: Should show when mutations and reloading are happening.
   return (

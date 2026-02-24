@@ -7,6 +7,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 const store = create<{
+  isListFetchingEnabled: boolean;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   inputEntryText: string;
@@ -14,12 +15,18 @@ const store = create<{
   isAvailable: boolean;
   setIsAvailable: (isAvailable: boolean) => void;
 }>()(persist((set) => ({
+  isListFetchingEnabled: false,
   isOpen: false,
   setIsOpen: (isOpen) => set({ isOpen }),
   inputEntryText: '',
   setInputEntryText: (inputEntryText) => set({ inputEntryText }),
   isAvailable: true,
-  setIsAvailable: (isAvailable) => set({ isAvailable: isAvailable }),
+  setIsAvailable: (isAvailable) => set({
+    // Drawer input is available
+    isAvailable,
+    // Listfetching should only be enabled when the diary listing page is open.
+    isListFetchingEnabled: !isAvailable
+  }),
 }), {
   name: 'diary-entry-input-text', // Key in LocalStorage
   // ONLY persist the entry text.
@@ -45,7 +52,7 @@ export const {
     ipcStatus,
     rejectDiaryEntry,
     triageTasks,
-  } = useDiaryIpc();
+  } = useDiaryIpc(drawer.isListFetchingEnabled);
 
   const {
     canInitiateConvergence,

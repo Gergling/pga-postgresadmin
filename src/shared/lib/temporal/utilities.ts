@@ -49,3 +49,18 @@ export const getRelativeTimeString = (
 
   return getRelativePropTimeString(value, extendedProp);
 };
+
+export const getReadableEpochMilliseconds = (epochMilliseconds: number) => {
+  const instant = Temporal.Instant.fromEpochMilliseconds(epochMilliseconds);
+  const zonedDT = instant.toZonedDateTimeISO(Temporal.Now.timeZoneId());
+  const {
+    year,
+    month,
+    day,
+    hour,
+    minute,
+  } = zonedDT;
+  const readableTime = `${hour}:${minute} ${year}-${month}-${day}`;
+
+  return { zonedDT, readableTime };
+};

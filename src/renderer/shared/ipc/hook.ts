@@ -1,8 +1,9 @@
 import { useContext } from "react";
 import { IPC_EXPOSURE_PROPERTY_NAME } from "../../../ipc/constants";
 import { IpcContext } from "./context";
+import { UseIpcProps } from "./config";
 
-export const useIpc = () => {
+export const useIpc = (): UseIpcProps => {
   try {
     const context = useContext(IpcContext);
     const ipc = context[IPC_EXPOSURE_PROPERTY_NAME];

@@ -33,7 +33,15 @@ export type JobSearchApplicationStage = {
   timeline: 'asynchronous' | 'synchronous' | number | { start: number; end: number; };
 };
 
-type JobSearchApplication = {
+type BaseJobSearchInteraction = {
+  contentReference?: string; // This could be an email fragment id, for example. It will depend on the source.
+  notes: string; // When all other forms of structured data fail...
+  person?: CrmArchetype['base']['people']; // If a person can be tied to the interaction, great.
+  source: JobSearchInteractionSource;
+  timeperiod: { start: number; end?: number; };
+};
+
+type BaseJobSearchApplication = {
   // Status.
   phase: ApplicationPhaseName;
 
@@ -62,12 +70,13 @@ type JobSearchApplication = {
   manager?: CrmArchetype['base']['people']; // Hiring manager (if known).
   referral?: CrmArchetype['base']['people']; // If the role was referred (if there is one).
 
-  interactions: JobSearchInteraction[];
-
   // Unstructured text, for things like the kob description, etc.
   notes: string;
 };
 
+type JobSearchApplication = BaseJobSearchApplication & {
+  interactions: BaseJobSearchInteraction[];
+};
 
 type JobSearchApplicationModelType = Omit<
   JobSearchApplication,
@@ -106,13 +115,8 @@ export type JobSearchInteractionSource = {
 } & (InteractionPayload | Partial<Record<JobSearchInteractionType, never>>);
 
 // This is one interaction for one person or possibly robot.
-type JobSearchInteraction = {
-  application?: JobSearchArchetype['base']['applications'];
-  contentReference?: string; // This could be an email fragment id, for example. It will depend on the source.
-  notes: string; // When all other forms of structured data fail...
-  person?: CrmArchetype['base']['people']; // If a person can be tied to the interaction, great.
-  source: JobSearchInteractionSource;
-  timeperiod: { start: number; end?: number; };
+type JobSearchInteraction = BaseJobSearchInteraction & {
+  application?: BaseJobSearchApplication;
 };
 
 type JobSearchInteractionModelType = Omit<JobSearchInteraction, 'application' | 'person'> & {

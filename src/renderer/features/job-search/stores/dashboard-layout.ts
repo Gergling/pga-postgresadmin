@@ -1,14 +1,17 @@
+import { JobSearchArchetype } from "../../../../shared/features/job-search";
 import { create } from "zustand";
+
+type Id = JobSearchArchetype['id']['interactions'];
 
 // All these represent an "open" state.
 type State = {
   interactionCreator: boolean;
-  interactionEditor?: string;
+  interactionEditor?: Id;
 };
 
 type Action = {
   closeInteractionEditor: () => void;
-  openInteractionEditor: (interactionId: string) => void;
+  openInteractionEditor: (interactionId: Id) => void;
   toggleInteractionCreator: () => void;
 };
 

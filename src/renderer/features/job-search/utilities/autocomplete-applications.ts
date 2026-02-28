@@ -1,9 +1,17 @@
-import { enrichAutocompleteOptions } from "../../../shared/autocomplete";
-import { JobSearchArchetype } from "../../../../shared/features/job-search";
-import { JobSearchOptionType } from "../types";
 import { createFilterOptions, FilterOptionsState } from "@mui/material";
+import { Mandatory } from "../../../../shared/types";
+import { JobSearchArchetype } from "../../../../shared/features/job-search";
+import { enrichAutocompleteOptions } from "../../../shared/autocomplete";
+import { JobSearchOptionType } from "../types";
 
 type OptionType = JobSearchOptionType<'applications'>;
+
+export const getJobSearchApplicationOption = (
+  application: Mandatory<JobSearchArchetype['base']['applications'], 'role'>
+): OptionType => ({
+  ...application,
+  title: application.role,
+});
 
 export const createApplicationOptionsMap = (
   applications: JobSearchArchetype['base']['applications'][]

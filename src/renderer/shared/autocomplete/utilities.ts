@@ -19,3 +19,27 @@ export const getOptionLabel = (option: OptionType | string) => {
   if (typeof option === 'string') return option;
   return option.title;
 }
+
+export const createAutocompleteOptions = <
+  ID extends string,
+  IdProp extends keyof T,
+  TitleProp extends keyof T,
+  T extends {
+    [key in IdProp]: ID;
+  } & {
+    [key in TitleProp]: string;
+  },
+>(
+  items: T[],
+  {
+    idProp,
+    titleProp
+  }: {
+    idProp: IdProp;
+    titleProp: TitleProp;
+  }
+) => items.map((props): OptionType<T[IdProp]> => {
+  const id = props[idProp];
+  const title = props[titleProp];
+  return ({ ...props, id, title, duplicate: false })
+});

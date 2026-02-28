@@ -1,30 +1,37 @@
 import { TypesaurusCore } from "typesaurus";
 import { Archetype } from "../../lib/typesaurus";
 
-type Company = {
-  employees: {
-    contact: Person;
-    employment: Employment;
-  }[];
+type BaseEmployment = {
+  role?: string;
+};
+
+type BaseCompany = {
   name: string;
 };
 
-type Person = {
+type BasePerson = {
   name: string;
   contactId: Partial<Record<'google', string>>; // Google and other contact ids.
-  employers: {
-    company: Company;
-    employment: Employment;
-  }[];
+};
+
+type Employee = BaseEmployment & {
+  person: Person;
+};
+type Employer = BaseEmployment & {
+  company: BaseCompany;
+};
+
+type Company = BaseCompany & {
+  employees: Employee[];
+};
+
+type Person = BasePerson & {
+  employers: Employer[];
 };
 
 export type TimelineStatus = 'past' | 'future';
 
-type Employment = {
-  role?: string;
-  company: Company;
-  person: Person;
-};
+type Employment = Employee & Employer;
 
 type EmploymentModelType = Omit<Employment, 'company' | 'person'> & {
   companyId: TypesaurusCore.Id<'companies'>;

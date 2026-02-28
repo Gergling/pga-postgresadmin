@@ -1,3 +1,4 @@
+import { Optional } from "../../../shared/types";
 import { TypesaurusCore } from "typesaurus";
 
 export type InferCollectionName<T> = T extends TypesaurusCore.Id<infer C> ? C : never;
@@ -5,9 +6,14 @@ export type InferCollectionName<T> = T extends TypesaurusCore.Id<infer C> ? C : 
 // Helper to define what we need for each collection
 type ArchetypeEntry = { base: object; model: object; };
 
+type ArchetypeMapEntryBase<
+  Base extends object,
+  Name extends string,
+> = Base & { id: TypesaurusCore.Id<Name>; };
+
 // The "Engine" - This processes a single entry into all its variations
 export type ArchetypeMapEntry<Name extends string, E extends ArchetypeEntry> = {
-  base: E['base'] & { id: TypesaurusCore.Id<Name> };
+  base: ArchetypeMapEntryBase<E['base'], Name>;
   id: TypesaurusCore.Id<Name>;
   model: E['model'];
   collections: TypesaurusCore.PlainCollection<E['model'], false, false>;
@@ -32,6 +38,11 @@ export type Archetype<T extends Record<string, ArchetypeEntry>> = {
 };
 
 export type ArchetypeDefault = Archetype<Record<string, ArchetypeEntry>>;
+
+// This is generally for when the object is being created but doesn't necessarily have an id yet.
+export type ArchetypeMapEntryBaseFlux<
+  ArchetypeMapEntry extends ArchetypeMapEntryDefault
+> = Optional<ArchetypeMapEntry['base'], 'id'>;
 
 // Get doc from an archetype collection model
 export type ArchetypeDoc<M extends ArchetypeMapEntryDefault> = TypesaurusCore.Doc<

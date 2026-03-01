@@ -40,7 +40,7 @@ export const DevModeOverlay = () => {
   const [expanded, setExpanded] = useState(false);
   const { theme: { colors: { info, warning } } } = useTheme();
   const color = useMemo(() => isProd ? warning.main : info.main, [isProd]);
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
 
   const handleToggleEnv = () => {
     const confirmChange = window.confirm(`Switch to ${!isProd ? 'PRODUCTION' : 'DEVELOPMENT'}? The app will reload.`);
@@ -66,7 +66,7 @@ export const DevModeOverlay = () => {
             
             {/* You can add more dev-only tools here later */}
             <Typography variant="caption" color="text.secondary">
-              Path: { pathname }
+              Path: { pathname }{ search }
             </Typography>
           </Stack>
         </Paper>

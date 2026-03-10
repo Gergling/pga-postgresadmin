@@ -31,6 +31,71 @@ const hydrateStages = (
   };
 });
 
+// TODO: This needs to be separated into another file.
+// We will have a common recurring pattern of read operations for lists and individual items.
+// We can separate recurring functionality in the read functions.
+export const fetchApplication = async (
+  id: JobSearchArchetype['id']['applications']
+): Promise<JobSearchArchetype['base']['applications'] | null> => {
+  const application = await jobSearchDb.applications.get(id);
+  if (!application) return null;
+  const { data: { agencyId, companyId, managerId, referralId, ...data } } = application;
+
+  // Similar to list.
+  const applicationContacts = await jobSearchDb.applicationContacts.query(
+    ($) => $.field('applicationId').eq(id)
+  );
+  const applicationInteractions = await jobSearchDb.interactions.query(
+    ($) => $.field('applicationId').eq(id)
+  );
+
+  // Same as list.
+  const employmentIds = applicationContacts.map(({ data }) => data.employmentId);
+  const { companies, contacts, employments } = await fetchManyEmployments({ ids: employmentIds, type: 'employments'});
+
+  const appLinks = applicationContacts.filter(l => l.data.applicationId === id);
+  const agency = agencyId && companies.get(agencyId);
+  const company = companyId && companies.get(companyId);
+  const manager = managerId && contacts.get(managerId);
+  const referral = referralId && contacts.get(referralId);
+  const stages = hydrateStages(contacts, data.stages);
+  const baseApplication: JobSearchArchetype['base']['applications'] = {
+    ...data,
+    agency, company, manager, referral, stages,
+    contacts: [], interactions: [],
+    id,
+  };
+
+  // Similar to list.
+  const interactions: JobSearchArchetype['base']['interactions'][] = applicationInteractions
+    // .filter(l => l.data.applicationId === id)
+    .map(({ data: { personId, ...data }, ref: { id } }) => ({
+      ...data,
+      application: baseApplication,
+      id,
+      person: personId && contacts.get(personId),
+    }));
+
+  // Same as list.
+  return {
+    ...baseApplication,
+    id,
+    interactions,
+    contacts: appLinks.reduce((acc, { data: { employmentId } }) => {
+      const employment = employments.get(employmentId);
+      if (!employment) return acc;
+      const { company, person, role } = employment;
+      return {
+        ...acc,
+        company,
+        person,
+        id: employmentId,
+        role,
+      };
+    }, []),
+  };
+};
+
 // TODO: Sorting.
 // We want to sort by whether there has been correspondence in the last, say, 2 weeks. If it's older than that, it's probably dead.
 // Then we want to sort by salary, although we need to work out what is optimal. E.g. the minimum then the maximum.

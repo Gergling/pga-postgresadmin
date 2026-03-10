@@ -1,5 +1,5 @@
 import { TypesaurusCore } from 'typesaurus'
-import { Mandatory } from '../../../shared/types';
+import { Mandatory, Optional } from '../../../shared/types';
 import { ArchetypeDefault, ArchetypeDoc, createCollectionMap } from '../../../shared/lib/typesaurus';
 import { CrmArchetype } from '../../../shared/features/crm';
 import { docsReduction } from '../../shared/db';
@@ -141,15 +141,13 @@ export const fetchManyEmployments = async (
       const companies = acc.companies.set(companyId, {
         ...baseCompany,
         employees: [...employees, {
-          contact: baseContact,
-          employment: baseEmployment,
+          person: baseContact,
         }],
       });
       const contacts = acc.contacts.set(personId, {
         ...baseContact,
         employers: [...employers, {
           company: baseCompany,
-          employment: baseEmployment,
         }],
       });
       const employments = acc.employments.set(employmentId, baseEmployment);
@@ -168,20 +166,46 @@ export const fetchManyEmployments = async (
   );
 };
 
+// export const createPerson = async (
+//   modelData: CrmArchetype['modelType']['people']
+// ): Promise<CrmArchetype['base']['people']> => {
+//   const newPerson = await crmDb.people.add(modelData);
+//   return {
+//     ...modelData,
+//     employers: [],
+//     id: newPerson.id,
+//   };
+// };
+
 // TODO: Review creation pattern. Also make sure they're always returning a base object.
 // type CrudKey = 'create';// | 'update';
-const crudFactory = <A extends ArchetypeDefault>(
-  archetypeDb: TypesaurusCore.DB<A['collections']>,
+// type InitialiserCreateFunction<
+//   Archetype extends ArchetypeDefault,
+//   ValidCollectionName extends Archetype['collectionName'] = Archetype['collectionName'],
+//   CollectionName extends ValidCollectionName = ValidCollectionName,
+// > = (
+//   data: Archetype['modelType'][CollectionName]
+// ) => Promise<Omit<Archetype['base'][CollectionName], keyof Archetype['modelType'][CollectionName] | 'id'>>;
+type InitialiserCreateFunction<
+  Archetype extends ArchetypeDefault,
+  CollectionName extends Archetype['collectionName'] = Archetype['collectionName'],
+> = (
+  data: Archetype['modelType'][CollectionName]
+) => Promise<Optional<Archetype['base'][CollectionName], 'id'>>;
+
+const crudFactory = <
+  Archetype extends ArchetypeDefault,
+  ValidCollectionName extends Archetype['collectionName'] = Archetype['collectionName'],
+>(
+  archetypeDb: TypesaurusCore.DB<Archetype['collections']>,
   initialisers?: Partial<{
-    [CollectionName in A['collectionName']]: {
-      create?: (
-        data: A['modelType'][CollectionName]
-      ) => Promise<Omit<A['base'][CollectionName], keyof A['modelType'][CollectionName] | 'id'>>;
+    [CollectionName in Archetype['collectionName']]: {
+      create?: InitialiserCreateFunction<Archetype, CollectionName>;
     };
   }>
 ) => {
-  type ArchetypeModel = A['modelType'];
-  type ValidCollectionName = A['collectionName'];
+  type ArchetypeModel = Archetype['modelType'];
+  // type ValidCollectionName = Archetype['collectionName'];
   return <
     CollectionName extends ValidCollectionName,
   >(
@@ -234,16 +258,26 @@ const crudFactory = <A extends ArchetypeDefault>(
 
 const crmCrudFactory = crudFactory<CrmArchetype>(crmDb, {
   companies: {
-    create: async () => ({ employees: [] })
+    create: async () => ({ employees: [], name: '' })
   },
   people: {
-    create: async () => ({ employers: [] })
+    create: async () => ({ employers: [], contactId: {}, name: '' })
   },
 });
 
-export const createCompany = crmCrudFactory('companies').create;
+// export const createCompany = crmCrudFactory('companies').create;
 export const createEmployment = crmCrudFactory('employments').create;
-// export const createPerson = crmCrudFactory('people').create;
+// const createPerson2 = crmCrudFactory('people').create;
+export const createCompany = async (
+  modelData: CrmArchetype['modelType']['companies']
+): Promise<CrmArchetype['base']['companies']> => {
+  const ref = await crmDb.companies.add(modelData);
+  return {
+    ...modelData,
+    employees: [],
+    id: ref.id,
+  };
+};
 export const createPerson = async (modelData: CrmArchetype['modelType']['people']): Promise<CrmArchetype['base']['people']> => {
   const newPerson = await crmDb.people.add(modelData);
   return {
@@ -253,14 +287,20 @@ export const createPerson = async (modelData: CrmArchetype['modelType']['people'
   };
 };
 
+// TODO: DRY up.
 export const fetchRecentCompanies = async () => {
-  return await crmDb.companies.all();
+  const companies = await crmDb.companies.all();
+  return companies.map(({ ref: { id }, data }) => ({
+    employees: [],
+    ...data,
+    id,
+  }))
 };
 export const fetchRecentPeople = async (): Promise<CrmArchetype['base']['people'][]> => {
   const people = await crmDb.people.all();
   return people.map(({ ref: { id }, data }) => ({
-    ...data,
     employers: [],
+    ...data,
     id,
   }));
 };
@@ -270,8 +310,9 @@ export const updatePerson = async (person: Mandatory<CrmArchetype['base']['peopl
   await crmDb.people.update(person.id, person);
   return person;
 };
-export const updateCompany = async (company: CrmArchetype['base']['companies']) => {
-  return await crmDb.companies.update(company.id, company);
+export const updateCompany = async (company: Mandatory<CrmArchetype['base']['companies'], 'id'>) => {
+  await crmDb.companies.update(company.id, company);
+  return company;
 };
 
 export const deleteEmployment = async (employmentId: CrmArchetype['id']['employments']) => {

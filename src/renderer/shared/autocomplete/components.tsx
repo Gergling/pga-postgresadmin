@@ -1,11 +1,12 @@
-import { OptionType } from "./types";
-import { AutocompleteId, AutocompleteListItem, AutocompleteTitle } from "./components.style";
 import { AutocompleteRenderInputParams, TextField, TextFieldProps } from "@mui/material";
+import { COLORS } from "../theme";
+import { AutocompleteId, AutocompleteListItem, AutocompleteTitle } from "./components.style";
+import { OptionType } from "./types";
 
 export const autocompleteRenderOptionFactory = <T extends OptionType>(
-  options: Map<T['id'], T>,
+  options: T[],
 ) => {
-  const optionsArr = [...options.values()];
+  const optionsArr = options;
   return (
     props: React.HTMLAttributes<HTMLLIElement>,
     optionProp: string | T,
@@ -13,15 +14,14 @@ export const autocompleteRenderOptionFactory = <T extends OptionType>(
     const option = typeof optionProp === 'string' ? optionsArr.find(({ title }) => title === optionProp) : optionProp;
 
     if (!option) {
-      console.warn('how do we not have an option?', optionProp, optionsArr)
+      console.warn('Shared Factory: how do we not have an option?', optionProp, optionsArr);
       return null;
     }
 
     return (
       <AutocompleteListItem {...props} key={`${option.id}_${option.title}`}>
         {option.inputValue && (
-          // TODO: Another one for styling standards...
-          <span style={{ color: '#ffcc00', fontWeight: 'bold' }}>
+          <span style={{ color: COLORS.goldGlow, fontWeight: 'bold' }}>
             + CREATE: {option.inputValue}
           </span>
         )}
@@ -43,4 +43,3 @@ export const autocompleteRenderInputFactory = (
   variant="standard"
   {...overrideParams}
 />;
-

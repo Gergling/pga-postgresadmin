@@ -1,6 +1,6 @@
 import { Archetype } from "../../../../shared/lib/typesaurus";
 import { CrmArchetype } from "../../../../shared/features/crm";
-import { ApplicationPhaseName, JobSearchInteractionType } from "../config";
+import { ApplicationPhaseName, ApplicationStageTechnicalLevel, JobSearchInteractionType } from "../config";
 
 type CrmId = CrmArchetype['id'];
 type ApplicationId = JobSearchArchetype['id']['applications'];
@@ -21,10 +21,10 @@ export type JobSearchApplicationStage = {
   // Stages usually link to a phase, commonly "issued" and "booked", as these
   // are the earliest points at which this phase will complete.
   // Obviously previous phases have to complete first.
-  phase: ApplicationPhaseName;
+  // phase: ApplicationPhaseName;
   // Briefly describes the technical level. Intro discussions are low, tech
   // tests are high and architectural/behavioural are medium.
-  technical: 'low' | 'medium' | 'high';
+  technical: ApplicationStageTechnicalLevel;
   // Scheduled interviews or tests are synchronous, take-home tests aren't.
   // Robot interviewers are synchronous for now.
   // Early in the process, I won't know when this is scheduled or what the deadline is.
@@ -34,7 +34,9 @@ export type JobSearchApplicationStage = {
 };
 
 type BaseJobSearchInteraction = {
+  audit?: Partial<BaseJobSearchApplication>;
   contentReference?: string; // This could be an email fragment id, for example. It will depend on the source.
+  due?: number; // If the interaction was for an update given at due time, this is that time.
   notes: string; // When all other forms of structured data fail...
   person?: CrmArchetype['base']['people']; // If a person can be tied to the interaction, great.
   source: JobSearchInteractionSource;
@@ -43,6 +45,7 @@ type BaseJobSearchInteraction = {
 
 type BaseJobSearchApplication = {
   // Status.
+  pending: boolean;
   phase: ApplicationPhaseName;
 
   // The actual job.
@@ -55,6 +58,7 @@ type BaseJobSearchApplication = {
   };
 
   // Process.
+  expectedUpdateTime?: number; // If they have told me when they will get back to me.
   offer?: { // If an offer has been made....
     notes: string;
     salary: number;
@@ -75,7 +79,7 @@ type BaseJobSearchApplication = {
 };
 
 type JobSearchApplication = BaseJobSearchApplication & {
-  interactions: BaseJobSearchInteraction[];
+  interactions: Omit<JobSearchArchetype['base']['interactions'], 'application'>[];
 };
 
 type JobSearchApplicationModelType = Omit<

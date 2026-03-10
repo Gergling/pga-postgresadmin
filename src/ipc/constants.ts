@@ -1,1 +1,1 @@
-export const IPC_EXPOSURE_PROPERTY_NAME = 'ipc';
+export const IPC_EXPOSURE_PROPERTY_NAME = 'ipc' as const;

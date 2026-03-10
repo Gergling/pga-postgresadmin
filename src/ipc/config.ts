@@ -59,6 +59,7 @@ export type IpcInvocationConfig = IpcInvocationConfigBase<{
   createPerson: CrmIpcAwaited['create']['person'];
   deleteEmployment: CrmIpcAwaited['delete']['employment'];
   fetchActiveApplications: JobSearchIpcAwaited['read']['activeApplications'];
+  fetchApplication: JobSearchIpcAwaited['read']['application'];
   fetchRecentCompanies: CrmIpcAwaited['read']['recentCompanies'];
   fetchRecentInteractions: JobSearchIpcAwaited['read']['recentInteractions'];
   fetchRecentPeople: CrmIpcAwaited['read']['recentPeople'];
@@ -174,6 +175,10 @@ export const ipcHandlerConfig: IpcHandlerConfig<
   fetchActiveApplications: ({
     jobSearch: { read: { activeApplications } },
   }) => activeApplications(),
+  fetchApplication: ({
+    args: [applicationId],
+    jobSearch: { read: { application } },
+  }) => application(applicationId),
   fetchRecentCompanies: ({
     crm: { read: { recentCompanies } },
   }) => recentCompanies(),

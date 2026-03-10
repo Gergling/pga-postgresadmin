@@ -1,6 +1,11 @@
 import { Archetype } from "../../../../shared/lib/typesaurus";
 import { CrmArchetype } from "../../../../shared/features/crm";
-import { ApplicationPhaseName, ApplicationStageTechnicalLevel, JobSearchInteractionType } from "../config";
+import {
+  ApplicationPhaseName,
+  ApplicationStageTechnicalLevel,
+  JobSearchInteractionType,
+  RoleSeniority
+} from "../config";
 
 type CrmId = CrmArchetype['id'];
 type ApplicationId = JobSearchArchetype['id']['applications'];
@@ -53,9 +58,16 @@ type BaseJobSearchApplication = {
   salary: {
     // Undefined if unknown.
     // The numbers are equal if a single number is provided.
+    // TODO: Should really just store a single number if the salary is set to a specific number.
     min?: number;
     max?: number;
   };
+  onSite?: // Undefined if they don't tell you about going into the office or it's not known.
+    | boolean // Fully remote is false, fully in-office is true.
+    | number // A number of days per week is specified (can calculate is specified per month or other equivalent).
+    | 'hybrid' // It's a hybrid role, but they don't say often you go in.
+    | { min: number; max: number; }; // They tell you a minimum and maximum number of days.
+  seniority?: RoleSeniority;
 
   // Process.
   expectedUpdateTime?: number; // If they have told me when they will get back to me.

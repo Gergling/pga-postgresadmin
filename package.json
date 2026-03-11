@@ -60,7 +60,9 @@
     "@mui/material": "^7.3.1",
     "@mui/x-data-grid": "^8.23.0",
     "@mui/x-date-pickers": "^8.27.0",
+    "@tanstack/react-form": "^1.28.3",
     "@tanstack/react-query": "^5.90.16",
+    "@tanstack/zod-form-adapter": "^0.42.1",
     "@types/pg": "^8.15.5",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
@@ -75,10 +77,16 @@
     "mailparser": "^3.9.1",
     "motion": "^12.34.3",
     "pg": "^8.16.3",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
     "react-router-dom": "^7.8.2",
     "typesaurus": "^10.7.0",
+    "zod": "^4.3.6",
     "zustand": "^5.0.7"
+  },
+  "overrides": {
+    "@tanstack/zod-form-adapter": {
+      "zod": "$zod"
+    }
   }
 }

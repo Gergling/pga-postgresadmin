@@ -84,13 +84,13 @@ export const DevModeOverlay = () => {
       <Collapse in={expanded} sx={{ width: '100%' }}>
         <Paper elevation={4} sx={{ p: 2, borderRadius: 0, borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
           <Grid container spacing={4} alignItems="center" justifyContent="center" flexWrap={'wrap'}>
-            <Grid size={{ xs: 12, sm: 3 }}>
+            <Grid sx={{ flexBasis: '120px' }}>
               <Typography variant="overline" color="primary" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1 }}>
                 <BuildCircleIcon fontSize="small" /> Dev Engine
               </Typography>
             </Grid>
 
-            <Grid size={{ xs: 12, sm: 3 }}>
+            <Grid sx={{ flex: '1 0 180px' }}>
               <FormControlLabel
                 control={<Switch checked={isProd} onChange={handleToggleEnv} color="warning" sx={{ color }} />}
                 label={isProd ? "PRODUCTION DATABASE" : "DEVELOPMENT DATABASE"}
@@ -101,7 +101,7 @@ export const DevModeOverlay = () => {
               />
             </Grid>
 
-            <Grid container size={{ xs: 12, sm: 6 }} spacing={2}>
+            <Grid container sx={{ flex: '1 0 270px' }} spacing={2} flexWrap={'wrap'}>
               <MetricChip label="Path" value={`${pathname}${search}`} />
               <MetricChip label="Breakpoint" value={<ResponsiveIndicator />} />
             </Grid>

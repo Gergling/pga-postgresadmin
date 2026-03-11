@@ -3,4 +3,5 @@ export const COLORS = {
   bloodRed: '#900',
   goldGlow: '#ffcc00',
   ruddy: '#FF0028',
+  white: '#fff',
 } as const;

@@ -1,17 +1,23 @@
-import { ReactNode, useState } from 'react';
-import { Menu, MenuItem, IconButton } from '@mui/material';
+import { ReactNode, useMemo, useState } from 'react';
+import { Menu, MenuItem, IconButton, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-export interface DropdownOption {
-  value: string | number;
+export type DropdownOption<T extends string | number = string | number> = {
+  value: T;
   label: ReactNode;
 }
 
-export type DropdownProps = {
+export type DropdownProps<T extends string | number = string | number> = {
   icon: React.ReactNode;
-  onSelect: (value: string | number) => void;
-  options: DropdownOption[];
-}
+  onSelect: (value: T) => void;
+  options: DropdownOption<T>[];
+} & ({
+  selected: T;
+  showSelectedText?: boolean;
+} | {
+  selected?: never;
+  showSelectedText?: false;
+});
 
 export const StyledMenu = styled(Menu)`
   padding: 0;
@@ -28,13 +34,12 @@ const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
   },
 }));
 
-export const Dropdown: React.FC<DropdownProps> = ({
-  icon,
-  onSelect,
-  options,
-}) => {
+export const Dropdown = <T extends string | number = string | number>({
+  icon, onSelect, options, showSelectedText, ...props
+}: DropdownProps<T>) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState(props.selected);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setOpen(!open);
@@ -46,21 +51,32 @@ export const Dropdown: React.FC<DropdownProps> = ({
     setOpen(false);
   };
 
-  const handleSelect = (value: string | number) => {
+  const handleSelect = (value: T) => {
     onSelect(value);
+    setSelected(value);
     handleClose();
   };
 
+  const selectedOption = useMemo(() => options.find(({ value }) => value === selected), [options, selected]);
+
   return (
     <>
-      <IconButton
-        onClick={handleClick}
-        aria-controls={open ? 'dropdown-menu' : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? 'true' : undefined}
-      >
-        {icon}
-      </IconButton>
+      {showSelectedText ?
+        <Button
+          aria-controls={open ? 'dropdown-menu' : undefined}
+          aria-haspopup="true"
+          aria-expanded={open ? 'true' : undefined}
+          onClick={handleClick}
+          startIcon={icon}
+        >{selectedOption?.label}</Button>
+      :
+        <IconButton
+          onClick={handleClick}
+          aria-controls={open ? 'dropdown-menu' : undefined}
+          aria-haspopup="true"
+          aria-expanded={open ? 'true' : undefined}
+        >{icon}</IconButton>
+      }
       <StyledMenu
         id="dropdown-menu"
         anchorEl={anchorEl}

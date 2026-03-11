@@ -2,9 +2,12 @@ import { Temporal } from "@js-temporal/polyfill";
 import { useEffect, useMemo, useState } from "react";
 import { getRelativeTimeString } from "../../../../shared/lib/temporal";
 
-export const getRelativeTimeStringNow = (earlier: Temporal.ZonedDateTime) => {
+export const getRelativeTimeNow = (earlier: Temporal.ZonedDateTime) => {
   const now = Temporal.Now.zonedDateTimeISO();
-  const duration = now.since(earlier, { largestUnit: 'years' });
+  return now.since(earlier, { largestUnit: 'years' });
+};
+export const getRelativeTimeStringNow = (earlier: Temporal.ZonedDateTime) => {
+  const duration = getRelativeTimeNow(earlier);
   return getRelativeTimeString(duration);
 };
 

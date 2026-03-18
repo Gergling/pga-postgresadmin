@@ -78,16 +78,13 @@ type CollectionNameKey = string | symbol | (string | symbol)[];
 
 export type IdProp<CollectionName extends CollectionNameKey> = { id: TypesaurusCore.Id<CollectionName>; };
 
+export type OptionalId<T extends object & Partial<IdProp<CollectionNameKey>>> = Optional<T, 'id'>;
+
 export type TransferUpdate<T extends IdProp<CollectionNameKey>> = Mandatory<T, 'id'>;
 
 export type CollectionId<CollectionNames extends string> = {
   [K in CollectionNames]: TypesaurusCore.Id<K>;
 }
-
-export type RecordForeignKey<
-  Prop extends string,
-  PersistentCollection extends IdProp<CollectionNameKey>
-> = Record<Prop, PersistentCollection['id']>;
 
 export type Summary<
   PersistentCollection extends IdProp<CollectionNameKey>,

@@ -1,10 +1,11 @@
-import { hydratorFactory } from "../../../utilities/initialiser";
-import { JobSearchArchetype } from "../types";
+import { OptionalId } from "@shared/lib/typesaurus";
+import { hydratorFactory } from "@shared/utilities/initialiser";
+import { JobSearchApplicationTransfer } from "../types";
 
-const initial: Omit<JobSearchArchetype['base']['applications'], 'id'> = {
-  contacts: [],
+const initial: OptionalId<JobSearchApplicationTransfer> = {
   interactions: [],
   notes: '',
+  pending: false,
   phase: 'sourced',
   role: '',
   salary: {},

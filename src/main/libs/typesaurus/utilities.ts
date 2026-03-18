@@ -4,7 +4,7 @@ import { IdProp } from "../../../shared/lib/typesaurus";
 // the actual type is very convoluted, so we use an approximation of the
 // relevant properties here.
 
-type WithId = object & IdProp<string>;
+type WithId<T extends object = object> = T & IdProp<string>;
 
 type Doc<T extends WithId> = { data: Omit<T, 'id'>; ref: { id: T['id'] } };
 

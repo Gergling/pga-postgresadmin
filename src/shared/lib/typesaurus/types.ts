@@ -28,6 +28,9 @@ export type ArchetypeMapEntry<Name extends string, E extends ArchetypeEntry> = {
   collections: TypesaurusCore.PlainCollection<E['model'], false, false>;
   name: Name;
 };
+/**
+ * @deprecated Probably should be using SchemaCollectionProps instead.
+ */
 export type ArchetypeMapEntryDefault = ArchetypeMapEntry<string, ArchetypeEntry>;
 
 export type Archetype<T extends Record<string, ArchetypeEntry>> = {
@@ -46,9 +49,15 @@ export type Archetype<T extends Record<string, ArchetypeEntry>> = {
   collectionName: keyof T;
 };
 
+/**
+ * @deprecated Use Schema or DbSchema instead.
+ */
 export type ArchetypeDefault = Archetype<Record<string, ArchetypeEntry>>;
 
 // This is generally for when the object is being created but doesn't necessarily have an id yet.
+/**
+ * @deprecated Probably use a SchemaCollection or Creation type... IDK.
+ */
 export type ArchetypeMapEntryBaseFlux<
   ArchetypeMapEntry extends ArchetypeMapEntryDefault
 > = Optional<ArchetypeMapEntry['base'], 'id'>;
@@ -95,6 +104,8 @@ export type SchemaCollectionProps<
   persistent: Schema & IdProp<CollectionName>;
   schema: Schema;
 };
+export type SchemaCollectionPropsDefault = SchemaCollectionProps<string, object>;
+
 export type Schema<T extends Record<string, object> = Record<string, object>> = {
   // We map once to create a hidden "Registry" of all processed shapes
   _registry: {
@@ -105,6 +116,7 @@ export type Schema<T extends Record<string, object> = Record<string, object>> = 
   id: { [K in keyof T & string]: Schema<T>['_registry'][K]['persistent']['id'] };
   persistent: { [K in keyof T & string]: Schema<T>['_registry'][K]['persistent'] };
 };
+export type SchemaDefault = Schema<Record<string, object>>;
 
 export type DbSchema<
   PersistentGroup extends Schema,
@@ -118,6 +130,8 @@ export type DbSchema<
     >
   };
 };
+
+export type DbSchemaDefault = DbSchema<Schema, Record<string, object>>;
 
 // Get doc from an archetype collection model
 export type SchemaCollectionDoc<SchemaCollection extends SchemaCollectionProps<string, object>> = TypesaurusCore.Doc<

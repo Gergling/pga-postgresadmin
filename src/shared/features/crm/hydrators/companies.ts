@@ -1,8 +1,7 @@
-import { Optional } from "../../../../shared/types";
-import { hydratorFactory } from "../../../utilities/initialiser";
-import { CrmArchetype } from "../types";
+import { hydratorFactory } from "@shared/utilities/initialiser";
+import { CrmCompanyCreation } from "../types";
 
-const initial: Optional<CrmArchetype['base']['companies'], 'id'> = {
+const initial: CrmCompanyCreation = {
   employees: [],
   name: '',
 };

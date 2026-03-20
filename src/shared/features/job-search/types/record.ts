@@ -1,3 +1,4 @@
+import { RecordAudit } from "@main/shared/crud";
 import { DbSchema } from "../../../lib/typesaurus";
 import {
   CrmPersonSummary
@@ -10,12 +11,18 @@ type Stage = JobSearchApplicationStageSchema & {
   person?: CrmPersonSummary;
 };
 
-export type JobSearchApplicationRecord =
+type ApplicationRecordBase =
   & Omit<JobSearchApplicationPersistent & JobSearchApplicationSummary, 'salary'>
   & {
     interactions: JobSearchInteractionSummary[];
     salary?: number | JobSearchApplicationSchemaSalary;
     stages: Stage[];
+  };
+
+export type JobSearchApplicationRecord =
+  & ApplicationRecordBase
+  & {
+    audit: RecordAudit<ApplicationRecordBase>[];
   };
 
 export type JobSearchInteractionRecord =

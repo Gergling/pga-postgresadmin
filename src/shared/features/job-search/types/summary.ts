@@ -23,7 +23,6 @@ export type JobSearchInteractionSummary =
 
 export type JobSearchApplicationInteractionSummary =
   & JobSearchApplicationInteractionPersistent
-  & Summary<JobSearchApplicationPersistent, 'role'>
   & {
     application: JobSearchApplicationSummary;
     interaction: JobSearchInteractionSummary;

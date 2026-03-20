@@ -3,6 +3,7 @@ import { hydratorFactory } from "@shared/utilities/initialiser";
 import { JobSearchApplicationTransfer } from "../types";
 
 const initial: OptionalId<JobSearchApplicationTransfer> = {
+  audit: [],
   interactions: [],
   notes: '',
   pending: false,

@@ -77,6 +77,7 @@ export type ArchetypeDoc<M extends ArchetypeMapEntryDefault> = TypesaurusCore.Do
 type CollectionNameKey = string | symbol | (string | symbol)[];
 
 export type IdProp<CollectionName extends CollectionNameKey> = { id: TypesaurusCore.Id<CollectionName>; };
+export type WithId<CollectionName extends CollectionNameKey> = object & IdProp<CollectionName>;
 
 export type OptionalId<T extends object & Partial<IdProp<CollectionNameKey>>> = Optional<T, 'id'>;
 

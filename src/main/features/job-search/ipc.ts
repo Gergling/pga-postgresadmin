@@ -1,27 +1,25 @@
 import { createCrudConfig, IpcCrudConfig } from "../../ipc/utilities";
 import {
-  createApplication,
-  createInteraction,
+  createJobSearchInteraction,
   fetchActiveApplications,
   fetchApplication,
-  fetchRecentInteractions,
+  fetchInteraction,
   updateApplication,
-  updateInteraction
 } from "./crud";
 
 export const jobSearchIpc = createCrudConfig({
   create: {
-    application: createApplication,
-    interaction: createInteraction,
+    interaction: createJobSearchInteraction,
   },
   read: {
     activeApplications: fetchActiveApplications,
     application: fetchApplication,
-    recentInteractions: fetchRecentInteractions,
+    interaction: fetchInteraction,
+    // recentInteractions: fetchRecentInteractions,
   },
   update: {
     application: updateApplication,
-    interaction: updateInteraction,
+    // interaction: updateInteraction,
   },
 });
 

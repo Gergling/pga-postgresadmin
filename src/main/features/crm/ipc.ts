@@ -1,9 +1,9 @@
 import { createCrudConfig, IpcCrudConfig } from "../../ipc/utilities";
 import {
   createCompany,
-  createEmployment,
   createPerson,
-  deleteEmployment,
+  fetchCompany,
+  fetchPerson,
   fetchRecentCompanies,
   fetchRecentPeople,
   updateCompany,
@@ -13,7 +13,6 @@ import {
 export const crmIpc = createCrudConfig({
   create: {
     company: createCompany,
-    employment: createEmployment,
     person: createPerson,
   },
   update: {
@@ -21,11 +20,10 @@ export const crmIpc = createCrudConfig({
     person: updatePerson,
   },
   read: {
+    company: fetchCompany,
+    person: fetchPerson,
     recentCompanies: fetchRecentCompanies,
     recentPeople: fetchRecentPeople,
-  },
-  delete: {
-    employment: deleteEmployment,
   },
 });
 

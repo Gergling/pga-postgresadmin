@@ -1,17 +1,17 @@
 import { useMutation } from "@tanstack/react-query";
-import { ArchetypeMapEntryDefault } from "../../../../shared/lib/typesaurus";
+import { WithId } from "../../../../shared/lib/typesaurus";
 import { useQueryDataFactory } from "./cache";
 
 export const useIpcCreateFactory = <
-  ArchetypeMapEntryBase extends ArchetypeMapEntryDefault['base'],
-  CreationPayload extends Omit<ArchetypeMapEntryBase, 'id'> = Omit<ArchetypeMapEntryBase, 'id'>,
-  OnSuccessFnc extends (data: ArchetypeMapEntryBase) => void = (data: ArchetypeMapEntryBase) => void,
+  TransferPayload extends WithId<string>,
+  CreationPayload extends object & { id?: never; },
+  OnSuccessFnc extends (data: TransferPayload) => void = (data: TransferPayload) => void,
 >(
-  ipcCreateFunction: (payload: CreationPayload) => Promise<ArchetypeMapEntryBase>,
+  ipcCreateFunction: (payload: CreationPayload) => Promise<TransferPayload>,
   queryBaseName: string,
   hydrator: (payload: Partial<CreationPayload>) => CreationPayload,
 ) => {
-  const setQueryData = useQueryDataFactory<ArchetypeMapEntryBase>(queryBaseName);
+  const setQueryData = useQueryDataFactory<TransferPayload>(queryBaseName);
 
   const {
     mutate,

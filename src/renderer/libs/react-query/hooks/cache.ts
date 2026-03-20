@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { ArchetypeMapEntryDefault } from "../../../../shared/lib/typesaurus";
+import { WithId } from "../../../../shared/lib/typesaurus";
 
-export const useQueryDataFactory = <T extends ArchetypeMapEntryDefault['base']>(
+export const useQueryDataFactory = <T extends WithId<string>>(
   keyBase: string
 ) => {
   const queryClient = useQueryClient();

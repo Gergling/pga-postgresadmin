@@ -10,7 +10,6 @@ import {
 } from "@shared/features/job-search";
 import { summarise } from "@main/shared/crud";
 import { APPLICATION_SUMMARY_FIELDS } from "../constants";
-// import { summarise } from "../../../shared/crud";
 
 const salaryFromRecord = (
   salary: JobSearchApplicationRecord['salary']

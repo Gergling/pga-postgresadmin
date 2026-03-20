@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { COLORS, Typography } from "../../theme";
+import { alpha } from "@mui/material";
 
 export const FormFieldLabel = styled(Typography)`
   color: ${COLORS.goldGlow};
@@ -15,6 +16,6 @@ export const FormFieldLabel = styled(Typography)`
     content: "";
     flex-grow: 1;
     height: 1px;
-    background: linear-gradient(90deg, rgba(255, 0, 51, 0.5), transparent);
+    background: linear-gradient(90deg, ${alpha(COLORS.ruddy, 0.5)}, transparent);
   }
 `;

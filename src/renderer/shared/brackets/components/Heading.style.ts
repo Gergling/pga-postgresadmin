@@ -1,25 +1,30 @@
 import styled from "@emotion/styled";
 import { Typography } from "@mui/material";
-import { COLORS } from "../../theme";
-import { BracketHorizontalPosition, BracketPropsOptions } from "../types";
+import { COLORS, fadingLine } from "../../theme";
+import { ParentheticalHeadingBracketLineProps } from "../types";
 
-export const ParentheticalHeadingBracketLine = styled.div<BracketPropsOptions & {
-  side: BracketHorizontalPosition;
-  color?: string;
-}>`
+export const ParentheticalHeadingBracketLine = styled.div<ParentheticalHeadingBracketLineProps>(({
+  color = COLORS.bloodGlow,
+  roundness = 0,
+  side,
+  size = 20,
+  thickness = 3,
+}) => `
   flex-grow: 1;
-  height: ${props => props.size ?? 20}px;
-  border-top-color: ${props => props.color ?? COLORS.bloodGlow};
+  height: ${size}px;
+  border-top-color: ${color};
   border-top-style: solid;
-  border-top-width: ${props => props.thickness ?? 3}px;
+  border-top-width: ${thickness}px;
   position: relative;
   
   /* The Fade */
   mask-image: linear-gradient(
-    to ${props => props.side === 'left' ? 'right' : 'left'}, 
+    to ${side === 'left' ? 'right' : 'left'}, 
     black 0%, 
     transparent 100%
   );
+
+  ${fadingLine({ height: size, thickness, color, direction: side })}
 
   /* The Vertical "Foot" */
   &::before {
@@ -27,13 +32,13 @@ export const ParentheticalHeadingBracketLine = styled.div<BracketPropsOptions & 
     position: absolute;
     // top: 50%;
     // transform: translateY(-50%);
-    ${props => props.side === 'left' ? 'left: 0;' : 'right: 0;'}
-    height: ${props => props.size ?? 20}px;
-    width: ${props => props.thickness ?? 3}px;
-    background: ${props => props.color ?? COLORS.bloodGlow };
-    border-radius: ${props => props.roundness ?? 0}px;
+    ${side === 'left' ? 'left: 0;' : 'right: 0;'}
+    height: ${size}px;
+    width: ${thickness}px;
+    background: ${color };
+    border-radius: ${roundness}px;
   }
-`;
+`);
 
 export const ParentheticalHeadingContainer = styled.div`
   display: flex;

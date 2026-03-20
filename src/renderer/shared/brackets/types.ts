@@ -8,3 +8,8 @@ export type BracketPropsOptions = {
   thickness?: number;
   roundness?: number;
 };
+
+export type ParentheticalHeadingBracketLineProps = BracketPropsOptions & {
+  side: BracketHorizontalPosition;
+  color?: string;
+};

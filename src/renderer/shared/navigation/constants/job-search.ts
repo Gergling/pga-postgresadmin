@@ -1,5 +1,9 @@
 import { UiNavigationConfigItem } from "../types";
-import { InteractionCreation, Interactions, JobSearchDashboard } from "../../../features/job-search";
+import {
+  InteractionDetail,
+  Interactions,
+  JobSearchDashboard
+} from "../../../features/job-search";
 import { runeFactory } from "../../../features/svg-viewer/components";
 
 export const JOB_SEARCH_VIEW_CONFIG: UiNavigationConfigItem[] = [
@@ -36,7 +40,7 @@ export const JOB_SEARCH_VIEW_CONFIG: UiNavigationConfigItem[] = [
     path: 'interactions',
     children: [
       {
-        element: InteractionCreation,
+        element: InteractionDetail,
         icon: runeFactory('Log', 'blue'),
         label: 'Log',
         path: 'log',

@@ -5,13 +5,19 @@ import {
   ParentheticalHeadingContainer,
   ParentheticalBody
 } from "./Heading.style";
+import { ParentheticalHeadingBracketLineProps } from "../types";
 
-export const ParentheticalHeading = ({ children, heading }: PropsWithChildren & { heading: React.ReactNode }) => {
+export type ParentheticalHeadingProps =
+  & PropsWithChildren
+  & Omit<ParentheticalHeadingBracketLineProps, 'side'>
+  & { heading: React.ReactNode };
+
+export const ParentheticalHeading = ({ children, heading, ...props }: ParentheticalHeadingProps) => {
   return <div>
     <ParentheticalHeadingContainer>
-      <ParentheticalHeadingBracketLine side="left" />
+      <ParentheticalHeadingBracketLine {...props} side="left" />
       <ParentheticalHeadingText>{heading}</ParentheticalHeadingText>
-      <ParentheticalHeadingBracketLine side="right" />
+      <ParentheticalHeadingBracketLine {...props} side="right" />
     </ParentheticalHeadingContainer>
     <ParentheticalBody>{children}</ParentheticalBody>
   </div>;

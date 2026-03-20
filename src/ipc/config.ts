@@ -52,20 +52,18 @@ export type IpcInvocationConfig = IpcInvocationConfigBase<{
   ) => Mandatory<DiaryEntry, 'id'>;
 
   // CRM and job search.
-  assignEmployment: CrmIpcAwaited['create']['employment'];
-  createApplication: JobSearchIpcAwaited['create']['application'];
   createCompany: CrmIpcAwaited['create']['company'];
   createInteraction: JobSearchIpcAwaited['create']['interaction'];
   createPerson: CrmIpcAwaited['create']['person'];
-  deleteEmployment: CrmIpcAwaited['delete']['employment'];
   fetchActiveApplications: JobSearchIpcAwaited['read']['activeApplications'];
   fetchApplication: JobSearchIpcAwaited['read']['application'];
+  fetchCompany: CrmIpcAwaited['read']['company'];
+  fetchInteraction: JobSearchIpcAwaited['read']['interaction'];
+  fetchPerson: CrmIpcAwaited['read']['person'];
   fetchRecentCompanies: CrmIpcAwaited['read']['recentCompanies'];
-  fetchRecentInteractions: JobSearchIpcAwaited['read']['recentInteractions'];
   fetchRecentPeople: CrmIpcAwaited['read']['recentPeople'];
   updateApplication: JobSearchIpcAwaited['update']['application'];
   updateCompany: CrmIpcAwaited['update']['company'];
-  updateInteraction: JobSearchIpcAwaited['update']['interaction'];
   updatePerson: CrmIpcAwaited['update']['person'];
 }>;
 
@@ -148,14 +146,6 @@ export const ipcHandlerConfig: IpcHandlerConfig<
   }) => set(id, newData, immediateConvergence),
 
   // CRM and job search.
-  assignEmployment: ({
-    args: [employment],
-    crm: { create: { employment: createEmployment } },
-  }) => createEmployment(employment),
-  createApplication: ({
-    args: [application],
-    jobSearch: { create: { application: createApplication } },
-  }) => createApplication(application),
   createCompany: ({
     args: [company],
     crm: { create: { company: createCompany } },
@@ -168,10 +158,6 @@ export const ipcHandlerConfig: IpcHandlerConfig<
     args: [person],
     crm: { create: { person: createPerson } },
   }) => createPerson(person),
-  deleteEmployment: ({
-    args: [employmentId],
-    crm: { delete: { employment: deleteEmployment } },
-  }) => deleteEmployment(employmentId),
   fetchActiveApplications: ({
     jobSearch: { read: { activeApplications } },
   }) => activeApplications(),
@@ -179,12 +165,21 @@ export const ipcHandlerConfig: IpcHandlerConfig<
     args: [applicationId],
     jobSearch: { read: { application } },
   }) => application(applicationId),
+  fetchCompany: ({
+    args: [companyId],
+    crm: { read: { company } },
+  }) => company(companyId),
+  fetchInteraction: ({
+    args: [interactionId],
+    jobSearch: { read: { interaction } },
+  }) => interaction(interactionId),
+  fetchPerson: ({
+    args: [personId],
+    crm: { read: { person } },
+  }) => person(personId),
   fetchRecentCompanies: ({
     crm: { read: { recentCompanies } },
   }) => recentCompanies(),
-  fetchRecentInteractions: ({
-    jobSearch: { read: { recentInteractions } },
-  }) => recentInteractions(),
   fetchRecentPeople: ({
     crm: { read: { recentPeople } },
   }) => recentPeople(),
@@ -196,10 +191,6 @@ export const ipcHandlerConfig: IpcHandlerConfig<
     args: [company],
     crm: { update: { company: updateCompany } },
   }) => updateCompany(company),
-  updateInteraction: ({
-    args: [interaction],
-    jobSearch: { update: { interaction: updateInteraction } },
-  }) => updateInteraction(interaction),
   updatePerson: ({
     args: [person],
     crm: { update: { person: updatePerson } },

@@ -93,3 +93,4 @@ credentials/
 
 # Electron-Forge
 out/
+.aider*

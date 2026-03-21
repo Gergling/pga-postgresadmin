@@ -1,0 +1,15 @@
+{
+  "entry": [
+    "src/app-start.ts!",
+    "src/preload.ts!",
+    "src/renderer.ts!",
+    "src/renderer/views/Home.tsx!",
+    "src/renderer/views/Root.tsx!",
+    "src/renderer/views/Tasks.tsx!"
+  ],
+  "project": [
+    "scripts/**/*.{ts,tsx}",
+    "src/**/*.test.{ts,tsx}",
+    "src/**/*.ts!"
+  ]
+}

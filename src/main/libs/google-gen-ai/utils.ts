@@ -1,13 +1,11 @@
 import { GoogleGenAI } from '@google/genai';
-import { getEnvVar } from "../../env";
+import { GEMINI_API_KEY, GEMINI_MODEL } from './constants';
 
-const apiKey = getEnvVar('VITE_GEMINI_API_KEY');
-const ai = new GoogleGenAI({ apiKey });
-const model = 'gemini-flash-latest';
+const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 export const generateContent = async (contents: string) => {
   const response = await ai.models.generateContent({
-    model,
+    model: GEMINI_MODEL,
     contents,
   });
   console.log('Gemini Call Response:', response);

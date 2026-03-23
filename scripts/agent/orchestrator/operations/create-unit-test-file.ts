@@ -7,6 +7,15 @@ import { extractRawCode } from '../utilities';
 import { getPromptToUnitTestUtilities } from '../prompts';
 
 /**
+ * Refactoring notes (mainly for clarity and optimisation):
+  * Tracked files are eligible (git ls-files)
+  * Unused files are ineligible (knip)
+  * Utilities are eligible (synchronous string operation)
+  * Git status (changed/dirty) files are ineligible (git status operation)
+  * Existing, populated test files are ineligible (file-exists operation)
+ */
+
+/**
  * Scans for utility files that are tracked and unchanged in git, 
  * ensures they don't have existing tests, and creates a test skeleton 
  * for the first one found.
@@ -104,6 +113,7 @@ export const createUnitTestFile = async () => {
 
     const cleanedResponse = extractRawCode(response);
 
+    // TODO: Skip for --dry-run
     fs.writeFileSync(testFile, cleanedResponse);
 
     // 6. Print the result path

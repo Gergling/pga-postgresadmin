@@ -47,6 +47,7 @@ export const commitStagedCode = async () => {
     : suggestedCommitMessage
   ;
 
+  // TODO: Skip for --dry-run.
   const result = runGitCommit(commitMessage);
   console.log(result);
 

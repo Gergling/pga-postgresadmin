@@ -1,21 +1,15 @@
 ## TO DO
 
-1. Put in the ignore directives.
-2. Write up some instructions.
-3. Put in some suitable scripts for choosing which file to modify next, including a `git status` wrapper and unused file-checking.
-
-### Other Functions
-
 | Status | Value | Momentum | Scope | Description |
 | --- | --- | --- | --- | --- |
-| Done | High | High | Excellent | Add ignore directives
-| - | High | High | Excellent | Add basic instructions
-| - | High | High | Excellent | Claude Runner: Runs Claude, telling it what files to read and write, and giving permissions appropriately.
 | - | High | Medium | Good | Dry run mode: Prints the result but doesn't write to any source code (could leave a report though).
 | - | High | Low | Ok | Import preloader: Grabs relevant imported files from source, ideally through to the full types (usually) used. This is useful because it means I won't have to go and manually handle as many types.
 | - | - | - | Ok | Coverage Analysis
 | - | - | - | Ok | Report: Source file-level operations status report, e.g. for LLM failures, which operates have been performed, etc. Orchestrator will need to update the report before running anything under certain circumstances. Should probably include things like a "currently running" check. Updating the report should lock it for reading. Reading a locked report should ideally trigger deadlock handling. Affected files should generally not be the subject of multiple parallel runs.
 | - | - | - | Bad | Queue management: E.g. kicking off priority background processes if the battery is > 75%, or > 50% and plugged into power, isn't already already running that process (*requires status report*), resources aren't low, etc.
+| Done | High | High | Excellent | Add ignore directives
+| Done | High | High | Excellent | Add basic instructions
+| Done | High | High | Excellent | Orchestrator: Pick a file to run based on new unit test agent.
 
 ### Possible Agents
 

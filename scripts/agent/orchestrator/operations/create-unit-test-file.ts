@@ -1,9 +1,10 @@
 import { execSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { runKnip } from './commands';
+import { runKnip } from '../commands';
 import { analyseLanguage } from '@main/features/ai';
-import { extractRawCode, getFileContents, getTsSourceFileContents } from './utilities';
+import { extractRawCode } from '../utilities';
+import { getPromptToUnitTestUtilities } from '../prompts';
 
 /**
  * Scans for utility files that are tracked and unchanged in git, 
@@ -93,47 +94,17 @@ export const createUnitTestFile = async () => {
     // 5. Create test file for the first one found
     const targetFile = eligibleFiles[0];
     const ext = path.extname(targetFile);
-    const fileName = path.basename(targetFile, ext);
     const testFile = targetFile.replace(new RegExp(`\\${ext}$`), `.test${ext}`);
 
     console.info(`Writing test file for ${targetFile} to ${testFile}.`);
     
-    const prompt = [
-      getFileContents('docs/project-guidelines.md'),
-      getFileContents('docs/llm/10-testing.md'),
-      getTsSourceFileContents(targetFile),
-      `Generate tests for ${targetFile} in ${testFile} according to the testing
-      guidelines. The code will be put straight into a .ts file, so ensure it is just `,
-    ].join('\n');
+    const prompt = getPromptToUnitTestUtilities(targetFile, testFile);
 
     const response = await analyseLanguage(prompt);
 
     const cleanedResponse = extractRawCode(response);
 
     fs.writeFileSync(testFile, cleanedResponse);
-
-    // runAider(
-    //   `Generate tests for ${targetFile} in ${testFile} according to the testing
-    //   guidelines.`,
-    //   {
-    //     readonly: [
-    //       'docs/project-guidelines.md',
-    //       'docs/llm/10-testing.md',
-    //       targetFile
-    //     ],
-    //     modifiable: [testFile],
-    //   }
-    // );
-    // const template = `
-    //   import { describe, it, expect } from 'vitest';
-    //   // import {} from './${fileName}';
-
-    //   describe('${fileName}', () => {
-    //     it('should be tested', () => {
-    //       expect(true).toBe(true);
-    //     });
-    //   });
-    // `;
 
     // 6. Print the result path
     console.log(testFile);

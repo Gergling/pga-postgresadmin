@@ -1,17 +1,4 @@
-Here’s a **clean, opinionated, domain‑level draft** for your *Test Creation Instructions* file — written exactly the way Claude will understand it, and structured so your orchestrator can enforce the hard safety rails separately.
-
-This is meant to live in something like:
-
-```
-/docs/ai-guidelines/10-testing.md
-```
-
-It’s written as if it were a spec for an AI worker, not a human.  
-You can refine or extend it later, but this gives you a strong foundation.
-
----
-
-# **AI Test Creation Guidelines (Draft v0.1)**  
+# **Unit Test Generation**
 **Domain:** Test Generation  
 **Scope:** Creating new test files for TypeScript source files using Vitest  
 **Audience:** AI coding assistant  

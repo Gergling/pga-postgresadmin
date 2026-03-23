@@ -1,9 +1,13 @@
-import { hydratorFactory } from "../../../utilities/initialiser";
-import { CrmPersonCreation } from "../types";
+import { hydratorFactory } from "@shared/utilities/initialiser";
+import { OptionalId } from "@shared/lib/typesaurus";
+import { CrmPersonCreation, CrmPersonTransfer } from "../types";
 
-const initial: CrmPersonCreation = {
-  contactId: {},
-  employers: [],
-  name: '',
-};
-export const hydrateCrmPerson = hydratorFactory({ initial });
+export const hydrateCrmPerson = hydratorFactory<
+  OptionalId<CrmPersonCreation | CrmPersonTransfer>
+>({
+  initial: {
+    contactId: {},
+    employers: [],
+    name: '',
+  }
+});

@@ -1,7 +1,12 @@
-import { CrmArchetype } from '../../../shared/features/crm';
+import { CrmCompanyTransfer, CrmPersonTransfer, CrmSchema } from '@shared/features/crm';
 import { OptionType as BaseOptionType } from '../../shared/autocomplete/types';
 
-export type PersonOptionType =
-  & BaseOptionType<CrmArchetype['id']['people']>
-  & Partial<CrmArchetype['base']['people']>
+export type CrmPersonOptionType =
+  & BaseOptionType<CrmSchema['id']['people']>
+  & Partial<CrmPersonTransfer>
+;
+
+export type CrmCompanyOptionType =
+  & BaseOptionType<CrmSchema['id']['companies']>
+  & Partial<CrmCompanyTransfer>
 ;

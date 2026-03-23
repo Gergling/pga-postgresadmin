@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { ORCHESTRATOR_COMMANDS, OrchestratorCommand } from './config';
 import { showCommands } from './stdio';
+import { OrchestratorArgs } from './types';
 
 export const getFileContents = (path: string) => readFileSync(
   resolve(path), 'utf-8'
@@ -37,20 +38,54 @@ export const extractRawCode = (markdownResponse: string): string => {
   return markdownResponse.trim();
 }
 
-export function getCommandFromArgs(): OrchestratorCommand | null {
+export function getOrchestratorArgs(): OrchestratorArgs {
   const args = process.argv.slice(2); // skip node + script path
+  const hasArgs = args.length !== 0;
 
-  if (args.length === 0) {
+  if (!hasArgs) return {
+    dryRun: false,
+    hasArgs,
+    isValidOperation: false,
+    operation: null,
+  };
+
+  const operation = args[0] as OrchestratorCommand;
+  const dryRun = args.includes('--dry-run');
+
+  if (ORCHESTRATOR_COMMANDS.includes(operation)) return {
+    dryRun,
+    hasArgs,
+    isValidOperation: true,
+    operation,
+  };
+
+  return {
+    dryRun,
+    hasArgs,
+    isValidOperation: false,
+    operation,
+  };
+}
+
+export function getCommandFromArgs(): OrchestratorCommand | null {
+  const {
+    isValidOperation,
+    hasArgs,
+    operation,
+  } = getOrchestratorArgs();
+
+  if (!hasArgs) {
     console.log("No command provided.\n");
     showCommands();
     return null;
   }
 
-  const cmd = args[0] as OrchestratorCommand;
+  if (!isValidOperation) {
+    console.log(`Unknown command: ${operation}\n`);
+    showCommands();
+    return null;
+  }
 
-  if (ORCHESTRATOR_COMMANDS.includes(cmd)) return cmd;
-
-  console.log(`Unknown command: ${cmd}\n`);
-  showCommands();
-  return null;
+  return operation;
 }
+

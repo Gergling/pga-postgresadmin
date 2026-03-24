@@ -1,5 +1,7 @@
 import { builtinModules } from 'node:module';
 import type { AddressInfo } from 'node:net';
+import path from 'path';
+import { getTsconfig } from 'get-tsconfig';
 import type { ConfigEnv, Plugin, UserConfig } from 'vite';
 import pkg from './package.json';
 
@@ -95,3 +97,22 @@ export function pluginHotRestart(command: 'reload' | 'restart'): Plugin {
     },
   };
 }
+
+export const getTsconfigAlias = () => {
+  // 1. Get the parsed tsconfig (handles 'extends' automatically)
+  const tsconfig = getTsconfig();
+  const paths = tsconfig?.config.compilerOptions?.paths || {};
+
+  // 2. Convert TS paths to Vite aliases
+  const alias = Object.keys(paths).reduce((acc, key) => {
+    // Remove trailing "/*" from alias key (e.g., "@main/*" -> "@main")
+    const name = key.replace(/\/\*$/, '');
+    // Remove trailing "/*" from the first path entry and resolve it
+    const target = paths[key][0].replace(/\/\*$/, '');
+
+    acc[name] = path.resolve(__dirname, target);
+    return acc;
+  }, {} as Record<string, string>);
+
+  return alias;
+};

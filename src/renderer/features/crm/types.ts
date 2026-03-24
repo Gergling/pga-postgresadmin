@@ -3,10 +3,10 @@ import { OptionType as BaseOptionType } from '../../shared/autocomplete/types';
 
 export type CrmPersonOptionType =
   & BaseOptionType<CrmSchema['id']['people']>
-  & Partial<CrmPersonTransfer>
+  & Partial<Omit<CrmPersonTransfer, 'employers'>>
 ;
 
 export type CrmCompanyOptionType =
   & BaseOptionType<CrmSchema['id']['companies']>
-  & Partial<CrmCompanyTransfer>
+  & Partial<Omit<CrmCompanyTransfer, 'employees'>>
 ;

@@ -6,10 +6,11 @@ export const useIpcCreateFactory = <
   TransferPayload extends WithId<string>,
   CreationPayload extends object & { id?: never; },
   OnSuccessFnc extends (data: TransferPayload) => void = (data: TransferPayload) => void,
+  FormPayload extends object = CreationPayload
 >(
   ipcCreateFunction: (payload: CreationPayload) => Promise<TransferPayload>,
   queryBaseName: string,
-  hydrator: (payload: Partial<CreationPayload>) => CreationPayload,
+  hydrator: (payload: Partial<FormPayload>) => CreationPayload,
 ) => {
   const setQueryData = useQueryDataFactory<TransferPayload>(queryBaseName);
 

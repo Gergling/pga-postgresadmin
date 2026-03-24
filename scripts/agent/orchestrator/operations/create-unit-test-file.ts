@@ -1,7 +1,7 @@
 import { execSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { runKnip } from '../commands';
+import { fetchUnusedFiles } from '../commands';
 import { analyseLanguage } from '@main/features/ai';
 import { extractRawCode } from '../utilities';
 import { getPromptToUnitTestUtilities } from '../prompts';
@@ -29,7 +29,7 @@ export const createUnitTestFile = async () => {
       .map(f => f.trim())
       .filter(Boolean);
 
-    const unusedFiles = runKnip();
+    const unusedFiles = fetchUnusedFiles();
 
     // 2. Filter for utilities/* and utilities.ts
     const utilityFiles = trackedFiles.filter(f => {

@@ -1,5 +1,5 @@
 import {
-  ApplicationPhaseName,
+  JobSearchApplicationPhaseName,
   ApplicationStageTechnicalLevel,
   JobSearchInteractionType,
   RoleSeniority
@@ -31,7 +31,7 @@ export type JobSearchApplicationSchemaSalary = {
 export type JobSearchApplicationSchema = {
   // Status.
   pending: boolean;
-  phase: ApplicationPhaseName;
+  phase: JobSearchApplicationPhaseName;
 
   // The actual job.
   role: string;

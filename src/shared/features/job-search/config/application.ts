@@ -92,7 +92,7 @@ export const APPLICATION_PHASE = createConfig([
   },
 ] as const);
 
-export type ApplicationPhaseName = typeof APPLICATION_PHASE[number]['name'];
+export type JobSearchApplicationPhaseName = typeof APPLICATION_PHASE[number]['name'];
 
 export const APPLICATION_STAGE_TECHNICAL_LEVEL = ['low', 'medium', 'high'] as const;
 export type ApplicationStageTechnicalLevel = typeof APPLICATION_STAGE_TECHNICAL_LEVEL[number];

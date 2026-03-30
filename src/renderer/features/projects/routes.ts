@@ -7,13 +7,12 @@ export const PROJECT_ROUTES: UiNavigationConfigItem = {
   icon: runeFactory('Projects'),
   label: 'Projects',
   path: 'projects',
-  element: ProjectsList,
   children: [
     {
       label: 'Project List',
       path: '',
       icon: runeFactory('Project'),
-      element: () => 'DONG',
+      element: ProjectsList,
     },
     {
       label: '(Unnamed Project)', // Find a way to omit this.

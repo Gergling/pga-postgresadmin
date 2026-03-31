@@ -35,3 +35,21 @@ export const runGitCommit = (
   cwd: string,
   message: string
 ) => executeCommand(`git commit -m"${message}"`, { cwd, encoding: 'utf-8' });
+
+/**
+ * Gets the most recent commit date for the repository at the specified path.
+ * @param cwd Working directory.
+ * @returns Promise<Date>
+ */
+export const fetchLatestCommitDate = async (cwd: string): Promise<Date> => {
+  try {
+    const { stdout } = await executeCommand(
+      'git log -1 --format=%cI',
+      { cwd, encoding: 'utf8' }
+    );
+    return new Date(stdout.trim());
+  } catch (error) {
+    console.error('Error fetching latest commit date at cwd:', cwd);
+    throw error;
+  }
+};

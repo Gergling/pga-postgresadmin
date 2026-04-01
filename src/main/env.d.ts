@@ -8,5 +8,7 @@ declare namespace NodeJS {
     readonly IMAP_PASS: string;
 
     readonly VITE_GEMINI_API_KEY: string;
+
+    readonly VITE_PERSONAL_PROJECTS_PATH: string;
   }
 }

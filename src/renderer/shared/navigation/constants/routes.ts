@@ -1,11 +1,6 @@
-import {
-  Checklist,
-  // Home,
-  Image,
-  Menu,
-  // QuestionMark,
-  WorkOutline
-} from "@mui/icons-material";
+// TODO: The whole constants folder absolutely should not be in @/renderer/shared/.
+// It should be somewhere like @/renderer/views.
+// The rest can stay put.
 import { redirect } from "react-router-dom";
 import { Home, Placeholder } from "../../../features/svg-viewer/components";
 import {
@@ -19,6 +14,7 @@ import { getNavigationItem, lazyImport } from "./utilities";
 import { TASK_VIEW_CONFIG } from "./tasks";
 import { JOB_SEARCH_VIEW_CONFIG } from "./job-search";
 import { getNavigationIcon } from "../components/getNavigationIcon";
+import { PROJECT_ROUTES } from "@/renderer/features/projects/routes";
 
 const lazyImports = {
   root: lazyImport(() => import('../../../views/Root')),
@@ -83,6 +79,7 @@ const config: UiNavigationConfigItem = {
       path: 'jobsearch',
       children: JOB_SEARCH_VIEW_CONFIG,
     },
+    PROJECT_ROUTES,
     {
       icon: getNavigationIcon(Placeholder),
       label: 'SVG Viewer',

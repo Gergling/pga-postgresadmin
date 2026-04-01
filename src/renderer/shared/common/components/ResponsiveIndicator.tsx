@@ -9,6 +9,7 @@ const defaultDisplay = breakpoints.reduce((acc, breakpoint) => ({
 }), {} as Record<Breakpoint, 'none'>);
 
 export const ResponsiveIndicator = () => breakpoints.map((breakpoint) => <Box
+  key={breakpoint}
   sx={{ display: {
     ...defaultDisplay,
     [breakpoint]: 'block'

@@ -13,17 +13,19 @@ export const neonTextShadow = ({
   color = COLORS.bloodGlow
 }: NeonShadowProps) => `text-shadow: 0 0 ${blur} ${color};`;
 
+export type FadingLineProps = {
+  height?: number;
+  thickness?: number;
+  color?: string;
+  direction?: 'left' | 'right';
+};
+
 export const fadingLine = ({
   height = 20,
   thickness = 1,
   color = COLORS.bloodGlow,
   direction = 'left',
-}: {
-  height?: number;
-  thickness?: number;
-  color?: string;
-  direction?: 'left' | 'right';
-}) => `
+}: FadingLineProps) => `
   flex-grow: 1;
   height: ${height}px;
   border-top-color: ${color};

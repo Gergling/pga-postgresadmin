@@ -7,7 +7,24 @@ const executeCommand = util.promisify(exec);
  * Runs a `git diff --cached --unified=0` to get the staged files.
  * @returns string[]: An array of staged file paths.
  */
-export const fetchStagedFiles = async (cwd: string): Promise<string[]> => {
+export const fetchStagedFileList = async (cwd: string): Promise<string[]> => {
+  try {
+    const { stderr, stdout } = await executeCommand(
+      "git diff --cached --name-only",
+      { cwd, encoding: "utf8" }
+    );
+    if (stderr) {
+      console.error('Error at cwd:', cwd);
+      console.error(stderr);
+      throw new Error(stderr);
+    }
+    return stdout.split("\n").filter(Boolean);
+  } catch (error) {
+    console.error(cwd);
+    throw error;
+  }
+}
+export const fetchStagedFileContents = async (cwd: string): Promise<string[]> => {
   try {
     const { stderr, stdout } = await executeCommand(
       "git diff --cached --unified=0",
@@ -18,7 +35,7 @@ export const fetchStagedFiles = async (cwd: string): Promise<string[]> => {
       console.error(stderr);
       throw new Error(stderr);
     }
-    return stdout.split("\n").filter(Boolean);
+    return stdout.split("\n");
   } catch (error) {
     console.error(cwd);
     throw error;

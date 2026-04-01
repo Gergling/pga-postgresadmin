@@ -64,3 +64,11 @@ export const getReadableEpochMilliseconds = (epochMilliseconds: number) => {
 
   return { zonedDT, readableTime };
 };
+
+export const getTemporalZonedDateTime = (
+  epochMilliseconds: number,
+  timeZoneId: Temporal.TimeZoneLike = Temporal.Now.timeZoneId()
+) => Temporal.Instant
+  .fromEpochMilliseconds(epochMilliseconds)
+  .toZonedDateTimeISO(timeZoneId)
+;

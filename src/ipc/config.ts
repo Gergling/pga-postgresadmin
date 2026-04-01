@@ -14,6 +14,7 @@ import { ManageEnvironment } from '../main/environment/types';
 import { EnvironmentProps } from '../main/shared/environment';
 import { CrmIpc, CrmIpcAwaited } from '../main/features/crm';
 import { JobSearchIpc, JobSearchIpcAwaited } from '../main/features/job-search';
+import { ProjectsIpc, ProjectsIpcAwaited } from '@main/features/projects/ipc';
 
 // Minimalist configuration type for the renderer side.
 // IpcInvocationConfigBase really just makes these functions return promises.
@@ -51,6 +52,10 @@ export type IpcInvocationConfig = IpcInvocationConfigBase<{
     immediateConvergence?: boolean
   ) => Mandatory<DiaryEntry, 'id'>;
 
+  fetchProjectsList: ProjectsIpcAwaited['read']['list'];
+  fetchProjectStagedCommitMessage: ProjectsIpcAwaited['read']['commitMessage'];
+  commitProjectStagedFiles: ProjectsIpcAwaited['create']['commit'];
+
   // CRM and job search.
   createCompany: CrmIpcAwaited['create']['company'];
   createInteraction: JobSearchIpcAwaited['create']['interaction'];
@@ -74,6 +79,7 @@ export type IpcAdditionalParameters = {
   diary: DiaryIpc;
   environment: ManageEnvironment;
   jobSearch: JobSearchIpc;
+  projects: ProjectsIpc;
   tasks: TasksIpc;
   triage: {
     triageEmailTasks: () => Promise<TriageTasksResponse>;
@@ -144,6 +150,18 @@ export const ipcHandlerConfig: IpcHandlerConfig<
     args: [id, newData, immediateConvergence],
     diary: { update: { set } },
   }) => set(id, newData, immediateConvergence),
+
+  fetchProjectsList: ({
+    projects: { read: { list } },
+  }) => list(),
+  fetchProjectStagedCommitMessage: ({
+    args: [project],
+    projects: { read: { commitMessage } },
+  }) => commitMessage(project),
+  commitProjectStagedFiles: ({
+    args: [project, message],
+    projects: { create: { commit } },
+  }) => commit(project, message),
 
   // CRM and job search.
   createCompany: ({

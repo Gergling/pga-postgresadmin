@@ -1,5 +1,5 @@
-import { Mandatory, Optional } from "../../../shared/types";
 import { TypesaurusCore } from "typesaurus";
+import { Mandatory, Optional } from "../../../shared/types";
 
 export type InferCollectionName<T> = T extends TypesaurusCore.Id<infer C> ? C : never;
 
@@ -151,11 +151,11 @@ export type CreateFunction<
 > = (input: In) => Promise<Out>;
 
 export type FetchItemFunction<
-  In, Out extends IdProp<string>
+  In, Out
 > = (input: In) => Promise<Out | null>;
 
 export type FetchListFunction<
-  In, Out extends IdProp<string>
+  In, Out
 > = (input: In) => Promise<Out[]>;
 
 export type UpdateFunction<

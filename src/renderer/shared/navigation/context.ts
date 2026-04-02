@@ -3,7 +3,12 @@ import { PropsWithChildren, useCallback, useEffect, useMemo } from "react";
 import { create } from "zustand";
 import { Optional } from "../../../shared/types";
 import { BreadcrumbHistoryRequestItemFunction, BreadcrumbNavigationHistoryItem } from "./types";
-import { getFallbackHistoryItem, getLoadingHistoryItem, getNavigationHistoryKey, requestHistoryItemFactory } from "./utilities";
+import {
+  getFallbackHistoryItem,
+  getLoadingHistoryItem,
+  getNavigationHistoryKey,
+  requestHistoryItemFactory
+} from "./utilities";
 import { useQueries, UseQueryOptions } from "@tanstack/react-query";
 
 const store = create<{
@@ -60,7 +65,14 @@ export const {
   // We need to do the async call *first* and the state update *second*.
   // Each time we want a path, we ask for the path using a sync function.
   // It either returns what's there or a placeholder for one that's loading.
-  const request = useCallback(requestHistoryItemFactory(requestCallbacks), [requestCallbacks]);
+  const request = useCallback(
+    requestHistoryItemFactory(requestCallbacks),
+    [requestCallbacks]
+  );
+
+  useEffect(() => {
+    console.log('history context useEffect', requestCallbacks)
+  }, [requestCallbacks]);
 
   // Load up all ready items.
   const queries = useQueries({
@@ -76,6 +88,7 @@ export const {
 
   // Build the subscribe function
   const subscribe = useCallback((requestItem: BreadcrumbHistoryRequestItemFunction) => {
+    console.log('subscribing')
     addCallback(requestItem);
     return () => removeCallback(requestItem);
   }, [addCallback, removeCallback]);

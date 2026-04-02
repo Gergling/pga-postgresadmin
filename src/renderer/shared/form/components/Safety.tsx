@@ -8,10 +8,23 @@ import { useState } from "react";
 type SafetyControlProps = {
   control: React.ReactNode;
   display: React.ReactNode;
+  /**
+   * If true, shows the control, otherwise the display.
+   */
   editable?: boolean;
+  /**
+   * The icon that represents switching to edit mode, which displays the
+   * control.
+   */
   editIcon?: React.ReactNode;
+  /**
+   * The icon that represents switching to display mode.
+   */
   doneIcon?: React.ReactNode;
 };
+/**
+ * Switches between two modes: control and display.
+ */
 export const SafetyControl = ({ control, display, doneIcon, editIcon, ...props }: SafetyControlProps) => {
   const [editable, setEditable] = useState(props.editable);
   const handleToggle = (e: React.MouseEvent<HTMLButtonElement>) => {

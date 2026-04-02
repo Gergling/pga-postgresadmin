@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { TextField } from '@mui/material';
 
 export const DossierContainer = styled.div`
   background: #050505;
@@ -46,4 +47,39 @@ export const VoteValue = styled.div`
 export const Main = styled.div`
   display: flex;
   gap: 1rem;
+`;
+
+export const StyledTaskDescriptionInput = styled(TextField)`
+  & .MuiInputBase-root {
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 0;
+    transition: all 0.3s ease;
+  }
+
+  & .MuiOutlinedInput-notchedOutline {
+    border: none; /* Hide the box */
+  }
+
+  &:hover .MuiInputBase-root, 
+  & .Mui-focused .MuiInputBase-root {
+    background: rgba(255, 0, 51, 0.03);
+  }
+
+  /* The 'Filament' underline that appears on focus */
+  & .MuiInputBase-root::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: #ff0033;
+    box-shadow: 0 0 8px #ff0033;
+    transition: width 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+  }
+
+  & .Mui-focused::after {
+    width: 100%;
+  }
 `;

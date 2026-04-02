@@ -1,61 +1,69 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Mandatory } from "../../../../shared/types";
-import { hydrateJobSearchApplication, JobSearchArchetype } from "../../../../shared/features/job-search";
 import { useIpc } from "../../../shared/ipc";
-import { useQueryDataFactory } from "../../../libs/react-query";
-
-type Application = JobSearchArchetype['base']['applications'];
-type CreateApplicationPayload = Mandatory<Application, 'phase' | 'role' | 'sourceType'>;
+import { getCollectionKeyFactory, useQueryDataFactory } from "../../../libs/react-query";
+import {
+  JobSearchApplicationTransfer,
+  JobSearchDbSchema
+} from "@shared/features/job-search";
+// import { useJobSearchApplicationsIpcCreate } from "./application-ipc-create";
 
 // TODO: Employments absolutely needs to update the cache for the other two collections
-const getCollectionKey = <T extends JobSearchArchetype['collectionName']>(collectionName: T, id?: JobSearchArchetype['id'][T]) => {
-  if (id === undefined) return [collectionName];
-  return [collectionName, id];
-};
+const getCollectionKey = getCollectionKeyFactory<JobSearchDbSchema>();
 
-const useQueryData = () => useQueryDataFactory<Application>('applications');
+// const useQueryData = () => useQueryDataFactory<Application>('applications');
 
-const useJobSearchApplicationsIpcCreate = () => {
-  const { createApplication: createApplicationIpc } = useIpc();
-  const setQueryData = useQueryData();
+// TODO: Centralise this.
+// const useQueryDataInteractions = () => useQueryDataFactory<JobSearchDbSchema['base']['interactions']>('interactions');
 
-  const {
-    mutate: createApplicationMutate,
-    isError: createApplicationIsError,
-    error: createApplicationError,
-  } = useMutation({
-    mutationFn: ({ payload }: {
-      payload: CreateApplicationPayload;
-      onSuccess?: (data: Application) => void;
-    }) => createApplicationIpc(hydrateJobSearchApplication(payload)),
-    onSuccess: (application, variables) => {
-      setQueryData(application);
-      if (variables.onSuccess) variables.onSuccess(application);
-    },
-  });
-  const createApplication = (
-    newApplication: Mandatory<Application, 'phase' | 'role' | 'sourceType'>,
-    onSuccess?: (application: Application) => void,
-  ) => {
-    createApplicationMutate({ payload: newApplication, onSuccess });
-  };
+// const useJobSearchApplicationsIpcCreate = () => {
+//   const { createApplication: createApplicationIpc } = useIpc();
+//   const setQueryData = useQueryData();
+//   const setQueryDataInteractions = useQueryDataInteractions();
 
-  return {
-    createApplication,
-    createApplicationError,
-    createApplicationIsError,
-  };
-};
+//   const {
+//     mutate: createApplicationMutate,
+//     isError: createApplicationIsError,
+//     error: createApplicationError,
+//   } = useMutation({
+//     mutationFn: ({ payload: { applications, interaction } }: {
+//       payload: {
+//         applications: CreateApplicationPayload[];
+//         interaction: JobSearchDbSchema['base']['interactions'];
+//       };
+//       onSuccess?: (data: Application) => void;
+//     }) => {
+//       const hydratedApplications = applications.map(hydrateJobSearchApplication);
+//       return createApplicationIpc(hydratedApplications, interaction);
+//     },
+//     onSuccess: (payload, variables) => {
+//       const { applications, interaction } = payload;
+//       applications.forEach((application) => {
+//         setQueryData(application);
+//       });
+//       setQueryDataInteractions(interaction);
+//       if (variables.onSuccess) variables.onSuccess(payload);
+//     },
+//   });
+//   const createApplication = (
+//     applications: CreateApplicationPayload[],
+//     interaction: JobSearchDbSchema['base']['interactions'],
+//     onSuccess?: (application: Application) => void,
+//   ) => {
+//     createApplicationMutate({ payload: { applications, interaction }, onSuccess });
+//   };
 
-export const useJobSearchApplicationsIpc = () => {
-  const { fetchActiveApplications, updateApplication } = useIpc();
-  const setQueryData = useQueryDataFactory<Application>('applications');
+//   return {
+//     createApplication,
+//     createApplicationError,
+//     createApplicationIsError,
+//   };
+// };
 
-  const {
-    createApplication,
-    createApplicationIsError,
-    createApplicationError,
-  } = useJobSearchApplicationsIpcCreate();
+export const useJobSearchApplicationsIpc = (applicationId?: JobSearchDbSchema['id']['applications']) => {
+  const { fetchActiveApplications, fetchApplication, updateApplication } = useIpc();
+  const setQueryData = useQueryDataFactory<JobSearchApplicationTransfer>('applications');
+
+  // const create = useJobSearchApplicationsIpcCreate();
 
   // Read
   const {
@@ -65,8 +73,19 @@ export const useJobSearchApplicationsIpc = () => {
     error: fetchActiveApplicationsError,
   } = useQuery({
     queryKey: getCollectionKey('applications'),
-    queryFn: fetchActiveApplications,
+    queryFn: () => fetchActiveApplications(),
     select: (models) => new Map(models.map((model) => [model.id, model])),
+  });
+  const {
+    data: application,
+    isLoading: fetchApplicationIsLoading,
+    isError: fetchApplicationIsError,
+    error: fetchApplicationError,
+  } = useQuery({
+    enabled: !!applicationId,
+    queryKey: getCollectionKey('applications', applicationId),
+    queryFn: () => applicationId ? fetchApplication(applicationId) : undefined,
+    select: (model) => model || undefined,
   });
 
   // Update
@@ -80,13 +99,15 @@ export const useJobSearchApplicationsIpc = () => {
   });
 
   return {
+    // ...create,
     applications,
-    createApplication,
-    createApplicationError,
-    createApplicationIsError,
+    application,
     fetchActiveApplicationsError,
     fetchActiveApplicationsIsError,
     fetchActiveApplicationsIsLoading,
+    fetchApplicationError,
+    fetchApplicationIsError,
+    fetchApplicationIsLoading,
     updateApplicationError,
     updateApplicationIsError,
     updateApplication: updateApplicationMutation,

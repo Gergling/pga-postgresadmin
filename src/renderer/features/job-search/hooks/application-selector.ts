@@ -1,11 +1,10 @@
 import { AutocompleteProps } from "@mui/material";
-import { hydrateJobSearchApplication } from "../../../../shared/features/job-search";
-import { autocompleteRenderInputFactory, getOptionLabel } from "../../../shared/autocomplete";
-import { applicationSelectionStore } from "../stores/application";
-import { JobSearchApplicationOptionType, JobSearchUpsertableApplication } from "../types";
 import { useCallback, useMemo } from "react";
+import { hydrateJobSearchApplication, JobSearchDbSchema } from "../../../../shared/features/job-search";
+import { autocompleteRenderInputFactory, getOptionLabel } from "../../../shared/autocomplete";
+import { JobSearchApplicationOptionType, JobSearchUpsertableApplication } from "../types";
 import { handleFilter } from "../utilities";
-import { autocompleteRenderOptionFactory } from "../components/application-option-factory";
+import { autocompleteRenderOptionFactory } from "../components";
 import { useJobSearchApplicationsIpc } from "./application-ipc";
 
 const renderInput = autocompleteRenderInputFactory(
@@ -20,19 +19,23 @@ const getOptionKey = (
 const baseAutocompleteConfig = {
   clearOnBlur: true,
   freeSolo: true,
-  getOptionLabel,
+  // getOptionLabel,
   handleHomeEndKeys: true,
   renderInput,
   selectOnFocus: true,
 };
 
-export const useJobSearchApplicationSelector = (): {
-  autocomplete: AutocompleteProps<JobSearchApplicationOptionType, false, false, boolean>;
-  application: JobSearchUpsertableApplication | undefined;
-} => {
-  const application = applicationSelectionStore(state => state.model);
-  const selectedApplication = applicationSelectionStore(state => state.option);
-  const setApplication = applicationSelectionStore(state => state.setApplication);
+// export const useJobSearchApplicationSelector = (initialApplication?: JobSearchDbSchema['base']['applications']): {
+export const useJobSearchApplicationSelector = ({
+  application,
+  setApplication,
+}: {
+  application: JobSearchApplicationOptionType | null;
+  setApplication: (person: JobSearchApplicationOptionType | null) => void;
+}): AutocompleteProps<JobSearchApplicationOptionType, false, false, boolean> => {
+  // const application = applicationSelectionStore(state => state.model);
+  // const selectedApplication = applicationSelectionStore(state => state.option);
+  // const setApplication = applicationSelectionStore(state => state.setApplication);
   const {
     applications, // List of applications from the backend.
     createApplication, // Creates an application in the backend.
@@ -69,15 +72,12 @@ export const useJobSearchApplicationSelector = (): {
   );
 
   return {
-    application,
-    autocomplete: {
-      ...baseAutocompleteConfig,
-      getOptionKey,
-      onChange,
-      filterOptions: handleFilter,
-      options,
-      renderOption,
-      value: selectedApplication,
-    },
+    ...baseAutocompleteConfig,
+    getOptionKey,
+    onChange,
+    filterOptions: handleFilter,
+    options,
+    renderOption,
+    value: application,
   };
 };

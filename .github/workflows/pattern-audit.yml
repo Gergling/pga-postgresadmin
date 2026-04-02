@@ -1,0 +1,28 @@
+name: Pattern & Anti-Pattern Audit
+on:
+  push:
+    branches: [main]
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pack Codebase
+        run: npx repomix
+      - name: Run Pattern Analysis
+        uses: google-github-actions/run-gemini-cli@v1
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          prompt: |
+            Analyze the attached codebase-context.xml. 
+            1. List the structural patterns used (e.g., Compound Components, Render Props).
+            2. Identify any Emotion "anti-patterns" (e.g., defined styles inside the render cycle).
+            3. Provide a 'Tech Terminology' glossary for the user.
+            4. Output this as a Markdown file named PATTERN_REGISTRY.md.
+      - name: Commit Report
+        run: |
+          git config user.name "Gemini Architect"
+          git config user.email "actions@github.com"
+          git add PATTERN_REGISTRY.md
+          git commit -m "docs: update pattern registry" || exit 0
+          git push

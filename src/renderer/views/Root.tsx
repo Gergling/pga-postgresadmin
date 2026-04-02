@@ -6,10 +6,13 @@ import { DevModeOverlay } from "../app/DevModeDrawer";
 import { ErrorBoundary } from "../shared/common/components/ErrorBoundary";
 import { DiaryDrawer, useDiary } from "../features/diary";
 import { useTaskNavigation } from "../features/tasks/hooks/navigation";
+import { PhraseDuJour } from "../features/banners";
+import { HeaderBanner } from "../features/banners/components/Header";
+import { useProjectNavigation } from "../features/projects";
 // import type {} from '@mui/x-date-pickers/themeAugmentation';
 
 const useApp = () => {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const { setTheme } = useTheme();
   const { drawer: { setIsAvailable: setDiaryQuickEntryAvailability } } = useDiary();
 
@@ -18,19 +21,24 @@ const useApp = () => {
   }, [setTheme]);
 
   // TODO: A dependency that triggers a useEffect that doesn't contain the dependency... I don't like it.
-  useEffect(() => setDiaryQuickEntryAvailability(true), [pathname, setDiaryQuickEntryAvailability]);
+  useEffect(() => {
+    console.log('enable drawer')
+    setDiaryQuickEntryAvailability(true);
+  }, [pathname, setDiaryQuickEntryAvailability]);
 
+  useProjectNavigation();
   useTaskNavigation();
 
   return {
     pathname,
+    search,
   };
 };
 
 const NavigationFallback = ({ children }: PropsWithChildren) => <>{children} <a style={{ color: 'white' }} href="/">Return Home</a></>;
 
 export const RootView = () => {
-  const { pathname } = useApp();
+  const { pathname, search } = useApp();
 
   return (
     <ErrorBoundary fallback={<NavigationFallback>Something bad has happened.</NavigationFallback>}>
@@ -40,7 +48,10 @@ export const RootView = () => {
         <NavigationBreadcrumbs />
       </ErrorBoundary>
 
-      <ErrorBoundary fallback={<NavigationFallback>Something has gone wrong with the Root outlet at {pathname}.</NavigationFallback>}>
+      {/* <HeaderBanner /> */}
+      <PhraseDuJour />
+
+      <ErrorBoundary fallback={<NavigationFallback>Something has gone wrong with the Root outlet at {pathname + search}.</NavigationFallback>}>
         <Outlet />
       </ErrorBoundary>
 

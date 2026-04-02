@@ -1,6 +1,8 @@
-import { JobSearchArchetype } from "../../../../shared/features/job-search";
+import { JobSearchApplicationTransfer } from "../../../../shared/features/job-search";
 
-export const getShortSalary = ({ max, min }: JobSearchArchetype['base']['applications']['salary']) => {
+export const getShortSalary = ({
+  max, min
+}: JobSearchApplicationTransfer['salary']) => {
   if (min === undefined) {
     if (max === undefined) {
       return '(?-Comp.)';

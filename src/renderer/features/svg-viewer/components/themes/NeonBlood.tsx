@@ -19,15 +19,28 @@ export const SvgNeonBlood = ({
     runeGeometryId,
   } = useUniqueId(['plasmaGlowId', 'runeGeometryId']);
 
-  const { translation, ...svgProps } = useSize(size);
+  const {
+    translation,
+    container,
+    offset,
+    ...svgProps
+  } = useSize(size);
 
-  return <svg version="1.1" xmlns="http://www.w3.org/2000/svg" {...svgProps}>
-    <defs>
-      {getSvgFilter(plasmaGlowId)}
-    </defs>
+  return <div style={{
+    position: 'relative',
+    ...container
+  }}>
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" {...svgProps} style={{
+      position: 'absolute',
+      ...offset,
+    }}>
+      <defs>
+        {getSvgFilter(plasmaGlowId)}
+      </defs>
 
-    {getGeometryGroup(runeGeometryId, translation, children)}
+      {getGeometryGroup(runeGeometryId, translation, children)}
 
-    {getPlasmaGlowLayers(runeGeometryId, plasmaGlowId, NEON_PLASMA_GLOW_CONFIG[color])}
-  </svg>;
+      {getPlasmaGlowLayers(runeGeometryId, plasmaGlowId, NEON_PLASMA_GLOW_CONFIG[color])}
+    </svg>
+  </div>;
 };

@@ -13,6 +13,9 @@ interface GhostInputProps extends Omit<TextFieldProps, 'onChange'> {
 
 export const TextField: React.FC<GhostInputProps> = ({ 
   debounceMs = 1000,
+  /**
+   * @deprecated Wrap in a Safety component instead.
+   */
   editSwitch,
   isTitle, 
   onPersist, 

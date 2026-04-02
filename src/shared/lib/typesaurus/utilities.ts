@@ -4,8 +4,19 @@ import { ArchetypeDefault, ArchetypeDoc, DbSchemaDefault } from "./types";
 // TODO: Concerns DB-specific things, and should therefore probably go in the main thread.
 export const createSchema = <T extends DbSchemaDefault>(
   collectionNames: T['collectionName'][]
-): TypesaurusCore.DB<T['record']> => schema<T['record'], TypesaurusCore.Options>(
-  ($) => collectionNames.reduce((acc, collectionName) => ({ ...acc, [collectionName]: $.collection() }), {})
+): TypesaurusCore.DB<T['record']> => schema<
+  T['record'], TypesaurusCore.Options
+>(
+  ($) => collectionNames.reduce(
+    (acc, collectionName) => ({
+      ...acc,
+      [collectionName]: $.collection()
+    }),
+    {}
+  ),
+  {
+    server: { }
+  }
 );
 
 export const createQueryList = <

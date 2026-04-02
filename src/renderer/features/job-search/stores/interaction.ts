@@ -4,12 +4,12 @@ import { CrmArchetype } from "../../../../shared/features/crm";
 import {
   hydrateJobSearchApplication,
   hydrateJobSearchInteraction,
-  JobSearchArchetype
+  JobSearchDbSchema
 } from "../../../../shared/features/job-search";
 import { OptionType } from "../../../shared/autocomplete";
 
-type ApplicationProps = Optional<JobSearchArchetype['base']['applications'], 'id'>;
-type InteractionProps = Optional<JobSearchArchetype['base']['interactions'], 'id'>;
+type ApplicationProps = Optional<JobSearchDbSchema['base']['applications'], 'id'>;
+type InteractionProps = Optional<JobSearchDbSchema['base']['interactions'], 'id'>;
 type PersonProps = Optional<CrmArchetype['base']['people'], 'id'>;
 
 type InteractionStateProps =
@@ -24,7 +24,7 @@ type StateProps = {
 };
 
 type ActionProps = {
-  setApplication: (application: OptionType<JobSearchArchetype['id']['applications']> | null) => void;
+  setApplication: (application: OptionType<JobSearchDbSchema['id']['applications']> | null) => void;
   setPerson: (person: OptionType<CrmArchetype['id']['people']> | null) => void;
 };
 

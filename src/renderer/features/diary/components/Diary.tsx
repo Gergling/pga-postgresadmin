@@ -16,7 +16,10 @@ const Container = styled.div`
 const DiaryInterface = () => {
   const { diaryEntries, drawer } = useDiary();
 
-  useEffect(() => drawer.setIsAvailable(false), [drawer.setIsAvailable]);
+  useEffect(() => {
+    console.log('disable drawer')
+    drawer.setIsAvailable(false);
+  }, [drawer.setIsAvailable]);
 
   // TODO: Should show when mutations and reloading are happening.
   return (

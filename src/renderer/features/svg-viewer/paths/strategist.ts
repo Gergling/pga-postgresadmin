@@ -62,7 +62,8 @@ export const getPathStrategist: PathFunction = (scale) => {
     getArrowGeometryFactory(30)({ x: 0.4, y: 0 }),
   ]
     // .map(getArrowGeometry) // Points
-    .map(arrow => mapDebug('=== Arrow!')(arrow)
+    .map(arrow => //mapDebug('=== Arrow!')(arrow)
+      arrow
       .reduce(preProcessPointsReducerFactory(({ acc, current, previous, isFirst }): Point[] => {
         if (isFirst) return [current];
         const limitScale = 0.95;
@@ -138,7 +139,7 @@ export const getPathStrategist: PathFunction = (scale) => {
 
         const clipped = clipPoint(current);
 
-        console.log('clipped', clipped, current)
+        // console.log('clipped', clipped, current)
 
         // Check if both are out of bounds...
         // if (!isPointZero(previousLimit.exceeds) && !isPointZero(currentLimit.exceeds)) {
@@ -183,3 +184,58 @@ export const getPathStrategist: PathFunction = (scale) => {
     //   { start: { x: 0.3, y: 0.3 }, end: { x: 0, y: 0 } }
     // ].map(scaleLine(scale)));
 };
+
+
+// const limit = 95; // Your limitScale * 100
+// const min = 100 - limit; // e.g., 5
+
+// const getIntersectionT = (p1: number, p2: number, boundary: number) => {
+//   if (p1 === p2) return null;
+//   const t = (boundary - p1) / (p2 - p1);
+//   return (t >= 0 && t <= 1) ? t : null;
+// };
+
+// // Inside your reducer:
+// ({ acc, current, previous, isFirst }) => {
+//   if (isFirst) return [clampPoint(current)];
+
+//   const tValues: number[] = [];
+  
+//   // Find all points where the segment hits the 4 boundaries
+//   [min, limit].forEach(b => {
+//     const tx = getIntersectionT(previous.x, current.x, b);
+//     const ty = getIntersectionT(previous.y, current.y, b);
+//     if (tx !== null) tValues.push(tx);
+//     if (ty !== null) tValues.push(ty);
+//   });
+
+//   // Sort intersections so we move from previous -> current
+//   const sortedIntersections = tValues
+//     .sort((a, b) => a - b)
+//     .map(t => ({
+//       x: previous.x + t * (current.x - previous.x),
+//       y: previous.y + t * (current.y - previous.y)
+//     }));
+
+//   const segmentPoints = [
+//     clampPoint(previous),
+//     ...sortedIntersections,
+//     clampPoint(current)
+//   ];
+
+//   // Filter out duplicates and add to accumulator
+//   const uniquePoints = segmentPoints.filter((p, i, self) => 
+//     i === 0 || (p.x !== self[i-1].x || p.y !== self[i-1].y)
+//   );
+
+//   return [...acc, ...uniquePoints];
+// };
+
+// const clampPoint = (p: Point): Point => ({
+//   x: Math.max(min, Math.min(limit, p.x)),
+//   y: Math.max(min, Math.min(limit, p.y))
+// });
+
+// To "trace" the edge perfectly, you can add a small check:
+
+// If point.x and nextPoint.x are both at a boundary, OR point.y and nextPoint.y are both at a boundary, they are on the same edge. Otherwise, you are turning a corner and need to inject the corner coordinate (e.g., 95, 5) into the array.

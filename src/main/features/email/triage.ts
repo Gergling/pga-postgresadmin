@@ -50,20 +50,32 @@ const batchUpdateFactory = (
   success: boolean,
 ) => batchEmail(batch, getPartialFragments(fragments, success));
 
+// TODO: Consider a generic function for wrapping these functions.
+// Direct instructions would work the same way, so...
 export const triageNewEmailFragments = async (): Promise<TriageTasksResponse> => {
   try {
-    // 1. Get unprocessed fragments
+    // Email functions: take emails, simplify, return any object.
     const fragments = await fetchInboxFragments();
     const simplifiedFragments = fragments.map(simplifyFragment);
-    const simplifiedFragmentJson = JSON.stringify(simplifiedFragments, null, 2);
 
+    // Generic function: Takes object, makes JSON string.
+    const simplifiedFragmentJson = JSON.stringify(simplifiedFragments, null, 2);
+    // TODO: Consider another emit here, just for status update on email triage.
+    // This can be in the generic function based on the TaskSource type property.
+
+    // Email functions: Update email status and emit changes.
+    // The return from the fetch can be the right type to put in here.
     const processing = await updateProcessingFragments(fragments);
     emit("Librarian is triaging emails.", processing);
 
+    // Generic: Takes source variable and JSON string.
     const analysis = await generateTaskContent('email', simplifiedFragmentJson);
 
+    // Generic: We can pass in the relevant batch update function like we've done here.
     await generateProposedTasks(analysis, batchUpdateFactory(fragments));
 
+    // Generic: We should pass in success/failure message callbacks (fed the
+    // appropriate type), but otherwise this is fine.
     return { message: `Updated ${processing.length} entries.`, source, status: 'success' };
   } catch (error) {
     console.error("Librarian Triage Failed:", error);

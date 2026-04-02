@@ -7,6 +7,13 @@ export const fetchUnusedFiles = () => execSync(
   .map(s => s.trim())
   .filter(Boolean);
 
+export const fetchUnusedExports = () => execSync(
+  'knip --include exports --production --no-exit-code',
+  { encoding: 'utf-8' }
+).split(/\r?\n/)
+  .map(s => s.trim())
+  .filter(Boolean);
+
 /**
  * Runs a `git diff --cached --name-only` to get the staged files.
  * @returns string[]: An array of staged file paths.

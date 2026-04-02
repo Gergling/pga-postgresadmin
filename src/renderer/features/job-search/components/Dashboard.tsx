@@ -1,12 +1,21 @@
-import { forwardRef, PropsWithChildren, useMemo } from "react";
+import { forwardRef, PropsWithChildren, useCallback, useMemo } from "react";
 import { Box, Button, List, ListItem, ListItemIcon, ListItemText, styled } from "@mui/material";
-import { HourglassTop } from "@mui/icons-material";
+import { Check, HourglassTop } from "@mui/icons-material";
 import { motion, AnimatePresence } from 'framer-motion';
 import { Accordion } from "../../../shared/accordion";
 import { Parenthesis } from "../../../shared/brackets";
-import { jobSearchDashboardLayoutStore } from "../stores";
-import { InteractionCreation } from "./InteractionCreation";
 import { JobSearchInteractionList } from "./InteractionList";
+import { JobSearchApplicationList } from "./ApplicationList";
+import { InteractionDetail } from "./InteractionDetail";
+import { useSearchParams } from "react-router-dom";
+import { JobSearchDbSchema } from "../../../../shared/features/job-search";
+import { JobSearchPipeline } from "./Pipeline";
+import { JobSearchUpdate } from "./Update";
+
+const APPLICATION_SEARCH_PARAMETER = 'application';
+const INTERACTION_SEARCH_PARAMETER = 'interaction';
+const NEW_INTERACTION_SEARCH_PARAMETER = 'new-interaction';
+const NEW_INTERACTION_SEARCH_PARAMETER_VALUE = 'true';
 
 const Column = styled(motion.create(forwardRef<HTMLDivElement, PropsWithChildren>(({
   children,
@@ -27,41 +36,80 @@ const Column = styled(motion.create(forwardRef<HTMLDivElement, PropsWithChildren
   height: '100%',
 });
 
+// Application list or micro-card Sort by:
+// 1. Next interview date/time or test due date/time ascending.
+// 2. Chase flag true -> false.
+// 3. Most recent interaction date.
+
+// Ideally have room for about 4 active "warm" applications at the top.
+// Possibly the top one could be highlighted, and if nothing goes there, it advises to generate leads or something.
+
 export const JobSearchDashboard = () => {
-  const {
-    interactionCreator,
-    toggleInteractionCreator,
-    interactionEditor,
-    closeInteractionEditor,
-    openInteractionEditor,
-  } = jobSearchDashboardLayoutStore();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const { applicationEditor, interactionCreator, interactionEditor } = useMemo(
+    () => {
+      const applicationEditor = searchParams.get(APPLICATION_SEARCH_PARAMETER) as JobSearchDbSchema['id']['applications'];
+      const interactionCreator = searchParams.get(NEW_INTERACTION_SEARCH_PARAMETER) === NEW_INTERACTION_SEARCH_PARAMETER_VALUE;
+      const interactionEditor = searchParams.get(INTERACTION_SEARCH_PARAMETER) as JobSearchDbSchema['id']['interactions'];
+      return {
+        applicationEditor,
+        interactionCreator,
+        interactionEditor
+      };
+    },
+    [searchParams]
+  );
+
+  const handleApplicationEditMode = (id?: JobSearchDbSchema['id']['applications']) => {
+    setSearchParams([[APPLICATION_SEARCH_PARAMETER, id || '']]);
+  };
+  const toggleInteractionCreator = useCallback(() => {
+    // Toggle the value.
+    const value = interactionCreator ? '' : NEW_INTERACTION_SEARCH_PARAMETER_VALUE;
+    // if (interactionCreator) {
+    //   // closeInteractionEditor();
+    //   return;
+    // }
+    setSearchParams([[NEW_INTERACTION_SEARCH_PARAMETER, value]]);
+  }, [searchParams, setSearchParams]);
+
+  const handleInteractionEditMode = (id?: JobSearchDbSchema['id']['interactions']) => {
+    setSearchParams([[INTERACTION_SEARCH_PARAMETER, id || '']]);
+    // if (id) {
+    //   return openInteractionEditor(id);
+    // }
+    // closeInteractionEditor();
+  };
 
   const isEditing = useMemo(() => !!interactionEditor, [interactionEditor]);
 
   return <>
-    Job Search Workflows
-    <List sx={{ color: 'white' }}>
+    <List sx={{ color: 'white', display: 'none' }}>
       <ListItem>
         <ListItemIcon><HourglassTop /></ListItemIcon>
-        <ListItemText>A new lead arrives. This results in a new job application set to one of the "sourced" statuses. .</ListItemText>
+        <ListItemText>A new lead arrives. This results in a new job application set to one of the "sourced" statuses. Probably this needs a job application detail view. It will create both a new application and an interaction.</ListItemText>
       </ListItem>
       <ListItem>
         <ListItemIcon><HourglassTop /></ListItemIcon>
-        <ListItemText>An existing application has an update. It might not result in a status change for the application.</ListItemText>
+        <ListItemText>An existing application has an update. Provide the update and it should ideally log an interaction.</ListItemText>
+      </ListItem>
+      <ListItem>
+        <ListItemIcon><Check /></ListItemIcon>
+        <ListItemText>An interaction needs correcting.</ListItemText>
+      </ListItem>
+      <ListItem>
+        <ListItemIcon><HourglassTop /></ListItemIcon>
+        <ListItemText>The left column should show a "feed". This can be from the interaction list, but should also show where they've "ghosted".</ListItemText>
       </ListItem>
     </List>
-    {/* <Accordion expanded={showInteractionCreation} onChange={() => setShowInteractionCreation(!showInteractionCreation)}> */}
     <Accordion
       expanded={interactionCreator}
       onChange={toggleInteractionCreator}
       summary="Log Interaction"
     >
-      <InteractionCreation />
+      <JobSearchUpdate />
     </Accordion>
-    CSS animation for opening:
-    1. List fades out, right column fades out.
-    2. List width increases, creation form shuts.
-    3. Detail view fades in.
     <Box sx={{ 
       display: 'flex', 
       // The gap only exists when we aren't in "Surgical/Full" mode
@@ -82,7 +130,7 @@ export const JobSearchDashboard = () => {
         transition={{ duration: 0.5, ease: "easeInOut" }}
       >
         <AnimatePresence mode="wait">
-          {isEditing ? (
+          {interactionEditor ? (
             <motion.div
               key="editor-content"
               initial={{ opacity: 0 }}
@@ -90,8 +138,11 @@ export const JobSearchDashboard = () => {
               exit={{ opacity: 0 }}
               transition={{ delay: 0.3 }} // Step 3: Fade in after expansion starts
             >
-              <Button onClick={closeInteractionEditor}>Back to list</Button>
-              Editor component!
+              <Button onClick={() => handleInteractionEditMode()}>Back to list</Button>
+              <div style={{ display: 'flex' }}>
+                <InteractionDetail interactionId={interactionEditor} />
+                {/* <JobSearchInteractionList edit={handleInteractionEditMode}/> */}
+              </div>
             </motion.div>
           ) : (
             <motion.div
@@ -100,7 +151,8 @@ export const JobSearchDashboard = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }} // Step 1: Fade out content
             >
-              <JobSearchInteractionList edit={openInteractionEditor}/>
+              {/* <Button onClick={() => openInteractionEditor('fake interaction id')}>Open an interaction</Button> */}
+              <JobSearchInteractionList edit={handleInteractionEditMode}/>
             </motion.div>
           )}
         </AnimatePresence>
@@ -121,7 +173,8 @@ export const JobSearchDashboard = () => {
             style={{ flexShrink: 0 }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
           >
-            Application list
+            {/* <JobSearchApplicationList edit={handleApplicationEditMode} /> */}
+            <JobSearchPipeline />
           </Column>
         )}
       </AnimatePresence>

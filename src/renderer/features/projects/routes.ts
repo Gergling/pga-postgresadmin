@@ -5,11 +5,12 @@ import { ProjectDetail, ProjectsList } from "./components";
 import { ProjectsRoot } from "./components/Root";
 import { useParams } from "react-router-dom";
 import { useProjects } from "./hooks/all";
+import { PROJECTS_BASE_ROUTE } from "./constants";
 
 export const PROJECT_ROUTES: UiNavigationConfigItem = {
   icon: runeFactory('Projects'),
   label: 'Projects',
-  path: 'projects',
+  path: PROJECTS_BASE_ROUTE,
   element: ProjectsRoot,
   children: [
     {

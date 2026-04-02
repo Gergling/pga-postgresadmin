@@ -2,6 +2,7 @@ import styled from '@emotion/styled';
 import { BracketDimension, BracketPosition, BracketPropsOptions } from "../types";
 import { COLORS } from '../../theme/colors';
 import { neonFilterDropShadow } from '../../theme/dynamic';
+import { Block } from '../../base';
 
 // Make a version of this which doesn't create error logs.
 // Also doesn't live here.
@@ -89,10 +90,16 @@ export const Parenthesis = styled.div<{
   position?: BracketPosition;
 } & BracketPropsOptions>`
   position: relative;
-  ${(({ color = COLORS.bloodGlow, position = 'top', size = 20, thickness = 3, roundness = 40 }) => bracket(position, color, { roundness, size, thickness }))}
+  ${(({
+    color = COLORS.bloodGlow,
+    position = 'top',
+    roundness = 40,
+    size = 20,
+    thickness = 3,
+  }) => bracket(position, color, { roundness, size, thickness }))}
 `;
 
-export const ParentheticalContainer = styled.div<{
+export const ParentheticalContainer = styled(Block)<{
   color?: string;
   dimension?: BracketDimension;
 } & BracketPropsOptions>`

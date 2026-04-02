@@ -1,5 +1,5 @@
 import { Button, TextField } from '@/renderer/shared/form';
-import { Grid, Stack } from '@mui/material';
+import { Box, Grid, Stack } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 
 export type ChatMessageProps = {
@@ -79,13 +79,17 @@ export const ChatWindow = ({
         {actions}
       </Grid>
 
-      <div style={{ border: '1px solid #ccc', minHeight: '50px', overflowY: 'scroll' }}>
+      <Stack spacing={2} sx={{ border: '1px solid #ccc', minHeight: '50px', overflowY: 'scroll' }}>
         {messages.map((msg, i) => (
-          <div key={i} style={{ margin: '10px' }}>
-            <strong>{msg.role}:</strong> {msg.content}
-          </div>
+          <Box key={i} style={{ margin: '10px' }}>
+            <strong>{msg.role}:</strong>
+            <div>{msg.content}</div>
+            {msg.actions && <Grid container spacing={2}>
+              {msg.actions}
+            </Grid>}
+          </Box>
         ))}
-      </div>
+      </Stack>
     </Stack>
   );
 };

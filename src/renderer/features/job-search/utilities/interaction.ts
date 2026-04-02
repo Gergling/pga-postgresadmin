@@ -1,13 +1,13 @@
 import {
   JOB_SEARCH_INTERACTION_TYPES,
-  JobSearchInteractionSource,
+  JobSearchInteractionRecord,
   JobSearchInteractionType
 } from "../../../../shared/features/job-search";
 
 const type: JobSearchInteractionType = 'email';
 
 export const getJobSearchInteractionSourceFieldValue = (
-  source?: JobSearchInteractionSource
+  source?: JobSearchInteractionRecord['source']
 ): {
   type: JobSearchInteractionType;
   value: string;

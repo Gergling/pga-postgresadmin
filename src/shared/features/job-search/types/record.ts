@@ -3,9 +3,21 @@ import { DbSchema } from "../../../lib/typesaurus";
 import {
   CrmPersonSummary
 } from "../../crm";
-import { JobSearchApplicationInteractionPersistent, JobSearchApplicationPersistent, JobSearchInteractionPersistent, JobSearchSchema } from "./persistent";
-import { JobSearchApplicationSchemaSalary, JobSearchApplicationStageSchema } from "./schema";
-import { JobSearchApplicationInteractionSummary, JobSearchApplicationSummary, JobSearchInteractionSummary } from "./summary";
+import {
+  JobSearchApplicationInteractionPersistent,
+  JobSearchApplicationPersistent,
+  JobSearchInteractionPersistent,
+  JobSearchSchema
+} from "./persistent";
+import {
+  JobSearchApplicationSchemaSalary,
+  JobSearchApplicationStageSchema
+} from "./schema";
+import {
+  JobSearchApplicationInteractionSummary,
+  JobSearchApplicationSummary,
+  JobSearchInteractionSummary
+} from "./summary";
 
 type Stage = JobSearchApplicationStageSchema & {
   person?: CrmPersonSummary;

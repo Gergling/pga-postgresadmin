@@ -22,6 +22,7 @@ export const getLoadingHistoryItem = (path: string): BreadcrumbNavigationHistory
 export const requestHistoryItemFactory = (
   requestCallbacks: BreadcrumbHistoryRequestItemFunction[]
 ) => async (path: string): Promise<BreadcrumbNavigationHistoryItem> => {
+  console.log('requestHistoryItemFactory', path)
   // If it doesn't match any nodes, fallback.
   const matches = matchRoutes(path);
   if (!matches) {

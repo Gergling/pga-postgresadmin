@@ -189,6 +189,11 @@ const DemoRunetator: React.FC<RunetatorPropsBase> = (
   </div>
 </GalleryItem>;
 
+export const runeFactory = (
+  seedStr: string,
+  colour?: NeonPlasmaGlowConfigNames
+) => () => <Runetator size={'small'} color={colour} seedStr={seedStr} />;
+
 const DemoRow: React.FC<RunetatorPropsBase & { label: string; }> = ({
   label, ...props
 }) => {

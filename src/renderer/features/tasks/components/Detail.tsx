@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { COUNCIL_MEMBER } from "../../../../shared/features/user-tasks";
 import { useNavigationRegister } from "../../../shared/navigation";
 import { UiUserTask } from "../types";
@@ -8,6 +8,7 @@ import {
   HeaderSection,
   Main,
   MemberSigil,
+  StyledTaskDescriptionInput,
   VoteValue
 } from "./Detail.style";
 import { StatusControl } from "./StatusControl";
@@ -15,6 +16,8 @@ import { TaskStatus } from "./Status";
 import { getTaskHistoryItem } from "../utilities/route";
 import { useUserTasks } from "../context";
 import { TaskRune } from "./Rune";
+import { TaskDescriptionInput } from "./DescriptionInput";
+import { useUpdateTask } from "../hooks";
 // import { Link } from "@mui/material";
 
 // const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID;
@@ -47,6 +50,18 @@ import { TaskRune } from "./Rune";
 export const TaskDetail = ({ task }: { task: UiUserTask<true> }) => {
   const { register } = useNavigationRegister();
   const { activeTab } = useUserTasks();
+  const {
+    mutate,
+    status: mutationStatus,
+  } = useUpdateTask();
+
+  const updateTask = useCallback(
+    (newData: Omit<Partial<UiUserTask>, 'id'>) => mutate({
+      taskId: task.id,
+      newData
+    }),
+    [task.id]
+  );
 
   useEffect(() => {
     register(getTaskHistoryItem(task, activeTab.name));
@@ -58,11 +73,23 @@ export const TaskDetail = ({ task }: { task: UiUserTask<true> }) => {
         <TaskRune task={task} rune={{ color: 'blood', size: 'large' }} />
         <span style={{ color: '#700' }}>[ {task.id?.slice(0, 8)} | {task.source.type} ]</span>
         <h1>{task.summary}</h1>
+        <TaskDescriptionInput 
+          isTitle 
+          value={task.summary}
+          onPersist={(summary) => updateTask({ summary })}
+          placeholder="Objective Title..."
+        />
       </HeaderSection>
 
       <Main>
         <section>
           <p>{task.description}</p>
+          <TaskDescriptionInput 
+            value={task.description} 
+            onPersist={(description) => updateTask({ description })}
+            placeholder="Venting / Tactical Observations..."
+            minRows={3}
+          />
         </section>
 
         <section>

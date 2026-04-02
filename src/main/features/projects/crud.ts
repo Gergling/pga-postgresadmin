@@ -59,20 +59,17 @@ export const fetchProjectStagedCommitMessage: FetchItemFunction<
   Project, string
 > = async ({ path }) => {
   try {
-    console.log('fetching commit message for staged files at:', path)
     const commitMessageInstructions = await fetchProjectDoc('generate-commit-message') ?? '';
-    console.log('commit message instructions:', commitMessageInstructions);
     const stagedFiles = await fetchStagedFileContents(path);
-    console.log('staged file contents:', stagedFiles);
     const prompt = getLlmInstructions([
       commitMessageInstructions,
       'Here are the staged files:',
       ...stagedFiles,
     ]);
-    console.log('prompt:', prompt)
     const suggestedCommitMessage = await analyseLanguage(prompt);
     return suggestedCommitMessage;
   } catch (e) {
+    console.error(e);
     throw new Error(e);
   }
 };

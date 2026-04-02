@@ -1,9 +1,9 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { hydrateJobSearchInteraction, JobSearchArchetype } from "../../../../shared/features/job-search";
-import { useQueryDataFactory } from "../../../libs/react-query";
+import { hydrateJobSearchInteraction, JobSearchDbSchema } from "../../../../shared/features/job-search";
+import { getCollectionKey, useQueryDataFactory } from "../../../libs/react-query";
 import { useIpc } from "../../../shared/ipc";
 
-type Interaction = JobSearchArchetype['base']['interactions'];
+type Interaction = JobSearchDbSchema['base']['interactions'];
 type NewInteraction = Omit<Interaction, 'id'>;
 
 const useQueryData = () => useQueryDataFactory<Interaction>('interactions');
@@ -40,8 +40,8 @@ const useJobSearchInteractionIpcCreate = () => {
   };
 };
 
-export const useJobSearchInteractionsIpc = () => {
-  const { fetchRecentInteractions, updateInteraction } = useIpc();
+export const useJobSearchInteractionsIpc = (interactionId?: JobSearchDbSchema['id']['interactions']) => {
+  const { fetchRecentInteractions, fetchInteraction, updateInteraction } = useIpc();
   const setQueryData = useQueryData();
 
   const create = useJobSearchInteractionIpcCreate();
@@ -53,9 +53,20 @@ export const useJobSearchInteractionsIpc = () => {
     isError: fetchActiveInteractionsIsError,
     error: fetchActiveInteractionsError,
   } = useQuery({
-    queryKey: ['interactions'],
+    queryKey: getCollectionKey('interactions'),
     queryFn: fetchRecentInteractions,
     select: (models) => new Map(models.map((model) => [model.id, model])),
+  });
+  const {
+    data: interaction,
+    isLoading: fetchInteractionIsLoading,
+    isError: fetchInteractionIsError,
+    error: fetchInteractionError,
+  } = useQuery({
+    enabled: !!interactionId,
+    queryKey: getCollectionKey('interactions', interactionId),
+    queryFn: () => interactionId ? fetchInteraction(interactionId) : undefined,
+    select: (model) => model || undefined,
   });
 
   // Update
@@ -69,8 +80,12 @@ export const useJobSearchInteractionsIpc = () => {
   });
 
   return {
-    interactions,
     ...create,
+    interactions,
+    interaction,
+    fetchInteractionError,
+    fetchInteractionIsError,
+    fetchInteractionIsLoading,
     fetchActiveInteractionsError,
     fetchActiveInteractionsIsError,
     fetchActiveInteractionsIsLoading,

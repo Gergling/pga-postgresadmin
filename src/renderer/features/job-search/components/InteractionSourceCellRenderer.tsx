@@ -1,9 +1,9 @@
 import { useMemo } from "react";
-import { JOB_SEARCH_INTERACTION_TYPES, JobSearchArchetype } from "../../../../shared/features/job-search";
+import { JOB_SEARCH_INTERACTION_TYPES, JobSearchDbSchema } from "../../../../shared/features/job-search";
 import { GridCellRenderer } from "../../../shared/grid"
 import { AutoAwesome, PanToolAlt, QuestionMark } from "@mui/icons-material";
 
-type Interaction = JobSearchArchetype['base']['interactions'];
+type Interaction = JobSearchDbSchema['base']['interactions'];
 type CellRenderer = GridCellRenderer<Interaction>;
 
 export const InteractionSourceCellRenderer: CellRenderer = ({ row: { source } }) => {

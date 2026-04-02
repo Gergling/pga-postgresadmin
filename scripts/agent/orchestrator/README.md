@@ -24,7 +24,19 @@
     3. Run the LLM to write to test file, based on source code file.
 * **Domain:** Architecture
   * *Behaviour:* Analyse Circular Dependencies
+    1. Picks the first file(s) that follow these criteria:
+        * Is tracked and clean in git.
+        * Appears in a circular-dependency check.
+        * Has not been checked since the last commit.
+        * Does not already have a report.
+    2. Creates a report entry for that circle of files using the language model.
+        * Use a key derived from the (unique) file names in alphabetical order
+    3. Clean up any entries from the report which do not feature in the circular dependency list.
   * *Behaviour:* DRY Check
     1. Pick two files based on the following criteria:
         * Is unchanged.
         * Has no DRY check entry since the last run.
+
+### Ideas:
+
+* Provide an overview of uncommitted work.

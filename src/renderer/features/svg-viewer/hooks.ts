@@ -3,6 +3,8 @@ import { SIZE_CONFIG, SizeName } from "./config/neon";
 
 let id = 0;
 
+const padding = 20;
+
 export const useUniqueId = <T extends string>(prefixes: T[]): Record<T, string> => {
   const newId = id++;
   return prefixes.reduce((acc, prefix) => {
@@ -15,7 +17,25 @@ export const useUniqueId = <T extends string>(prefixes: T[]): Record<T, string> 
 
 export const useSize = (size: SizeName) => useMemo(() => {
   const n = SIZE_CONFIG[size];
-  const viewBox = `0 0 ${n} ${n}`;
-  const translation = n / 2;
-  return { viewBox, width: n, height: n, translation };
+  const start = -padding;
+  const end = n + padding;
+  const viewBox = `${start} ${start} ${end} ${end}`;
+  // const viewBox = `0 0 ${n} ${n}`;
+  const offset = -padding / 2;
+  const translation = (n / 2) + offset;
+  return {
+    viewBox, width: end, height: end, translation,
+    visible: { // Junk it
+      width: n,
+      height: n,
+    },
+    container: {
+      width: n,
+      height: n,
+    },
+    offset: {
+      top: offset,
+      left: offset,
+    }
+  };
 }, [size]);

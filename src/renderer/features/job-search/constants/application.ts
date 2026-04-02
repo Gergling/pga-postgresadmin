@@ -1,9 +1,21 @@
-import { APPLICATION_EVENTS, APPLICATION_PHASE, ApplicationEvent, ApplicationPhase, ApplicationPhaseName } from "../../../../shared/features/job-search";
+import {
+  APPLICATION_EVENTS,
+  APPLICATION_PHASE,
+  APPLICATION_STAGE_TECHNICAL_LEVEL,
+  ApplicationEvent,
+  ApplicationPhase,
+  JobSearchApplicationPhaseName,
+  ApplicationStageTechnicalLevel
+} from "../../../../shared/features/job-search";
+import { DropdownOption } from "../../../shared/common/components/Dropdown";
+import { COLORS } from "../../../shared/theme";
+import { NeonPlasmaGlowConfigNames } from "../../svg-viewer/config/neon";
+import { JobSearchActivity } from "../types";
 
 const applicationPhaseConfig: Partial<
-  Record<ApplicationPhaseName, ApplicationPhaseName | ApplicationPhaseName[] | {
+  Record<JobSearchApplicationPhaseName, JobSearchApplicationPhaseName | JobSearchApplicationPhaseName[] | {
     description?: string;
-    next: ApplicationPhaseName;
+    next: JobSearchApplicationPhaseName;
   }>
 > = {
   // For reference, all events and actions can be categorised as: "rejected" | "advanced" | "pursue" | "withdraw"
@@ -63,7 +75,7 @@ const applicationPhaseConfig: Partial<
 type BaseEvent = {
   name: ApplicationEvent;
   description: string;
-  next: ApplicationPhaseName[];
+  next: JobSearchApplicationPhaseName[];
 };
 const baseEventConfig: BaseEvent[] = APPLICATION_EVENTS
   .filter(({ name }) => !['pursue'].includes(name))
@@ -74,7 +86,7 @@ const baseEventConfig: BaseEvent[] = APPLICATION_EVENTS
   }));
 
 type Phase = Omit<ApplicationPhase, 'name'> & {
-  name: ApplicationPhaseName;
+  name: JobSearchApplicationPhaseName;
   next: BaseEvent[];
 };
 export const APPLICATION_PHASE_FSM = APPLICATION_PHASE.reduce((acc, { name: phase, description }) => {
@@ -128,4 +140,24 @@ export const APPLICATION_PHASE_FSM = APPLICATION_PHASE.reduce((acc, { name: phas
       })),
     },
   };
-}, {} as Record<ApplicationPhaseName, Phase>);
+}, {} as Record<JobSearchApplicationPhaseName, Phase>);
+
+export const JOB_SEARCH_ACTIVITY_RANKS: Record<JobSearchActivity, number> = [
+  'hot', 'warm', 'cold'
+].reduce((acc, activity, rank) => ({
+  ...acc,
+  [activity]: rank,
+}), {} as Record<JobSearchActivity, number>);
+
+export const APPLICATION_STAGE_TECHNICAL_LEVEL_COLORS: Record<ApplicationStageTechnicalLevel, NeonPlasmaGlowConfigNames> = {
+  low: 'blue',
+  medium: 'gold',
+  high: 'orange',
+};
+
+export const APPLICATION_STAGE_TECHNICAL_LEVEL_OPTIONS = APPLICATION_STAGE_TECHNICAL_LEVEL.map(
+  (level): DropdownOption => ({
+    label: level,
+    value: level,
+  })
+);

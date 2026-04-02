@@ -1,0 +1,24 @@
+{
+  "output": {
+    "filePath": "codebase-context.xml",
+    "style": "xml",
+    "removeComments": false,
+    "showLineNumbers": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "theme/**/*.ts",
+    "package.json",
+    "tsconfig.json"
+  ],
+  "ignore": {
+    "customPatterns": [
+      "**/*.test.ts",
+      "**/*.spec.tsx",
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/public/**"
+    ]
+  }
+}

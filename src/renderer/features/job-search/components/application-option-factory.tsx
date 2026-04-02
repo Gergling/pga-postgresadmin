@@ -1,4 +1,5 @@
-import { JobSearchArchetype } from "../../../../shared/features/job-search";
+import { AutocompleteProps } from "@mui/material";
+import { JobSearchDbSchema } from "../../../../shared/features/job-search";
 import { AutocompleteId, AutocompleteListItem, AutocompleteTitle, OptionType } from "../../../shared/autocomplete";
 import { JobSearchOptionType } from "../types";
 import { getShortSalary } from "../utilities";
@@ -8,8 +9,8 @@ const ApplicationAutocompleteListItem = ({
   option,
   ...props
 }: React.HTMLAttributes<HTMLLIElement> & {
-  application?: JobSearchArchetype['base']['applications'];
-  option: OptionType<JobSearchArchetype['id']['applications']>;
+  application?: JobSearchDbSchema['base']['applications'];
+  option: OptionType<JobSearchDbSchema['id']['applications']>;
 }) => {
   const jobTitle = option.title.length > 10 ? `${option.title.slice(0, 10)}...` : option.title;
   const salary = application ? getShortSalary(application.salary) : '';
@@ -27,8 +28,8 @@ const ApplicationAutocompleteListItem = ({
 };
 
 export const autocompleteRenderOptionFactory = (
-  applications: Map<JobSearchArchetype['id']['applications'], JobSearchArchetype['base']['applications']> | undefined,
-  options: OptionType<JobSearchArchetype['id']['applications']>[],
+  applications: Map<JobSearchDbSchema['id']['applications'], JobSearchDbSchema['base']['applications']> | undefined,
+  options: OptionType<JobSearchDbSchema['id']['applications']>[],
 ) => {
   const optionsArr = [...options.values()];
   return (

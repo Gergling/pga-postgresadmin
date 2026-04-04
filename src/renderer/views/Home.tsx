@@ -1,13 +1,5 @@
-import { Diary } from "../features/diary";
-import { EmailSyncPanel } from "../features/email/components/EmailSyncPanel";
+import { HomeRoot } from "../features/home";
 
-export const HomeView = () => {
-  return (
-    <div>
-      <EmailSyncPanel />
-      <Diary />
-    </div>
-  );
-};
+export const HomeView = () => <HomeRoot />;
 
 export default HomeView;

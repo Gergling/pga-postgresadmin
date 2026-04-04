@@ -2,10 +2,19 @@ import { readdir } from 'fs/promises';
 import path from 'path';
 import { FetchItemFunction, FetchListFunction } from '@shared/lib/typesaurus';
 import { getEnvVar } from '@main/env';
-import { fetchProjectDoc, Project } from '@shared/features/projects';
+import {
+  CommitMessage,
+  Project
+} from '@shared/features/projects';
 import { fetchLatestCommitDate, fetchStagedFileContents, fetchStagedFileList, runGitCommit } from './commands';
 import { getLlmInstructions } from '@shared/features/llm';
 import { analyseLanguage } from '../ai';
+import { parseLanguageModelResponse } from '@main/llm/shared';
+import { commitMessageSuggestionResponseSchema, fetchProjectsInstructionsDoc } from './llm';
+import {
+  handleRitualTelemetry,
+  HandleRitualTelemetryProps
+} from '../ai/utilities';
 
 const targetPath = getEnvVar('VITE_PERSONAL_PROJECTS_PATH');
 
@@ -55,19 +64,63 @@ export const fetchProjectList: FetchListFunction<void, Project> = async () => {
   return projects;
 };
 
+const handleProjectRitualTelemetry = async <Returns extends Promise<unknown>>(
+  project: Project,
+  props: HandleRitualTelemetryProps<Returns>
+) => handleRitualTelemetry({
+  ...props,
+  project: {
+    name: project.name,
+    operation: 'commit-message',
+  }
+});
+
+const generateCommitMessage = async (
+  project: Project, prompt: string
+): Promise<CommitMessage> => {
+  for (let i = 0; i < 3; i += 1) {
+    const languageModelResponse = await handleProjectRitualTelemetry(project, {
+      fn: () => analyseLanguage(prompt),
+      message: 'Run language model',
+      phase: 'analysis',
+      retried: i,
+    });
+    const suggestedCommitMessage = parseLanguageModelResponse(
+      languageModelResponse,
+      commitMessageSuggestionResponseSchema
+    );
+    if (suggestedCommitMessage.success) return suggestedCommitMessage.value;
+    console.error(suggestedCommitMessage);
+  }
+  throw new Error('Unable to parse language model response.');
+};
+
 export const fetchProjectStagedCommitMessage: FetchItemFunction<
   Project, string
-> = async ({ path }) => {
+> = async (project) => {
+  const { path } = project;
   try {
-    const commitMessageInstructions = await fetchProjectDoc('generate-commit-message') ?? '';
-    const stagedFiles = await fetchStagedFileContents(path);
+    const commitMessageInstructions = await handleProjectRitualTelemetry(
+      project, {
+        fn: () => fetchProjectsInstructionsDoc('commit-message'),
+        message: 'Fetching instructions', phase: 'instructions',
+      }
+    ) ?? '';
+
+    const stagedFiles = await handleProjectRitualTelemetry(project, {
+      fn: () => fetchStagedFileContents(path),
+      message: 'Fetching staged file contents', phase: 'staged',
+    });
+
     const prompt = getLlmInstructions([
       commitMessageInstructions,
       'Here are the staged files:',
       ...stagedFiles,
     ]);
-    const suggestedCommitMessage = await analyseLanguage(prompt);
-    return suggestedCommitMessage;
+
+    const suggestedCommitMessage = await generateCommitMessage(project, prompt);
+
+    return concatenateCommitMessage(suggestedCommitMessage);
   } catch (e) {
     console.error(e);
     throw new Error(e);

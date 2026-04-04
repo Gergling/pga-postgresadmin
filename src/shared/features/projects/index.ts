@@ -1,2 +1,2 @@
-export * from './fetch-doc';
 export * from './types';
+export * from './utilities';

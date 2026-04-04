@@ -37,25 +37,51 @@ export const validateLanguageModelResponse = <T extends object>(
     return { success: false, message: 'Response is not an object' };
   }
 
+  const results: {
+    [K in keyof T]?: LlmValidationResult<T[K]>;
+  } = {};
+
   // We build the object as 'any' initially to populate keys, then cast to T.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const validatedObject: any = {};
+
+  let success = true;
 
   for (const key of Object.keys(schema) as (keyof T)[]) {
     const validator = schema[key];
     const value = response[key];
     const result = validator(value);
 
+    results[key] = result;
     if (!result.success) {
-      return {
-        success: false,
-        message: `Property '${String(key)}' invalid: ${result.message}`,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        value: result.value as any
-      };
+      success = false;
     }
+
     validatedObject[key] = result.value;
   }
 
-  return { success: true, value: validatedObject };
+  return { results: results as {
+    [K in keyof T]: LlmValidationResult<T[K]>;
+  }, success, value: validatedObject };
 };
+
+const parseLanguageModelReponseString = (responseText: string) => {
+  const cleanedJson = responseText.replace(/```json|```/g, "").trim();
+  try {
+    const response = JSON.parse(cleanedJson);
+    return response;
+  } catch (error) {
+    console.error("Error parsing JSON:", responseText, cleanedJson, error);
+    throw error;
+  }
+};
+
+export const parseLanguageModelResponse = <T extends object>(
+  responseText: string,
+  proposedTaskAnalysisResponseSchema: LlmResponseSchema<T>
+): LlmValidationResult<T> => {
+  const response = parseLanguageModelReponseString(responseText);
+  const validation = validateLanguageModelResponse(response, proposedTaskAnalysisResponseSchema);
+
+  return validation;
+}

@@ -17,8 +17,16 @@
     "resolveJsonModule": true,
     "strictNullChecks": true,
     "paths": {
+      /**
+       * @deprecated Use @/main/* instead.
+       */
       "@main/*": ["src/main/*"],
+      /**
+       * @deprecated Use @/shared/* instead.
+       */
       "@shared/*": ["src/shared/*"],
+      "@/main/*": ["src/main/*"],
+      "@/shared/*": ["src/shared/*"],
       "@/*": ["src/*"],
     },
   },

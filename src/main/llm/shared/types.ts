@@ -1,11 +1,15 @@
-export type LlmValidationResult<T> = {
+export type LlmValidationResult<T> = ({
   success: true;
   value: T;
   message?: string;
 } | {
   success: false;
   value?: T;
-  message: string;
+  message?: string;
+}) & {
+  results?: {
+    [K in keyof T]: LlmValidationResult<T[K]>;
+  };
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

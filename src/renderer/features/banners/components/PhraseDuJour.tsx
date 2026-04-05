@@ -8,6 +8,7 @@ import {
   Collapse,
   Button
 } from '@mui/material';
+import { COLORS } from '@/renderer/shared/theme';
 
 type Phrase = {
   phrase: string;
@@ -46,7 +47,6 @@ const PHRASES: Phrase[] = [
 export const PhraseDuJour = () => {
   const [currentPhrase, setCurrentPhrase] = useState<Phrase | null>(null);
   const [expanded, setExpanded] = useState(false);
-  const BLOOD_GLOW = '#FF4545'; // COLORS.bloodGlow placeholder
 
   useEffect(() => {
     const STORAGE_KEY = 'phrase-du-jour-indices';
@@ -79,21 +79,21 @@ export const PhraseDuJour = () => {
   return (
     <Card 
       variant="outlined" 
-      sx={{ 
-        // maxWidth: 500, 
-        m: 2, 
-        border: `1px solid ${BLOOD_GLOW}`,
+      sx={{
+        m: 2,
+        border: `1px solid ${COLORS.bloodGlow}`,
         backgroundColor: 'rgba(255, 69, 69, 0.05)' 
       }}
     >
       <CardContent sx={{
+        padding: 0.5,
         '&:last-child': {
-          paddingBottom: '16px',
+          paddingBottom: 0.5,
         },
       }}>
         <Collapse in={expanded}>
           <Typography
-            sx={{ color: BLOOD_GLOW, fontWeight: 'bold' }} variant="overline"
+            sx={{ color: COLORS.bloodGlow, fontWeight: 'bold' }} variant="overline"
           >
             Phrase Du Jour
           </Typography>
@@ -101,12 +101,13 @@ export const PhraseDuJour = () => {
         <Button variant="text" onClick={() => setExpanded(!expanded)} sx={{
           display: 'flex',
           flexDirection: expanded ? 'column' : 'row',
+          p: 0,
           textAlign: 'left',
           gap: '1rem',
         }}>
           <Typography
             variant="h6" component="div" fontSize={12} sx={{
-              color: BLOOD_GLOW, mb: 0.5
+              color: COLORS.bloodGlow,
             }}
           >
             {currentPhrase.phrase}
@@ -114,7 +115,7 @@ export const PhraseDuJour = () => {
 
           {currentPhrase.transliteration && <Typography
             fontSize={12}
-            variant="subtitle2" color="text.secondary" gutterBottom
+            variant="subtitle2" color="text.secondary"
           >
             {currentPhrase.transliteration}
           </Typography>}

@@ -1,15 +1,18 @@
-import { contextFactory } from "@gergling/ui-components";
 import { PropsWithChildren, useCallback, useEffect, useMemo } from "react";
 import { create } from "zustand";
+import { useQueries, UseQueryOptions } from "@tanstack/react-query";
+import { contextFactory } from "@gergling/ui-components";
 import { Optional } from "../../../shared/types";
-import { BreadcrumbHistoryRequestItemFunction, BreadcrumbNavigationHistoryItem } from "./types";
+import {
+  BreadcrumbHistoryRequestItemFunction,
+  BreadcrumbNavigationHistoryItem
+} from "./types";
 import {
   getFallbackHistoryItem,
   getLoadingHistoryItem,
   getNavigationHistoryKey,
   requestHistoryItemFactory
 } from "./utilities";
-import { useQueries, UseQueryOptions } from "@tanstack/react-query";
 
 const store = create<{
   addCallback: (requestItem: BreadcrumbHistoryRequestItemFunction) => void;
@@ -55,11 +58,13 @@ export const {
   // A simple array of all the mapped items.
   const items = useMemo(() => Object.values(map), [map]);
 
-  // All items which are ready for an asynchronous load.
-  const requestPaths = useMemo(() => items
-    .filter(({ status }) => status === 'request')
-    .map(({ path }) => path),
+  const requests = useMemo(() => items
+    .filter(({ status }) => status === 'request'),
     [items]
+  );
+  // All items which are ready for an asynchronous load.
+  const requestPaths = useMemo(
+    () => requests.map(({ path }) => path), [items]
   );
 
   // We need to do the async call *first* and the state update *second*.
@@ -70,13 +75,9 @@ export const {
     [requestCallbacks]
   );
 
-  useEffect(() => {
-    console.log('history context useEffect', requestCallbacks)
-  }, [requestCallbacks]);
-
   // Load up all ready items.
   const queries = useQueries({
-    queries: requestPaths.map((path): UseQueryOptions<BreadcrumbNavigationHistoryItem, Error, BreadcrumbNavigationHistoryItem, readonly unknown[]> => ({
+    queries: requests.map(({ path }): UseQueryOptions<BreadcrumbNavigationHistoryItem, Error, BreadcrumbNavigationHistoryItem, readonly unknown[]> => ({
       queryFn: () => request(path),
       queryKey: getNavigationHistoryKey(path),
     })),
@@ -88,7 +89,6 @@ export const {
 
   // Build the subscribe function
   const subscribe = useCallback((requestItem: BreadcrumbHistoryRequestItemFunction) => {
-    console.log('subscribing')
     addCallback(requestItem);
     return () => removeCallback(requestItem);
   }, [addCallback, removeCallback]);

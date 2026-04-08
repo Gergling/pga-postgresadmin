@@ -16,6 +16,7 @@ type LanguageModelResponseType = Exclude<
 export type LanguageModelErrorType =
   | LanguageModelResponseType
   | 'undefined-text'
+  | 'no-model'
 ;
 
 export type LanguageModelErrorResponse = {

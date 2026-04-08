@@ -1,4 +1,4 @@
-type LanguageModelResponse = {
+export type LanguageModelResponse = {
   content: string;
   type: 'success';
 } | {

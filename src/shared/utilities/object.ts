@@ -34,3 +34,7 @@ export const deepMerge = <T>(target: any, source: any): T => {
 
   return output;
 };
+
+export const getObjectKeys = <T extends object>(
+  obj: T
+) => Object.keys(obj) as (keyof T)[];

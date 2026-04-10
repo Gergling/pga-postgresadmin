@@ -1,5 +1,7 @@
+import { median } from "@shared/utilities";
 import { wait } from "@shared/utilities/timeout";
 import * as os from 'node:os';
+import { summariseCpuUsage } from "./utilities";
 
 /**
  * This construct sits as a singleton keeping 20 seconds of CPU usage data in
@@ -13,19 +15,10 @@ const data: {
   usage: [],
 };
 
-const getCpuUsageSnapshot = () => {
-  const cpus = os.cpus();
-  return cpus.reduce((acc, core) => {
-    const total = Object.values(core.times).reduce(
-      (total, value) => total + value, 0
-    );
-    return acc + (core.times.idle / total);
-  }, 0) / cpus.length;
-};
+const getCpuUsageSnapshot = () => summariseCpuUsage(os.cpus());
 
 /**
- * 
- * @returns 
+ * Takes a CPU usage snapshot every second.
  */
 const tick = async () => {
   /**
@@ -47,15 +40,12 @@ const tick = async () => {
   tick();
 };
 
+/**
+ * 
+ * @returns The median CPU usage in the last minute.
+ */
 export const getCpuUsage = () => {
-  const length = data.usage.length;
-  const middle = length / 2;
-  const sorted = data.usage.sort();
-  const median = length % 2 === 0
-    ? (sorted[middle] + sorted[middle - 1]) / 2
-    : sorted[Math.floor(middle)]
-  ;
-  return median;
+  return median(data.usage);
 };
 
 tick();

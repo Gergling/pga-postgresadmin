@@ -11,6 +11,8 @@
     "noImplicitAny": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "rootDir": ".",
+    "ignoreDeprecations": "6.0",
     "outDir": "dist",
     "moduleResolution": "node",
     "noImplicitThis": true,

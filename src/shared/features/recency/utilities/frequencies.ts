@@ -12,25 +12,41 @@ import { getTemporalRelativeCategory } from "./category";
 export const generateZeroFrequencies = (
   now = Temporal.Now.zonedDateTimeISO()
 ): TemporalFrequencies => {
-  const reset = now.with({ hour: 0, minute: 0, second: 0 });
-  const previousDay = reset.with({ day: now.day - 1 });
-  const previousWeek = reset.subtract({ days: now.dayOfWeek + 6 });
-  const previousMonth = reset.with({ day: 1 }).subtract({ months: 1 });
-  const previousYear = reset.with({ day: 1, month: 1 }).subtract({ years: 1 });
+  const currentDay = now.with({ hour: 0, minute: 0, second: 0 });
+  const previousDay = currentDay.with({ day: now.day - 1 });
+  const currentWeek = currentDay.subtract({ days: now.dayOfWeek - 1 });
+  const previousWeek = currentDay.subtract({ days: now.dayOfWeek + 6 });
+  const currentMonth = currentDay.with({ day: 1 });
+  const previousMonth = currentMonth.subtract({ months: 1 });
+  const currentYear = currentMonth.with({ month: 1 });
+  const previousYear = currentYear.subtract({ years: 1 });
 
   const map: Record<TemporalGranularity, {
     from: Temporal.ZonedDateTime;
+    current: Temporal.ZonedDateTime;
     incrementKey: keyof Temporal.ZonedDateTime;
     sizeKey: keyof Temporal.ZonedDateTime;
   }> = {
-    years: { from: previousYear, incrementKey: 'month', sizeKey: 'monthsInYear' },
-    months: { from: previousMonth, incrementKey: 'day', sizeKey: 'daysInMonth' },
-    weeks: { from: previousWeek, incrementKey: 'dayOfWeek', sizeKey: 'daysInWeek' },
-    days: { from: previousDay, incrementKey: 'hour', sizeKey: 'hoursInDay' },
+    years: {
+      from: previousYear, incrementKey: 'month', sizeKey: 'monthsInYear',
+      current: currentYear,
+    },
+    months: {
+      from: previousMonth, incrementKey: 'day', sizeKey: 'daysInMonth',
+      current: currentMonth,
+    },
+    weeks: {
+      from: previousWeek, incrementKey: 'dayOfWeek', sizeKey: 'daysInWeek',
+      current: currentWeek,
+    },
+    days: {
+      from: previousDay, incrementKey: 'hour', sizeKey: 'hoursInDay',
+      current: currentDay,
+    },
   };
 
   return Object.entries(map).reduce((acc, [
-    granularityStr, { from, incrementKey, sizeKey }
+    granularityStr, { current, from, incrementKey, sizeKey }
   ]) => {
     const granularity = granularityStr as TemporalGranularity;
     const breakdownKey = incrementKey
@@ -41,7 +57,7 @@ export const generateZeroFrequencies = (
       const start = from.with({ [incrementKey]: key });
       const since = now.since(start);
       const category = getTemporalRelativeCategory(
-        start, since, granularity, priorThreshold
+        start, priorThreshold, since, granularity, current, now
       );
       return {
         ...acc,
@@ -52,6 +68,7 @@ export const generateZeroFrequencies = (
       ...acc,
       [granularity]: {
         breakdownKey,
+        current,
         granularity,
         priorThreshold,
         size,

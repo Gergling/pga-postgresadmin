@@ -69,6 +69,7 @@ export type TemporalGranularityFrequencies<Granularity extends TemporalGranulari
   size: number; // Because we already have it.
   from: Temporal.ZonedDateTime; // Because we already have it.
   // to: Temporal.ZonedDateTime; // If we need it.
+  current: Temporal.ZonedDateTime;
   frequencies: {
     [K: number]: TemporalPeriod<typeof K>;
   };

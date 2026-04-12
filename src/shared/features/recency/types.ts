@@ -23,6 +23,7 @@ export type TemporalRelativeCategory =
   | 'prior' // In the previous time period before the last time period.
   | 'overlap' // Within the previous time period and the last time period.
   | 'window' // The current time period.
+  | 'future' // After now
 ;
 
 /**

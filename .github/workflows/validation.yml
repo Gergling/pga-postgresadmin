@@ -1,0 +1,28 @@
+name: Validation
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  type-check:
+    name: Quality Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Type Check
+        run: tsc --project tsconfig.production.json
+
+      - name: Run Tests with Coverage
+        run: npm test -- --coverage

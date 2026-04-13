@@ -89,10 +89,12 @@ export const generateZeroFrequencies = (
     }, (_, i) => getFrequencyKey(reset(from).add({ [durationKey]: i })));
     const frequencies = keys.reduce((acc, key, i) => {
       const start = from.add({ [durationKey]: i });
-      const since = now.since(start);
-      const category = getTemporalRelativeCategory(
-        start, priorThreshold, since, granularity, current, now
-      );
+      const category = getTemporalRelativeCategory(start, {
+        prior: from,
+        overlap: priorThreshold,
+        window: current,
+        now,
+      });
       return {
         ...acc,
         [key]: { category, start, key, value: 0 }

@@ -13,3 +13,6 @@ export const TEMPORAL_GRANULARITIES = [
   'years', 'months', 'weeks', 'days'
 ] as const;
 export type TemporalGranularity = typeof TEMPORAL_GRANULARITIES[number];
+export const TEMPORAL_GRANULARITIES_DESC = TEMPORAL_GRANULARITIES.reduce(
+  (acc, granularity) => [granularity, ...acc], [] as TemporalGranularity[]
+);

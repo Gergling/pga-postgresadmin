@@ -25,7 +25,7 @@ export const getFrequencyKey = ({
 export const generateZeroFrequencies = (
   now = Temporal.Now.zonedDateTimeISO()
 ): TemporalFrequencies => {
-  const currentDay = now.with({ hour: 0, minute: 0, second: 0 });
+  const currentDay = now.startOfDay();
   const previousDay = currentDay.subtract({ days: 1 });
   const currentWeek = currentDay.subtract({ days: now.dayOfWeek - 1 });
   const previousWeek = currentDay.subtract({ days: now.dayOfWeek + 6 });
@@ -36,46 +36,57 @@ export const generateZeroFrequencies = (
 
   const map: Record<TemporalGranularity, {
     from: Temporal.ZonedDateTime;
+    increment: (date: Temporal.ZonedDateTime) => Temporal.ZonedDateTime;
     current: Temporal.ZonedDateTime;
     incrementKey: keyof Temporal.ZonedDateTime;
     durationKey: keyof Temporal.Duration;
     sizeKey: keyof Temporal.ZonedDateTime;
-    resetKeys: (keyof Temporal.ZonedDateTime)[];
+    // Should be called "quantise" or something.
+    reset: (date: Temporal.ZonedDateTime) => Temporal.ZonedDateTime;
   }> = {
     years: {
       from: previousYear, incrementKey: 'month', sizeKey: 'monthsInYear',
-      current: currentYear, durationKey: 'months', resetKeys: [
-        ...BASE_RESET_KEYS, 'month', 'day', 'hour'
-      ],
+      current: currentYear, durationKey: 'months',
+      reset: (date) => date.startOfDay().with({ month: 1, day: 1 }),
+      increment: (date) => date.add({ months: 1 }),
     },
     months: {
       from: previousMonth, incrementKey: 'day', sizeKey: 'daysInMonth',
-      current: currentMonth, durationKey: 'days', resetKeys: [
-        ...BASE_RESET_KEYS, 'day', 'hour'
-      ],
+      current: currentMonth, durationKey: 'days',
+      reset: (date) => date.startOfDay().with({ day: 1 }),
+      increment: (date) => date.add({ days: 1 }),
     },
     weeks: {
       from: previousWeek, incrementKey: 'dayOfWeek', sizeKey: 'daysInWeek',
-      current: currentWeek, durationKey: 'days', resetKeys: [
-        ...BASE_RESET_KEYS, 'hour'
-      ],
+      current: currentWeek, durationKey: 'days',
+      reset: (date) => date.startOfDay().subtract({ days: date.dayOfWeek - 1 }),
+      increment: (date) => date.add({ days: 1 }),
     },
     days: {
       from: previousDay, incrementKey: 'hour', sizeKey: 'hoursInDay',
-      current: currentDay, durationKey: 'hours', resetKeys: BASE_RESET_KEYS
+      current: currentDay, durationKey: 'hours',
+      reset: (date) => BASE_RESET_KEYS.reduce(
+        (date, key) => date.with({ [key]: 0 }), date
+      ),
+      increment: (date) => date.add({ hours: 1 }),
     },
   };
 
   return Object.entries(map).reduce((acc, [
-    granularityStr, { current, from, incrementKey, sizeKey, durationKey }
+    granularityStr, {
+      current, from, incrementKey, sizeKey, durationKey, reset
+    }
   ]) => {
     const granularity = granularityStr as TemporalGranularity;
     const breakdownKey = incrementKey;
+    const since = now.since(from);
+    const to = reset(now);
     const size = from[sizeKey] as number;
+    const length = since[durationKey] as number;
     const priorThreshold = now.subtract({ [granularity]: 1 });
     const keys = Array.from({
-      length: size
-    }, (_, i) => getFrequencyKey(from.add({ [durationKey]: i })));
+      length
+    }, (_, i) => getFrequencyKey(reset(from).add({ [durationKey]: i })));
     const frequencies = keys.reduce((acc, key, i) => {
       const start = from.add({ [durationKey]: i });
       const since = now.since(start);
@@ -92,11 +103,12 @@ export const generateZeroFrequencies = (
       [granularity]: {
         breakdownKey,
         current,
-        granularity,
-        priorThreshold,
-        size,
         from,
         frequencies,
+        granularity,
+        priorThreshold,
+        reset,
+        size,
         summary: {
           populated: 'insufficient',
         },

@@ -9,15 +9,14 @@ describe('getTemporalRelativeCategory', () => {
   const priorThreshold = Temporal.ZonedDateTime.from('2024-05-19T00:00:00[UTC]');  // Start of yesterday
   const granularity: TemporalGranularity = 'days';
 
-  it('should return "older" when the prior threshold is before the target date (matches current inverted implementation)', () => {
-    // Implementation: if (prior.epochMilliseconds < date.epochMilliseconds) return 'older';
-    const date = Temporal.ZonedDateTime.from('2024-05-19T01:00:00[UTC]');
+  it('should return "older" when the target date is before the prior threshold', () => {
+    const date = Temporal.ZonedDateTime.from('2024-05-18T23:00:00[UTC]');
     const since = Temporal.Duration.from({ days: 0 });
     const result = getTemporalRelativeCategory(date, priorThreshold, since, granularity, windowThreshold, now);
     expect(result).toBe('older');
   });
 
-  it('should return "future" when target date is after now (and prior check is bypassed)', () => {
+  it('should return "future" when target date is after now', () => {
     const date = Temporal.ZonedDateTime.from('2024-05-21T00:00:00[UTC]');
     const futurePrior = Temporal.ZonedDateTime.from('2025-01-01T00:00:00[UTC]');
     const since = Temporal.Duration.from({ days: 0 });

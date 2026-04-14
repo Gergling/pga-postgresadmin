@@ -64,6 +64,7 @@
     "@js-temporal/polyfill": "^0.5.1",
     "@mui/icons-material": "^7.3.1",
     "@mui/material": "^7.3.1",
+    "@mui/x-charts": "^9.0.1",
     "@mui/x-data-grid": "^8.23.0",
     "@mui/x-date-pickers": "^8.27.0",
     "@tanstack/react-form": "^1.28.3",

@@ -1,3 +1,4 @@
+// TODO: This might be tricky to untangle. In theory, the imports can just be fed in as props and then we make up some callbacks or equivalent.
 import { useEffect, useMemo } from "react";
 import { matchRoutes as matchRoutesBase, useLocation } from "react-router-dom";
 import { NAVIGATION_TREE } from "../constants";
@@ -49,10 +50,7 @@ export const useNavigation = () => {
   );
 
   useEffect(() => {
-    Object.values(breadcrumbsMap).forEach((item) => {
-      // TODO: Filter out parametric route nodes.
-      register(item);
-    });
+    Object.values(breadcrumbsMap).forEach(register);
   }, [register]);
 
   return {

@@ -3,17 +3,16 @@
     "target": "ESNext",
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "module": "commonjs",
+    "module": "node16",
     "skipLibCheck": true,
     "esModuleInterop": true,
     "jsx": "react-jsx",
     "lib": ["es6", "dom"],
     "noImplicitAny": true,
     "sourceMap": true,
-    "baseUrl": ".",
     "rootDir": ".",
     "outDir": "dist",
-    "moduleResolution": "node",
+    "moduleResolution": "node16",
     "noImplicitThis": true,
     "resolveJsonModule": true,
     "strictNullChecks": true,
@@ -21,14 +20,14 @@
       /**
        * @deprecated Use @/main/* instead.
        */
-      "@main/*": ["src/main/*"],
+      "@main/*": ["./src/main/*"],
       /**
        * @deprecated Use @/shared/* instead.
        */
-      "@shared/*": ["src/shared/*"],
-      "@/main/*": ["src/main/*"],
-      "@/shared/*": ["src/shared/*"],
-      "@/*": ["src/*"]
+      "@shared/*": ["./src/shared/*"],
+      "@/main/*": ["./src/main/*"],
+      "@/shared/*": ["./src/shared/*"],
+      "@/*": ["./src/*"]
     }
   },
   "exclude": ["node_modules"]

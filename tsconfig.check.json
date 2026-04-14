@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,           // Tells tsc not to output any files
+    "skipLibCheck": true,      // Skips type-checking of all .d.ts files
+    "incremental": true        // Speeds up subsequent checks
+  },
+  "include": [
+    "src/main/**/*",
+    "src/shared/**/*",
+    "src/renderer/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts" 
+  ]
+}

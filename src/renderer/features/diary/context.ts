@@ -1,4 +1,4 @@
-import { useMemo, PropsWithChildren, useEffect, useCallback } from 'react';
+import { useMemo, useEffect, useCallback } from 'react';
 import { contextFactory } from '@gergling/ui-components';
 import { useInactivityDebounce } from '../../shared/user-activity';
 import { useDiaryIpc } from './hooks';
@@ -37,7 +37,7 @@ export const {
   Provider: DiaryProvider,
   useContextHook: useDiary,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-} = contextFactory((_: PropsWithChildren) => {
+} = contextFactory(() => {
   const drawer = store();
   const entryInput = {
     text: drawer.inputEntryText,

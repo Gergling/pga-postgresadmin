@@ -1,11 +1,11 @@
-import admin, { credential, firestore, initializeApp } from 'firebase-admin';
+import firebaseAdmin from 'firebase-admin';
 import * as dotenv from 'dotenv';
 import { getEnvironment } from '../../shared/environment';
 import { log } from '../../shared/logging';
 
 dotenv.config();
 
-let db: firestore.Firestore | null = null;
+let db: firebaseAdmin.firestore.Firestore | null = null;
 
 export const initializeFirebase = () => {
   log(`Initializing Firebase...`, 'info');
@@ -18,17 +18,17 @@ export const initializeFirebase = () => {
   if (!serviceAccountPath) throw new Error(`Missing ${envVar} in .env.`);
   log(`Service account path ${serviceAccountPath}.`, 'success');
 
-  if (admin.apps.length > 0) {
+  if (firebaseAdmin.apps.length > 0) {
     log('Cleaning up existing Firebase instance...', 'info');
-    admin.app().delete(); 
+    firebaseAdmin.app().delete(); 
   }
 
   log(`Initializing Firebase for ${env}...`, 'info');
-  const app = initializeApp({
-    credential: credential.cert(serviceAccountPath)
+  const app = firebaseAdmin.initializeApp({
+    credential: firebaseAdmin.credential.cert(serviceAccountPath)
   });
   
-  db = firestore(app);
+  db = firebaseAdmin.firestore(app);
   log(`Initialized Firebase for ${env}.`, 'success');
   return db;
 };

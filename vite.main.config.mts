@@ -1,4 +1,7 @@
-import type { ConfigEnv, UserConfig } from 'vite';
+import type {
+  ConfigEnv,
+  UserConfig
+} from 'vite' with { 'resolution-mode': 'import' };
 import { defineConfig, mergeConfig } from 'vite';
 import {
   external,
@@ -6,7 +9,7 @@ import {
   getBuildDefine,
   getTsconfigAlias,
   pluginHotRestart
-} from './vite.base.config';
+} from './vite.base.config.js';
 
 // https://vitejs.dev/config
 export default defineConfig((env) => {
@@ -24,6 +27,9 @@ export default defineConfig((env) => {
       rollupOptions: {
         external,
       },
+    },
+    optimizeDeps: {
+      exclude: ['keytar'],
     },
     plugins: [pluginHotRestart('restart')],
     define,

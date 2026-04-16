@@ -54,7 +54,7 @@
     "ts-loader": "^9.5.2",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2",
-    "vite": "^5.3.3",
+    "vite": "^8.0.8",
     "vitest": "^2.1.8"
   },
   "dependencies": {
@@ -81,7 +81,6 @@
     "firebase": "^12.7.0",
     "firebase-admin": "^13.6.0",
     "imapflow": "^1.2.3",
-    "keytar": "^7.9.0",
     "mailparser": "^3.9.1",
     "motion": "^12.34.3",
     "pg": "^8.16.3",

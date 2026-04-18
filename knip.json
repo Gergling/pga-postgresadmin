@@ -1,6 +1,6 @@
 {
   "entry": [
-    "src/app-start.ts!",
+    "src/main.ts!",
     "src/preload.ts!",
     "src/renderer.ts!",
     "src/renderer/views/Home.tsx!",

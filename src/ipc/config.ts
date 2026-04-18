@@ -1,17 +1,18 @@
-import { IpcHandlerConfig, IpcInvocationConfigBase } from '../libs/ipc';
-import { IpcHandlerDatabase } from '../main/database/types';
-import { DockerCommands } from '../main/docker/types';
+// TODO: Deprecate.
+import { createIpcHandlerConfig, IpcHandlerConfig, IpcInvocationConfigBase } from '../libs/ipc';
 import { TasksIpc, UserTask } from '../shared/features/user-tasks/types';
-import { DatabaseItem, DatabaseResponseSelect } from '../shared/database/types';
 import {
-  DatabaseServerCredentials,
   DockerPullPostgresChannel
 } from '../shared/docker-postgres/types';
-import { GeneralResponse, Mandatory, MutationResponse } from '../shared/types';
-import { DiaryEntry, DiaryIpc, DiaryIpcCreateEntry } from '../shared/features/diary/types';
-import { TriageTasksParameters, TriageTasksResponse } from '../main/features/tasks/types';
+import { Mandatory, MutationResponse } from '../shared/types';
+import {
+  DiaryEntry, DiaryIpc, DiaryIpcCreateEntry
+} from '../shared/features/diary/types';
+import {
+  TriageTasksParameters, TriageTasksResponse
+} from '../main/features/tasks/types';
 import { ManageEnvironment } from '../main/environment/types';
-import { EnvironmentProps } from '../main/shared/environment';
+import { EnvironmentProps } from '../main/shared/settings';
 import { CrmIpc, CrmIpcAwaited } from '../main/features/crm';
 import { JobSearchIpc, JobSearchIpcAwaited } from '../main/features/job-search';
 import { ProjectsIpc, ProjectsIpcAwaited } from '@main/features/projects/ipc';
@@ -27,11 +28,7 @@ export type IpcInvocationConfig = IpcInvocationConfigBase<{
 
   // From a previous project just for playing with a docker-based database.
   // Is no longer in use but most of the code is still present.
-  createDatabase: (dbName: string) => { success: boolean; error?: string };
-  selectDatabases: () => DatabaseResponseSelect<DatabaseItem>;
 
-  loadDatabaseServerCredentials: () => DatabaseServerCredentials | undefined;
-  saveDatabaseServerCredentials: (credentials: DatabaseServerCredentials) => GeneralResponse;
 
   // Everything below this comment is in use.
   triageEmailTasks: () => TriageTasksResponse;
@@ -74,8 +71,6 @@ export type IpcInvocationConfig = IpcInvocationConfigBase<{
 
 export type IpcAdditionalParameters = {
   crm: CrmIpc
-  database: IpcHandlerDatabase;
-  docker: DockerCommands;
   diary: DiaryIpc;
   environment: ManageEnvironment;
   jobSearch: JobSearchIpc;
@@ -94,26 +89,11 @@ export type IpcAdditionalParameters = {
 export const ipcHandlerConfig: IpcHandlerConfig<
   IpcInvocationConfig,
   IpcAdditionalParameters
-> = {
+> = createIpcHandlerConfig({
   testIPC: async ({ args: [message] }) => {
     console.log('IPC test received:', message);
     return `Received: ${message}`;
   },
-  createDatabase: ({
-    args: [dbName],
-    database: { createDatabase },
-  }) => createDatabase(dbName),
-  selectDatabases: ({
-    database: { selectDatabases }
-  }) => selectDatabases(),
-
-  loadDatabaseServerCredentials: ({
-    docker: { loadDatabaseServerCredentials },
-  }) => loadDatabaseServerCredentials(),
-  saveDatabaseServerCredentials: ({
-    args: [credentials],
-    docker: { saveDatabaseServerCredentials },
-  }) => saveDatabaseServerCredentials(credentials),
 
   // This is somewhat temporary and primarily for testing emails.
   triageEmailTasks: ({ triage: { triageEmailTasks } }) => triageEmailTasks(),
@@ -213,7 +193,7 @@ export const ipcHandlerConfig: IpcHandlerConfig<
     args: [person],
     crm: { update: { person: updatePerson } },
   }) => updatePerson(person),
-};
+});
 
 export const EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED = 'window-focused';
 export const EVENT_SUBSCRIPTION_RITUAL_TELEMETRY = 'ritual-telemetry';

@@ -26,7 +26,16 @@
  * ```
  */
 
+import { createTRPCProxyClient } from '@trpc/client';
+import { ipcLink } from 'trpc-electron/renderer';
 import './index.css';
-import './renderer/App.tsx';
+import type { AppRouter } from './trpc/router';
+import './renderer/app/App';
 
 console.log(`%c Workspace Unifier (WSU) %c Renderer Initialized: ${new Date().toLocaleTimeString()}`, 'color: #00ffff; font-weight: bold;', 'color: default;');
+
+export const client = createTRPCProxyClient<AppRouter>({
+  links: [ipcLink()],
+  transformer: undefined,
+});
+

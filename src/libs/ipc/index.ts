@@ -1,5 +1,5 @@
 // TODO: These should be abstracted out.
-import { setupDockerChecklistSubscription } from "../../main/docker/ipc";
+// import { setupDockerChecklistSubscription } from "../../main/docker/ipc";
 import { setupRitualTelemetrySubscription } from "../../main/features/ai/ipc";
 import {
   CHANNEL_SUBSCRIBE_TO_DOCKER_CHECKLIST,
@@ -7,12 +7,9 @@ import {
 } from "../../shared/channels";
 import { RitualTelemetrySubscriptionParams } from "../../shared/features/ai";
 import { DockerChecklistSubscriptionParams } from "../../shared/docker-postgres/types";
+import { IpcInvocationConfigTemplate } from "./types";
 
-// These types are used a couple of times, so they're shortened.
 type ParamsBase = Record<string, unknown>;
-type IpcInvocationConfigTemplate<T = unknown, U = unknown> = {
-  [K: string]: (...args: T[]) => Promise<U>;
-};
 
 // Window events and handlers are a bit special, so we define them separately.
 type EventSubscriptionHandlerProp = 'on';
@@ -28,7 +25,7 @@ export type EventSubscriptionHandlerMapping<EventSubscriptionChannel extends str
   [K in EventSubscriptionHandlerProp]: EventSubscriptionHandler<EventSubscriptionChannel>;
 };
 
-type IpcInvocationConfigBaseFunction<T extends unknown[] = unknown[], U = unknown> = (...args: T) => U;
+type IpcInvocationConfigBaseFunction<T extends any[] = any[], U = unknown> = (...args: T) => U;
 
 // A base type for simplifying the invocation config type.
 export type IpcInvocationConfigBase<V extends ({
@@ -53,6 +50,7 @@ export type IpcHandlerConfig<
   ) => ReturnType<IpcInvocationConfig[K]>;
 };
 
+// TODO: Evaluate whether invokaation  casting is going to be sufficient
 // A function for setting up the IPC handlers based on the config.
 export const handleIpc = <
   IpcInvocationConfig extends IpcInvocationConfigTemplate,
@@ -62,7 +60,7 @@ export const handleIpc = <
   ipcMain: Electron.IpcMain,
   additionalParameters?: Params
 ) => Object.entries(config).forEach(([ channelName, func ]) => {
-  console.log(`Setting up IPC channel handler for ${channelName}.`);
+  console.info(`Setting up IPC channel handler for ${channelName}.`);
   ipcMain.handle(channelName, (event, ...args) => func({
     event,
     args,
@@ -70,6 +68,7 @@ export const handleIpc = <
   }));
 });
 
+// This is casting the type. In theory we just pass in the type and we're good.
 // A function for exposing IPC invocations to the renderer process.
 export const preloadIpc = <
   IpcInvocationConfig extends IpcInvocationConfigTemplate,
@@ -114,12 +113,12 @@ export const preloadIpc = <
         return () => ipcRenderer.removeListener(channel, subscription);
       },
       // TODO: Improve specialised IPC calls.
-      [CHANNEL_SUBSCRIBE_TO_DOCKER_CHECKLIST]: (
-        listener: (update: DockerChecklistSubscriptionParams) => void
-      ) => {
-        console.log('subscribed to checklist: preload IPC edition')
-        return setupDockerChecklistSubscription(ipcRenderer, listener);
-      },
+      // [CHANNEL_SUBSCRIBE_TO_DOCKER_CHECKLIST]: (
+      //   listener: (update: DockerChecklistSubscriptionParams) => void
+      // ) => {
+      //   console.log('subscribed to checklist: preload IPC edition')
+      //   return setupDockerChecklistSubscription(ipcRenderer, listener);
+      // },
       [CHANNEL_SUBSCRIBE_TO_RITUAL_TELEMETRY]: (
         listener: (update: RitualTelemetrySubscriptionParams) => void
       ) => {
@@ -129,3 +128,5 @@ export const preloadIpc = <
     }
   );
 };
+
+export * from './utilities';

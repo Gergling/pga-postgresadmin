@@ -1,5 +1,5 @@
 import { ManageEnvironment } from "./types";
-import { getEnvironment, setEnvironment } from '../shared/environment/utilities';
+import { getEnvironment, setEnvironment } from '../shared/settings/utilities';
 import { log } from "../shared/logging";
 import { getVessel } from "../shared/vessel";
 import { initializeFirebase } from "../libs/firebase";

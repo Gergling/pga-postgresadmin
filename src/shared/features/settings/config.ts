@@ -2,8 +2,8 @@ import zod from 'zod';
 
 export const APPLICATION_SETTINGS_SCHEMA = zod.object({
   firebase: zod.object({
-    production: zod.any(),
-    development: zod.any(),
+    production: zod.string(),
+    development: zod.string(),
   }),
   gemini: zod.object({
     apiKey: zod.string(),

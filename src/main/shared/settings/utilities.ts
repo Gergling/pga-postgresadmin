@@ -36,5 +36,3 @@ export const getEnvironment: GetEnvironment = () => {
 export const setEnvironment = (env: EnvironmentProps) => {
   settings.setSync(SETTINGS_KEY_ENVIRONMENT, env);
 };
-
-

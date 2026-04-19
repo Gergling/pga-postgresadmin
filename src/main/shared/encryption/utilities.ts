@@ -5,8 +5,8 @@ export const secureCodec = z.codec(
   z.string(), // Input: A string such as an API key.
   z.string(), // Output: An encrypted string.
   {
-    decode: (plain) => encrypt(plain),
-    encode: (encrypted) => decrypt(encrypted),
+    decode: (encrypted) => decrypt(encrypted),
+    encode: (plain) => encrypt(plain),
   }
 );
 

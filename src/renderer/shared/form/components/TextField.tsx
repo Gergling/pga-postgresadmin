@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import { debounce, Grid, IconButton, TextFieldProps } from "@mui/material";
+import { debounce, Grid, IconButton, TextFieldProps as MuiFieldProps } from "@mui/material";
 import { StyledTextField } from "./TextField.style";
 import { Check, Edit } from "@mui/icons-material";
 
-interface GhostInputProps extends Omit<TextFieldProps, 'onChange'> {
+export interface TextFieldProps extends Omit<MuiFieldProps, 'onChange'> {
   debounceMs?: number;
   editSwitch?: boolean;
   isTitle?: boolean;
@@ -11,7 +11,7 @@ interface GhostInputProps extends Omit<TextFieldProps, 'onChange'> {
   value: string;
 }
 
-export const TextField: React.FC<GhostInputProps> = ({ 
+export const TextField: React.FC<TextFieldProps> = ({ 
   debounceMs = 1000,
   /**
    * @deprecated Wrap in a Safety component instead.

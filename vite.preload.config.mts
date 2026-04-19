@@ -27,9 +27,6 @@ export default defineConfig((env) => {
         },
       },
     },
-    optimizeDeps: {
-      exclude: ['keytar'],
-    },
     plugins: [pluginHotRestart('reload')],
   };
 

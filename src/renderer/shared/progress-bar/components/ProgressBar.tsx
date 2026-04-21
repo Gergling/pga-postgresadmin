@@ -1,6 +1,11 @@
 import { useMemo } from "react";
 import { COLORS, neonFilterDropShadow } from "../../theme";
-import { StyledProgressBar, StyledProgressBarSegment } from "./ProgressBar.style";
+import {
+  StyledProgressBarAnimated,
+  StyledProgressBarBoolean,
+  StyledProgressBarBooleanContainer,
+  StyledProgressBarSegment
+} from "./ProgressBar.style";
 import { Grid } from "@mui/material";
 
 export type ProgressBarSegmentProps = {
@@ -34,37 +39,56 @@ const ProgressBarSegment = ({
   </Grid>
 };
 
-export type ProgressBarProps = {
+type ProgressBarBaseProps = {
   discrete?: boolean;
-  segments: ProgressBarSegmentProps[];
+  style?: React.CSSProperties;
+};
+type ProgressBarBooleanProps = ProgressBarBaseProps & { value: number; };
+type ProgressBarSegmentsProps = ProgressBarBaseProps & { segments: ProgressBarSegmentProps[]; };
+
+export type ProgressBarProps = 
+  | ProgressBarBaseProps
+  | ProgressBarBooleanProps
+  | ProgressBarSegmentsProps
+;
+
+const ProgressBarBoolean = ({ style, value }: ProgressBarBooleanProps) => {
+  return <StyledProgressBarBooleanContainer style={style}>
+    <StyledProgressBarBoolean style={{ width: `${value * 100}%` }} />
+  </StyledProgressBarBooleanContainer>
 };
 
-export const ProgressBar = ({
-  segments,
-  ...props
-}: ProgressBarProps) => {
-  const discrete = useMemo(() => {
-    if (props.discrete !== undefined) return props.discrete;
-    if (segments.length < 60) return true;
-    return false;
-  }, [props.discrete]);
+const ProgressBarSegments = ({
+  discrete, ...props
+}: ProgressBarSegmentsProps) => {
   return <Grid
-    columns={segments.length}
+    columns={props.segments.length}
     container
-    // gap={'0.4rem'}
     spacing={1}
-    // justifyContent={'stretch'}
-    // sx={{ m: 1, p: 1 }}
     sx={{
       borderColor: COLORS.bloodGlow,
       borderWidth: discrete ? 0 : 1,
-      // filter: neonFilterDropShadow(COLORS.bloodGlow),
     }}
   >
-    {segments.map((segment, index) => <ProgressBarSegment
-      key={index}
-      discrete={discrete}
-      {...segment}
+    {props.segments.map((segment, index) => <ProgressBarSegment
+      key={index} discrete={discrete} {...segment}
     />)}
   </Grid>;
+};
+
+export const ProgressBar = (props: ProgressBarProps) => {
+  const discrete = useMemo(() => {
+    if (props.discrete !== undefined) return props.discrete;
+    if (!('segments' in props)) return false;
+    if (props.segments.length < 60) return true;
+    return false;
+  }, [props]);
+
+  if ('value' in props) return <ProgressBarBoolean {...props} discrete={discrete} />;
+
+  if ('segments' in props) return <ProgressBarSegments {...props} discrete={discrete} />;
+
+  return <StyledProgressBarBooleanContainer style={props.style}>
+    <StyledProgressBarAnimated />
+  </StyledProgressBarBooleanContainer>;
 };

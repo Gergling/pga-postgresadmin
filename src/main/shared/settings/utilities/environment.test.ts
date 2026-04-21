@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import settings from 'electron-settings';
-import { getEnvironment, setEnvironment } from './utilities';
-import { ENVIRONMENT_SETTINGS_KEY, ENVIRONMENTS } from './constants';
-import { EnvironmentProps } from './types';
+import { getEnvironment, setEnvironment } from './environment';
+import { ENVIRONMENT_SETTINGS_KEY, ENVIRONMENTS } from '../constants';
+import { EnvironmentProps } from '../types';
 
 // Mock electron-settings
 vi.mock('electron-settings', () => ({

@@ -81,7 +81,7 @@ export const initializeFirebase = async () => {
   return db;
 };
 
-export const getFirebaseDb = () => {
-  if (!db) return initializeFirebase();
+export const getFirebaseDb = async (suppressInitialisation = false) => {
+  if (!db && !suppressInitialisation) return initializeFirebase();
   return db;
 };

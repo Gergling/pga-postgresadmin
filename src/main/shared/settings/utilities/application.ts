@@ -1,8 +1,10 @@
-import z from 'zod';
-import { SETTINGS_KEY_APPLICATION } from '@shared/lib/settings';
-import { APPLICATION_SETTINGS_SCHEMA, ApplicationSettings } from '@shared/features/settings';
-import { secureCodec } from '@main/shared/encryption';
-import { getElectronSetting, setElectronSetting } from '@main/shared/settings';
+import { SETTINGS_KEY_APPLICATION } from "@shared/lib/settings";
+import {
+  APPLICATION_SETTINGS_SCHEMA,
+  ApplicationSettings
+} from "@shared/features/settings";
+import { secureCodec } from "@main/shared/encryption";
+import { getElectronSetting, setElectronSetting } from "./base";
 
 const schema = APPLICATION_SETTINGS_SCHEMA.extend({
   firebase: APPLICATION_SETTINGS_SCHEMA.shape.firebase.extend({
@@ -16,8 +18,6 @@ const schema = APPLICATION_SETTINGS_SCHEMA.extend({
     pass: secureCodec,
   })
 });
-
-type Schema = z.infer<typeof schema>;
 
 const defaultValues: ApplicationSettings = {
   firebase: {
@@ -37,15 +37,13 @@ const defaultValues: ApplicationSettings = {
   },
 };
 
-export const fetchSettings = async (): Promise<
-  Schema
-> => {
+export const fetchAppSettings = async (): Promise<ApplicationSettings> => {
   const settings = await getElectronSetting(SETTINGS_KEY_APPLICATION);
   if (settings) return schema.decode(settings);
   return defaultValues;
 };
 
-export const updateSettings = async (
+export const updateAppSettings = async (
   props: ApplicationSettings
 ): Promise<ApplicationSettings> => {
   const encrypted = schema.encode(props);

@@ -1,10 +1,14 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
+import { fileURLToPath } from 'node:url';
+import { dirname } from 'node:path';
 import { createIPCHandler } from 'trpc-electron/main';
 import { EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED } from '@/ipc';
 import { registerVessel } from '@/main/shared/vessel';
 import { setupRitualTelemetryHandler } from '@/main/features/ai';
 import { router } from './router';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export const createWindow = (): void => {
   // Create the browser window.

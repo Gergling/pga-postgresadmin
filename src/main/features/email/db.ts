@@ -1,4 +1,4 @@
-import { firestore } from "firebase-admin";
+import firebaseAdmin from "firebase-admin";
 import { EmailFragment } from "../../../shared/email/types";
 import { Mandatory } from "../../../shared/types";
 import { getFirebaseDb } from "../../libs/firebase";
@@ -7,13 +7,13 @@ const firestoreEmailFragmentProps: (keyof Omit<EmailFragment, 'db'>)[] = [
   'body', 'from', 'id', 'receivedAt', 'source', 'status', 'subject'
 ];
 
-const fragmentConverter: firestore.FirestoreDataConverter<EmailFragment> = {
+const fragmentConverter: firebaseAdmin.firestore.FirestoreDataConverter<EmailFragment> = {
   toFirestore: (emailFragment) => firestoreEmailFragmentProps.reduce(
     (acc, prop) => ({
       ...acc,
       [prop]: emailFragment[prop],
     }),
-    {} as firestore.WithFieldValue<firestore.DocumentData>
+    {} as firebaseAdmin.firestore.WithFieldValue<firebaseAdmin.firestore.DocumentData>
   ),
   fromFirestore(snapshot) {
     console.log('fromFirestore', snapshot.data());

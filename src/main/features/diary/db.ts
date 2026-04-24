@@ -1,11 +1,11 @@
-import { firestore } from "firebase-admin";
+import firebaseAdmin from "firebase-admin";
 import { DiaryEntry, DiaryIpc } from "../../../shared/features/diary/types";
 import { Mandatory, Optional } from "../../../shared/types";
 import { getFirebaseDb } from "../../libs/firebase";
 
 type DiaryEntryDb = Optional<DiaryEntry, 'id'>;
 
-const converter: firestore.FirestoreDataConverter<Optional<DiaryEntry, 'id'>> = {
+const converter: firebaseAdmin.firestore.FirestoreDataConverter<Optional<DiaryEntry, 'id'>> = {
   toFirestore: (task) => task,
   fromFirestore(snapshot) {
     const data = snapshot.data();

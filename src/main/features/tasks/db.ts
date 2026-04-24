@@ -1,10 +1,10 @@
-import { firestore } from "firebase-admin";
+import firebaseAdmin from "firebase-admin";
 import { getFirebaseDb } from "../../libs/firebase";
 import { createUserTask, updateUserTask } from "./utils";
 import { getUserTaskAudit } from "./audit";
 import { UserTaskDb } from "./types";
 
-const converter: firestore.FirestoreDataConverter<UserTaskDb> = {
+const converter: firebaseAdmin.firestore.FirestoreDataConverter<UserTaskDb> = {
   toFirestore: (task) => task,
   fromFirestore(snapshot) {
     const data = snapshot.data();

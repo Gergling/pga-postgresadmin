@@ -4,7 +4,7 @@ import {
   getBuildConfig,
   external,
   pluginHotRestart
-} from './vite.base.config.js';
+} from './vite.base.config';
 
 // https://vitejs.dev/config
 export default defineConfig((env) => {
@@ -18,7 +18,7 @@ export default defineConfig((env) => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         input: forgeConfigSelf.entry!,
         output: {
-          format: 'cjs',
+          format: 'es',
           // It should not be split chunks.
           codeSplitting: false,
           entryFileNames: '[name].js',

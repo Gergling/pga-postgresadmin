@@ -9,7 +9,7 @@ import {
   getBuildDefine,
   getTsconfigAlias,
   pluginHotRestart
-} from './vite.base.config.js';
+} from './vite.base.config';
 
 // https://vitejs.dev/config
 export default defineConfig((env) => {
@@ -22,18 +22,28 @@ export default defineConfig((env) => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         entry: forgeConfigSelf.entry!,
         fileName: () => '[name].js',
-        formats: ['cjs'],
+        formats: ['es'],
       },
-      rollupOptions: {
+      rolldownOptions: {
         external,
+        output: {
+          format: 'es',
+          entryFileNames: '[name].js',
+        }
       },
+      ssr: true,
     },
     plugins: [pluginHotRestart('restart')],
     define,
     resolve: {
       alias: getTsconfigAlias(),
-      // Load the Node.js entry.
       mainFields: ['module', 'jsnext:main', 'jsnext'],
+    },
+    ssr: {
+      // This tells Vite: "Do not try to bundle electron, 
+      // and when you reference it, use an ESM 'import'."
+      external: ['electron'], // Probably applies to other node built-ins.
+      noExternal: ['trpc-electron'], // Probably everything else.
     },
   };
 

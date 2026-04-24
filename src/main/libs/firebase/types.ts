@@ -1,10 +1,10 @@
-import { firestore } from "firebase-admin";
+import firebaseAdmin from "firebase-admin";
 import { EmailFragment } from "../../../shared/email/types";
 
 export type FirebaseEmailFragment = Omit<EmailFragment, 'receivedAt' | 'db'> & {
   receivedAt: {
     ms: number;
-    db: firestore.Timestamp;
+    db: firebaseAdmin.firestore.Timestamp;
   };
 };
 

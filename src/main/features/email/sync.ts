@@ -1,4 +1,4 @@
-import { firestore } from 'firebase-admin';
+import firebaseAdmin from 'firebase-admin';
 import { ImapFlow } from 'imapflow';
 import { simpleParser } from 'mailparser';
 import { EmailFragment } from '../../../shared/email/types';
@@ -44,7 +44,7 @@ const createFragmentFactory = (
   const fragment: FirebaseEmailFragment = {
     receivedAt: {
       ms: envelope.date.getMilliseconds(),
-      db: firestore.Timestamp.fromDate(envelope.date)
+      db: firebaseAdmin.firestore.Timestamp.fromDate(envelope.date)
     },
     body, from, subject,
     id: id.toString(),

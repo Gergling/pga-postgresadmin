@@ -1,5 +1,7 @@
 import { builtinModules } from 'node:module';
 import type { AddressInfo } from 'node:net';
+import { fileURLToPath } from 'node:url';
+import { dirname } from 'node:path';
 import path from 'path';
 import { getTsconfig } from 'get-tsconfig';
 import type {
@@ -9,13 +11,20 @@ import type {
 } from 'vite' with { 'resolution-mode': 'import' };
 import pkg from './package.json';
 
-export const builtins = ['electron', ...builtinModules.map((m) => [m, `node:${m}`]).flat()];
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+export const builtins = [
+  'electron', ...builtinModules.map((m) => [m, `node:${m}`]).flat()
+];
+
+const dependencies = Object
+  .keys('dependencies' in pkg ? (pkg.dependencies as Record<string, unknown>) : {})
+  .filter(dep => dep !== 'electron-settings')
+;
 
 export const external = [
   ...builtins,
-  ...Object.keys(
-    'dependencies' in pkg ? (pkg.dependencies as Record<string, unknown>) : {}
-  ),
+  ...dependencies,
 ];
 
 export function getBuildConfig(env: ConfigEnv<'build'>): UserConfig {

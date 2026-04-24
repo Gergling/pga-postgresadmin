@@ -1,13 +1,15 @@
 import z from 'zod';
-import { observable } from '@trpc/server/observable';
 import { EventEmitter } from 'events';
 import { tRPC } from '@/main/config';
 import { settingsRouter } from '@/main/features/settings';
+import { systemRouter } from '@main/features/system';
 
 const ee = new EventEmitter();
 
 export const router = tRPC.router({
   settings: settingsRouter,
+  system: systemRouter,
+
   greeting: tRPC.procedure.input(z.object({ name: z.string() })).query((req) => {
     const { input } = req;
 
@@ -16,19 +18,4 @@ export const router = tRPC.router({
       text: `Hello ${input.name}` as const,
     };
   }),
-  subscription: tRPC.procedure.subscription(() => {
-    return observable((emit) => {
-      function onGreet(text: string) {
-        emit.next({ text });
-      }
-
-      ee.on('greeting', onGreet);
-
-      return () => {
-        ee.off('greeting', onGreet);
-      };
-    });
-  }),
 });
-
-export type AppRouter = typeof router;

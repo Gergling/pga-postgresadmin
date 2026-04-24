@@ -2,7 +2,7 @@ import { PropsWithChildren, useState } from "react";
 import { ipcLink } from 'trpc-electron/renderer';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createTRPCReact } from '@trpc/react-query';
-import type { AppRouter } from '../../../trpc/router';
+import type { AppRouter } from '@/trpc';
 
 export const trpcReact = createTRPCReact<AppRouter>();
 

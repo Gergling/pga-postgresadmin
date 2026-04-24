@@ -1,3 +1,7 @@
+import fs from 'fs-extra';
+import path from 'path';
+import task from 'tasuku';
+import { spawn } from 'child_process';
 import type { ForgeConfig } from '@electron-forge/shared-types';
 import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import { MakerZIP } from '@electron-forge/maker-zip';
@@ -11,6 +15,45 @@ import { FuseV1Options, FuseVersion } from '@electron/fuses';
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+  },
+  hooks: {
+    packageAfterCopy: async (
+      config, buildPath, // electronVersion, platform, arch
+    ) => {
+      await task(
+        '🏗️ Preparing production dependencies in build path...',
+        async ({ task }) => {
+          const rootPkg = path.join(__dirname, 'package.json');
+          const targetPkg = path.join(buildPath, 'package.json');
+
+          await task(
+            'Copying package.json.',
+            async () => fs.copy(rootPkg, targetPkg, { overwrite: true })
+          );
+
+          await task('Installing dependencies', async ({ streamPreview, setTitle }) => {
+            const child = spawn('npm', ['install', '--production'], {
+              cwd: buildPath,
+              shell: true 
+            });
+
+            child.stdout.pipe(streamPreview);
+            child.stderr.pipe(streamPreview);
+
+            return new Promise<void>((resolve, reject) => {
+              child.on('close', (code) => {
+                if (code === 0) {
+                  setTitle('Dependencies installed successfully! ✅');
+                  resolve();
+                } else {
+                  reject(new Error(`npm install failed with code ${code}`));
+                }
+              });
+            });
+          });
+        }
+      );
+    },
   },
   rebuildConfig: {},
   makers: [new MakerSquirrel({}), new MakerZIP({}, ['darwin']), new MakerRpm({}), new MakerDeb({})],

@@ -8,11 +8,33 @@ Work which has already started.
 
 ### IPC -> TRPC Migration
 
+I got bored with having to make three different complicated copypasta changes to implement a new IPC call, so I put in a library.
+
+The library works well enough. A notable limitation is that the subscription functionality is deprecated and expected to be removed in the next major RPC version. Unfortunately the next version's subscription functionality (a simple generator function instead of a callback-based iterator instance) wasn't compatible with something fairly fundamental to electron, and I wasn't in the mood to run around in circles trying to fix it, so that's out of scope for now. The deprecated subscription functionality works fine.
+
+Completion will be achieved when the legacy IPC code is no longer used.
+
 - All IPC calls should ultimately go through the latest tRPC-related patterns, as they are much more maintainable.
 - For now, the existing calls don't cause problems with other parts of the application.
 - Maintenance of the legacy IPC layer should result in migrations of those functions.
 - New TRPC implementation can be traced from `./src/trpc`.
 - Legacy IPC implementation can be traced from `./src/ipc`.
+
+### Renderer Navigation Refactor
+
+Renderer routing configuration is at the wrong level. It's in shared which should be below features, but references features.
+
+Ultimately routing config should be moved to the `app` and `views` levels, with feature-specific routes configured within their respective features.
+
+- `shared`: Includes navigation config utility functions and types.
+- `feature`: Feature-specific routing config, using utilities and types from `shared`.
+- `views`: Root-level routing config, using utilities and types from `shared` and importing `feature` routing configs. Also has the `NavigationProvider`.
+- `app`: Imports the `NavigationProvider` in `views` for the provider list.
+
+#### Actionable
+
+- [X] Move Root routing config to the top level.
+- [ ] Move everything out of `./src/renderer/shared/navigation/constants` into their respective feature folders.
 
 ## Actionable
 

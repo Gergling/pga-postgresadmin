@@ -29,7 +29,7 @@
 import { createTRPCProxyClient } from '@trpc/client';
 import { ipcLink } from 'trpc-electron/renderer';
 import './index.css';
-import type { AppRouter } from './main/app';
+import type { AppRouter } from './trpc';
 import './renderer/app/App';
 
 console.log(`%c Workspace Unifier (WSU) %c Renderer Initialized: ${new Date().toLocaleTimeString()}`, 'color: #00ffff; font-weight: bold;', 'color: default;');

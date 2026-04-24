@@ -1,8 +1,8 @@
 {
-  "name": "postgresadmin",
-  "productName": "postgresadmin",
+  "name": "wsu",
+  "productName": "WSU",
+  "description": "Personalized Operating System for Evaluation & Reflection",
   "version": "1.0.0",
-  "description": "My Electron application description",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",

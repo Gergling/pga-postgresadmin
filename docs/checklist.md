@@ -53,6 +53,10 @@ Using the application will be easier if there is a "production mode" to run it i
 
 Work which is ready to start.
 
+### Project Zod Templates
+
+Explicit format output means commit message generation uses JSON formats. These need to be converted to Zod templates for portability and fed into the language models appropriately.
+
 ## Scoping
 
 Work which needs thought or experimentation.

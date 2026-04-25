@@ -31,10 +31,23 @@ Ultimately routing config should be moved to the `app` and `views` levels, with 
 - `views`: Root-level routing config, using utilities and types from `shared` and importing `feature` routing configs. Also has the `NavigationProvider`.
 - `app`: Imports the `NavigationProvider` in `views` for the provider list.
 
-#### Actionable
+#### Tasks
 
 - [X] Move Root routing config to the top level.
 - [ ] Move everything out of `./src/renderer/shared/navigation/constants` into their respective feature folders.
+
+### Production Mode
+
+Using the application will be easier if there is a "production mode" to run it in. That way I can run the production version while modifying (and potentially breaking) the dev version. That means I can use the project and task functionality (such as they are) on this very project.
+
+#### Tasks
+
+- [X] Settings page to replace environment variables. Must persist settings in form.
+- [X] Encryption for sensitive settings (e.g. passwords and API keys). Must decrypt into form.
+- [X] Functionally-orient database to use settings instead of environment variables. Must be able to access database.
+- [ ] Gemini needs to use settings API key instead of environment variables. Must use key (other Gemini failures out of scope).
+- [ ] Update email to use settings. Since we can assume email is defunct anyway for now, just put in the foundation code to check this off.
+- [ ] (Optional) Consider backing up some settings to firebase (other than firebase credentials, obvs). Resetting the settings must reload whatever is available from Firebase.
 
 ## Actionable
 

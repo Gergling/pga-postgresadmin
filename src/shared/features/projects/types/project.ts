@@ -1,8 +1,3 @@
-export type Project = {
-  name: string;
-  path: string;
-  git?: {
-    latestCommitDate: number;
-    staged: number;
-  } | false;
-};
+import { ProjectSchema } from "../config";
+
+export type Project = ProjectSchema;

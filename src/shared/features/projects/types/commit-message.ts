@@ -36,7 +36,7 @@ type CommitMessageScope =
  * This is the conventional commit type. Each type has an application based on
  * the apparent *point* of the changes made.
  */
-export const CONVENTIONAL_COMMIT_TYPES = [
+const CONVENTIONAL_COMMIT_TYPES = [
   /**
    * Patches a bug or equivalent flaw. May fix an error message.
    */

@@ -1,38 +1,13 @@
 import {
   GenerateContentConfig,
-  GoogleGenAI,
-  Model
 } from '@google/genai';
-import { GEMINI_API_KEY, GEMINI_DEFAULT_MODEL } from './constants';
+import { GEMINI_DEFAULT_MODEL } from './constants';
 import { LanguageModelResponse } from '@main/shared/llm';
 import {
-  getFallbackModel,
   stringifyGeminiError,
   transformGeminiError
 } from './utilities';
-
-export const listAvailableModels = () => ai.models.list();
-
-const fetchFallbackModel = async (
-  tried: string[]
-): Promise<Model | undefined> => {
-  const models = await listAvailableModels();
-  const model = getFallbackModel(models.page, tried);
-  // TODO: If model is undefined, we will ultimately need to check the next
-  // page until we run out of pages or get a model.
-  return model;
-};
-
-const fetchModel = async (
-  preferredModel: string,
-  tried: string[]
-): Promise<string | undefined> => {
-  if (tried.length === 0) return preferredModel;
-  const model = await fetchFallbackModel(tried);
-  return model?.name;
-}
-
-const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+import { fetchModel, wrapper } from './extractors';
 
 type GeminiContentParams = {
   preferredModel?: string;
@@ -53,7 +28,7 @@ export const generateContent = async ({
     if (model === undefined) throw new Error(stringifyGeminiError('no-model'));
 
     // We run the language model.
-    const content = await ai.models.generateContent({
+    const content = await wrapper({
       model,
       contents,
       config,

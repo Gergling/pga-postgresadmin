@@ -1,9 +1,11 @@
 import { LanguageModelErrorResponse } from "./types";
 
-export const mapLanguageModelError = (props: Omit<
-  LanguageModelErrorResponse,
+export const mapLanguageModelError = <
+  LanguageModelSource extends string
+>(props: Omit<
+  LanguageModelErrorResponse<LanguageModelSource>,
   '_wsu'
->): LanguageModelErrorResponse => ({
+>): LanguageModelErrorResponse<LanguageModelSource> => ({
   _wsu: 'WSU_RESPONSE',
   ...props,
 });

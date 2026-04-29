@@ -1,6 +1,6 @@
-import { resolve } from 'node:path';
-import { log } from '../logging';
+import { app } from 'electron';
 
-export const PROJECT_ROOT = resolve(__dirname, '../../../../');
-
-log(`PROJECT_ROOT: ${PROJECT_ROOT}`, 'info')
+/**
+ * @deprecated Can just use `app.getAppPath()` instead. I hadn't realised.
+ */
+export const PROJECT_ROOT = app.getAppPath();

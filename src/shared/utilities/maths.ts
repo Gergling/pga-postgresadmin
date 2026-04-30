@@ -19,8 +19,8 @@ export const interpolate = (
 /**
  * Takes a median from a series of numbers.
  * @param series The numbers to find the median for.
- * @param sort Is the numbers are already sorted, this can be set to false to
- * avoid a loop.
+ * @param sort Defaults to true. If the numbers are already sorted, this can be set to false to
+ * avoid an unnecessary operation.
  * @returns The median as a number.
  */
 export const median = (series: number[], sort = true) => {

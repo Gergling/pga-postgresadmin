@@ -7,6 +7,7 @@
     "src/renderer/views/Root.tsx!",
     "src/renderer/views/Tasks.tsx!"
   ],
+  "github-actions": false,
   "project": [
     "scripts/**/*.{ts,tsx}",
     "src/**/*.test.{ts,tsx}",

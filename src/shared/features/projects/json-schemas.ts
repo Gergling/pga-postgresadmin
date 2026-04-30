@@ -44,13 +44,17 @@ export const CONVENTIONAL_COMMIT_TYPES = {
 const CONVENTIONAL_COMMIT_TYPES_LIST = getObjectKeys(CONVENTIONAL_COMMIT_TYPES);
 
 export const CONVENTIONAL_COMMIT_MESSAGE_SCHEMA = z.object({
-  body: z.string(),
-  scope: z.enum([
-    ...CONVENTIONAL_COMMIT_SCOPE_FEATURES_LIST,
-    ...CONVENTIONAL_COMMIT_SCOPE_TECH
-  ]).optional(),
-  summary: z.string().max(70),
-  type: z.enum(CONVENTIONAL_COMMIT_TYPES_LIST),
+  body: z.string().describe('The body of the commit message'),
+  scope: z.string().optional().describe(`
+    The scope of the commit message. This can be a single word expressing the
+    feature or tech layer affected. If the scope is too broad to boil down to a
+    single word, this should be omitted altogether.
+  `),
+  summary: z.string().max(70).describe('The summary of the commit message'),
+  type: z.union(CONVENTIONAL_COMMIT_TYPES_LIST.map((commitType) => {
+    const description = CONVENTIONAL_COMMIT_TYPES[commitType];
+    return z.literal(commitType).describe(description);
+  })),
 });
 
 export type CommitMessage = z.infer<typeof CONVENTIONAL_COMMIT_MESSAGE_SCHEMA>;

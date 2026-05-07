@@ -16,7 +16,9 @@ export function getElectronSetting(
 export function getElectronSetting(
   key: EnvKey
 ): Promise<EnvironmentProps | null>;
-export function getElectronSetting(key: SettingsKey) {
+export function getElectronSetting(): Promise<AllSettings>;
+export function getElectronSetting(key?: SettingsKey) {
+  if (!key) return settings.get();
   return settings.get(key);
 }
 

@@ -3,15 +3,18 @@ import path from 'path';
 import { FetchItemFunction, FetchListFunction } from '@shared/lib/typesaurus';
 import { getEnvVar } from '@main/env';
 import {
-  CommitMessage,
   Project
-} from '@shared/features/projects';
-import { fetchLatestCommitDate, fetchStagedFileContents, fetchStagedFileList, runGitCommit } from './commands';
-import { getLlmInstructions } from '@shared/features/llm';
-import { fetchProjectsInstructionsDoc } from './llm';
-import { handleProjectRitualTelemetry } from './ritual-telemetry';
-import { RitualTelemetrySubscriptionParamsProjectProps } from '@shared/features/ai';
+} from '@/shared/features/projects';
+import { getLlmInstructions } from '@/shared/features/llm';
+import { isGitRepository } from '@/main/shared';
+import {
+  fetchLatestCommitDate,
+  fetchStagedFileContents,
+  fetchStagedFileList,
+  runGitCommit
+} from './commands';
 import { generateCommitMessage } from './rituals';
+import { GenerateCommitMessageUpdateEmitter } from './types';
 
 const targetPath = getEnvVar('VITE_PERSONAL_PROJECTS_PATH');
 
@@ -32,6 +35,9 @@ async function getPersonalFolders() {
 }
 
 const fetchProjectStagedFiles = async (folderPath: string): Promise<Project['git']> => {
+  const hasRepo = await isGitRepository(folderPath);
+  if (!hasRepo) return;
+
   try {
     const stagedFiles = await fetchStagedFileList(folderPath);
     const latestCommitDate = await fetchLatestCommitDate(folderPath)
@@ -63,36 +69,22 @@ export const fetchProjectList: FetchListFunction<void, Project> = async () => {
 };
 
 export const fetchProjectStagedCommitMessage: FetchItemFunction<
-  Project, CommitMessage
-> = async (project) => {
-  const projectProps: RitualTelemetrySubscriptionParamsProjectProps[
-    'operation'
-  ] = 'commit-message';
+  { emit: GenerateCommitMessageUpdateEmitter, project: Project }, void
+> = async ({ emit, project }) => {
   const { path } = project;
   try {
-    const commitMessageInstructions = await handleProjectRitualTelemetry(
-      project, projectProps, {
-        fn: () => fetchProjectsInstructionsDoc('commit-message'),
-        message: 'Fetching instructions', phase: 'instructions',
-      }
-    ) ?? '';
-
-    const stagedFiles = await handleProjectRitualTelemetry(
-      project, projectProps, {
-        fn: () => fetchStagedFileContents(path),
-        message: 'Fetching staged file contents', phase: 'staged',
-      }
-    );
+    const stagedFiles = await fetchStagedFileContents(path);
 
     const prompt = getLlmInstructions([
-      commitMessageInstructions,
+      'Generate a commit message based on the staged files',
       'Here are the staged files:',
       ...stagedFiles,
     ]);
 
-    const suggestedCommitMessage = await generateCommitMessage(project, prompt);
+    await generateCommitMessage(
+      project, prompt, emit
+    );
 
-    return suggestedCommitMessage;
   } catch (e) {
     console.error(e);
     throw new Error('Unable to fetch commit message.');

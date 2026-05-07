@@ -1,4 +1,5 @@
 import z from "zod";
+import { observable } from '@trpc/server/observable';
 import { createCrudConfig, IpcCrudConfig } from "@/main/ipc/utilities";
 import { PROJECT_SCHEMA } from "@/shared/features/projects/config";
 import { tRPC } from "@/main/config";
@@ -7,6 +8,7 @@ import {
   fetchProjectList,
   fetchProjectStagedCommitMessage
 } from "./crud";
+import { GenerateCommitMessageUpdateProps } from "./types";
 
 export const projectsIpc = createCrudConfig({
   create: {
@@ -27,12 +29,18 @@ const inputSchema = z.object({
 });
 
 export const projectsRouter = tRPC.router({
-  commitProjectStagedFiles: tRPC.procedure.input(inputSchema).query(({
+  commitStagedFiles: tRPC.procedure.input(inputSchema).mutation(({
     input: { message, project }
   }) => commitProjectStagedFiles(project, message)),
-  fetchProjectStagedCommitMessage: tRPC.procedure.input(PROJECT_SCHEMA).query(({
-    input: project
-  }) => fetchProjectStagedCommitMessage(project)),
-  fetchProjectList: tRPC.procedure.query(() => fetchProjectList()),
+  fetchStagedCommitMessage: tRPC.procedure
+    .input(PROJECT_SCHEMA)
+    .subscription(
+      ({ input: project }) => observable<
+        GenerateCommitMessageUpdateProps, GenerateCommitMessageUpdateProps
+      >((emit) => {
+        fetchProjectStagedCommitMessage({ emit, project })
+      })
+    ),
+  fetchList: tRPC.procedure.query(() => fetchProjectList()),
 });
 

@@ -20,7 +20,7 @@ export const fetchStagedFileList = async (cwd: string): Promise<string[]> => {
     }
     return stdout.split("\n").filter(Boolean);
   } catch (error) {
-    console.error(cwd);
+    console.error('Error fetching staged file list:', cwd, error);
     throw error;
   }
 }

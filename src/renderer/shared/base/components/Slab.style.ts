@@ -4,8 +4,8 @@ import { COLORS } from "../../theme";
 /**
  * Generic surface component for writing on. Includes cosmetic scanlines.
  */
-export const Slab = styled.div`
-  color: ${COLORS.bloodGlow};
+export const Slab = styled.div({
+  color: COLORS.bloodGlow,
 
   '&::before': {
     content: '""',
@@ -20,4 +20,4 @@ export const Slab = styled.div`
     zIndex: 1,
   },
 
-`;
+});

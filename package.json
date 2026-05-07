@@ -3,7 +3,7 @@
   "productName": "WSU",
   "description": "Personalized Operating System for Evaluation & Reflection",
   "type": "module",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",

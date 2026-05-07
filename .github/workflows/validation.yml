@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  type-check:
+  quality-check:
     name: Quality Checks
     runs-on: ubuntu-latest
     steps:
@@ -22,7 +22,55 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Type Check
-        run: tsc --project tsconfig.production.json
+        run: tsc --project tsconfig.check.json
 
       - name: Run Tests with Coverage
         run: npm test -- --coverage
+
+  tag:
+    name: Tag with package.json version
+    runs-on: ubuntu-22.04
+    needs: quality-check
+    permissions:
+      contents: write
+    outputs:
+      tag-created: ${{ steps.create_tag.outputs.tag-created }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
+        with:
+          path: ui-components
+
+      - name: Create tag
+        id: create_tag
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const tag = `v${{ steps.package-version.outputs.current-version}}`;
+            try {
+              await github.rest.git.createRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `refs/tags/${tag}`,
+                sha: context.sha
+              });
+              console.log(`Tag ${tag} created successfully.`);
+              core.setOutput('tag-created', 'true');
+            } catch (err) {
+              if (err.status === 422) {
+                console.log(`Tag for version "${tag}" already exists. Skipping tag creation.`);
+                core.setOutput('tag-created', 'false');
+              } else {
+                throw err;
+              }
+            }
+          retries: 5
+          retry-exempt-status-codes: 400,401,403,404,422
+          result-encoding: json
+      - name: Echo tag-created
+        run: |
+          echo "tag-created: ${{ steps.create_tag.outputs.tag-created }}"

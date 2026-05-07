@@ -36,7 +36,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Prepare Stealth Asset (.wsu)
+      - name: Prepare WSU Asset
         shell: pwsh
         run: |
           # Finds the .exe in the out/make folder and renames it

@@ -1,5 +1,5 @@
-import { getObjectKeys } from "@shared/utilities/object";
 import z from "zod";
+import { getObjectKeys } from "@shared/utilities/object";
 
 // Features, generally found in `**/features/[scope]/**` files.
 export const CONVENTIONAL_COMMIT_SCOPE_FEATURES = {
@@ -30,13 +30,14 @@ export const CONVENTIONAL_COMMIT_SCOPE = [
 ];
 
 export const CONVENTIONAL_COMMIT_TYPES = {
-  fix: 'Patches a bug or equivalent flaw. May fix an error message.',
-  tech: "Doesn't fix any bugs or add features.",
   build: `Changes that affect the build system or external dependencies`,
+  chore: 'Tasks like updating dependencies, build tools, or linting.',
   ci: `Changes that affect the CI configuration files and scripts`,
   docs: 'Documentation only changes',
   feat: 'A new feature',
+  fix: 'Patches a bug or equivalent flaw. May fix an error message.',
   perf: 'A code change that improves performance',
+  refactor: "Doesn't fix any bugs or add features.",
   style: 'Changes that do not affect the meaning of the code',
   test: 'Adding missing tests or correcting existing tests',
 } as const;

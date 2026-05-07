@@ -44,8 +44,6 @@ jobs:
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@v1.3.1
-        with:
-          path: ui-components
 
       - name: Create tag
         id: create_tag

@@ -13,8 +13,7 @@ import { getNavigationIcon } from "../shared/navigation/components/getNavigation
 import { PROJECT_ROUTES } from "@/renderer/features/projects/routes";
 import { reduceRoutes } from "../shared/navigation/utilities";
 import { SETTINGS_ROUTES } from "../features/settings";
-import { HOME_ROUTES } from "../features/home/routes";
-import { HOME_BASE_ROUTE } from "../features/home/constants";
+import { HOME_BASE_ROUTE, HOME_ROUTES } from "../features/home";
 
 const lazyImports = {
   root: lazyImport(() => import('./Root')),

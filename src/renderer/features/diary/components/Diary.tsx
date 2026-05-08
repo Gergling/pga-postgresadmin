@@ -1,8 +1,9 @@
 import styled from '@emotion/styled';
-import { useDiary } from '../context';
-import { DiaryEntryItem } from './DiaryEntryItem';
+// import { useDiary } from '../context';
+// import { DiaryEntryItem } from './DiaryEntryItem';
 import { DiaryEntryInput } from './DiaryEntryInput';
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
+import { Slab } from '@/renderer/shared/base';
 
 const Container = styled.div`
   display: flex;
@@ -14,12 +15,12 @@ const Container = styled.div`
 `;
 
 const DiaryInterface = () => {
-  const { diaryEntries, drawer } = useDiary();
+  // const { diaryEntries, drawer } = useDiary();
 
-  useEffect(() => {
-    console.log('disable drawer')
-    drawer.setIsAvailable(false);
-  }, [drawer.setIsAvailable]);
+  // useEffect(() => {
+  //   console.log('disable drawer')
+  //   drawer.setIsAvailable(false);
+  // }, [drawer.setIsAvailable]);
 
   // TODO: Should show when mutations and reloading are happening.
   return (
@@ -29,9 +30,12 @@ const DiaryInterface = () => {
       </section>
 
       <section>
-        {diaryEntries.map(entry => (
+        <Slab>
+          Diary entries are disabled for now.
+        </Slab>
+        {/* {diaryEntries.map(entry => (
           <DiaryEntryItem key={entry.id} entry={entry} />
-        ))}
+        ))} */}
       </section>
     </Container>
   );

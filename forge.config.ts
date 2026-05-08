@@ -19,6 +19,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+    ignore: [
+      /^(?!\.vite).*\/\..*/, // Ignore dot-files/folders EXCEPT .vite
+    ],
   },
   hooks: {
     packageAfterCopy: async (

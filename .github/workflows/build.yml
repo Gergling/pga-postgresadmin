@@ -16,6 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
+          # TODO: Update to 24 because of deprecation issues.
           node-version: 20 # Match your local dev version
 
       - name: Cache Dependencies
@@ -30,6 +31,12 @@ jobs:
       - name: Install Dependencies
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: npm ci # 'npm ci' is cleaner for automated builds
+
+      - name: Build Assets
+        # This ensures the .vite folder is populated before Forge starts packaging
+        run: |
+          npx vite build --config vite.main.config.ts &&
+          npx vite build --config vite.renderer.config.ts
 
       - name: Build and Make
         run: npm run make

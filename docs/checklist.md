@@ -40,14 +40,27 @@ Ultimately routing config should be moved to the `app` and `views` levels, with 
 
 Using the application will be easier if there is a "production mode" to run it in. That way I can run the production version while modifying (and potentially breaking) the dev version. That means I can use the project and task functionality (such as they are) on this very project.
 
+**Pareto Progress**: 4%
+
 #### Tasks
 
 - [X] Settings page to replace environment variables. Must persist settings in form.
 - [X] Encryption for sensitive settings (e.g. passwords and API keys). Must decrypt into form.
 - [X] Functionally-orient database to use settings instead of environment variables. Must be able to access database.
-- [ ] Gemini needs to use settings API key instead of environment variables. Must use key (other Gemini failures out of scope).
+- [X] Gemini needs to use settings API key instead of environment variables. Must use key (other Gemini failures out of scope).
+- Implement Github Actions build mechanism because the asynchronicity of the production workflow is more convenient. The `npm run make` can take 45 minutes locally.
+  - [X] Tag from validation workflow when package.json version is pushed with a version number that has no tag.
+  - [X] Create a workflow for build which triggers manually.
+  - [ ] Build workflow should generate a release artifact.
+  - [ ] Build workflow should trigger from a new tag created.
+- Self-downloading mechanism, in which the latest build alerts IF of a higher version than the current interface build.
+  - [ ] Component in Settings should check github for releases and provide a version for the latest.
+  - [ ] This component should update when the app is brought into focus.
+  - [ ] Component should include a button to download the latest build.
+  - [ ] Component should show current version and latest version if different or just say "is latest version" if not.
+  - [ ] Download operation should include any renaming and running.
 - [ ] Update email to use settings. Since we can assume email is defunct anyway for now, just put in the foundation code to check this off.
-- [ ] (Optional) Consider backing up some settings to firebase (other than firebase credentials, obvs). Resetting the settings must reload whatever is available from Firebase.
+- [ ] (Optional) Consider backing up some settings to firebase (other than firebase credentials, obvs). Resetting the settings must reload whatever is available from Firebase. This is optional because the local storage is related to the project name, which is unlikely to change.
 
 ## Actionable
 

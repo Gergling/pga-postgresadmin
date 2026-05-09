@@ -1,7 +1,7 @@
-import fs from 'fs-extra';
-import path from 'path';
-import task from 'tasuku';
-import { spawn } from 'child_process';
+// import fs from 'fs-extra';
+// import path from 'path';
+// import task from 'tasuku';
+// import { spawn } from 'child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
 import type { ForgeConfig } from '@electron-forge/shared-types';
@@ -10,83 +10,83 @@ import { MakerZIP } from '@electron-forge/maker-zip';
 import { MakerDeb } from '@electron-forge/maker-deb';
 import { MakerRpm } from '@electron-forge/maker-rpm';
 import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
-import { VitePlugin } from '@electron-forge/plugin-vite';
+// import { VitePlugin } from '@electron-forge/plugin-vite';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+// const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
-    ignore: [
-      /^(?!\.vite).*\/\..*/, // Ignore dot-files/folders EXCEPT .vite
-    ],
+    // ignore: [
+    //   /^(?!\.vite).*\/\..*/, // Ignore dot-files/folders EXCEPT .vite
+    // ],
   },
-  hooks: {
-    packageAfterCopy: async (
-      config, buildPath, // electronVersion, platform, arch
-    ) => {
-      await task(
-        '🏗️ Preparing production dependencies in build path...',
-        async ({ task }) => {
-          const rootPkg = path.join(__dirname, 'package.json');
-          const targetPkg = path.join(buildPath, 'package.json');
+  // hooks: {
+  //   packageAfterCopy: async (
+  //     config, buildPath, // electronVersion, platform, arch
+  //   ) => {
+  //     await task(
+  //       '🏗️ Preparing production dependencies in build path...',
+  //       async ({ task }) => {
+  //         const rootPkg = path.join(__dirname, 'package.json');
+  //         const targetPkg = path.join(buildPath, 'package.json');
 
-          await task(
-            'Copying package.json.',
-            async () => fs.copy(rootPkg, targetPkg, { overwrite: true })
-          );
+  //         await task(
+  //           'Copying package.json.',
+  //           async () => fs.copy(rootPkg, targetPkg, { overwrite: true })
+  //         );
 
-          await task('Installing dependencies', async ({ streamPreview, setTitle }) => {
-            const child = spawn('npm', ['install', '--production'], {
-              cwd: buildPath,
-              shell: true 
-            });
+  //         await task('Installing dependencies', async ({ streamPreview, setTitle }) => {
+  //           const child = spawn('npm', ['install', '--production'], {
+  //             cwd: buildPath,
+  //             shell: true 
+  //           });
 
-            child.stdout.pipe(streamPreview);
-            child.stderr.pipe(streamPreview);
+  //           child.stdout.pipe(streamPreview);
+  //           child.stderr.pipe(streamPreview);
 
-            return new Promise<void>((resolve, reject) => {
-              child.on('close', (code) => {
-                if (code === 0) {
-                  setTitle('Dependencies installed successfully! ✅');
-                  resolve();
-                } else {
-                  reject(new Error(`npm install failed with code ${code}`));
-                }
-              });
-            });
-          });
-        }
-      );
-    },
-  },
+  //           return new Promise<void>((resolve, reject) => {
+  //             child.on('close', (code) => {
+  //               if (code === 0) {
+  //                 setTitle('Dependencies installed successfully! ✅');
+  //                 resolve();
+  //               } else {
+  //                 reject(new Error(`npm install failed with code ${code}`));
+  //               }
+  //             });
+  //           });
+  //         });
+  //       }
+  //     );
+  //   },
+  // },
   rebuildConfig: {},
   makers: [new MakerSquirrel({}), new MakerZIP({}, ['darwin']), new MakerRpm({}), new MakerDeb({})],
   plugins: [
     new AutoUnpackNativesPlugin({}),
-    new VitePlugin({
-      // `build` can specify multiple entry builds, which can be Main process, Preload scripts, Worker process, etc.
-      // If you are familiar with Vite configuration, it will look really familiar.
-      build: [
-        {
-          // `entry` is just an alias for `build.lib.entry` in the corresponding file of `config`.
-          entry: 'src/main.ts',
-          config: 'vite.main.config.ts',
-        },
-        {
-          entry: 'src/preload.ts',
-          config: 'vite.preload.config.ts',
-        },
-      ],
-      renderer: [
-        {
-          name: 'main_window',
-          config: 'vite.renderer.config.ts',
-        },
-      ],
-    }),
+    // new VitePlugin({
+    //   // `build` can specify multiple entry builds, which can be Main process, Preload scripts, Worker process, etc.
+    //   // If you are familiar with Vite configuration, it will look really familiar.
+    //   build: [
+    //     {
+    //       // `entry` is just an alias for `build.lib.entry` in the corresponding file of `config`.
+    //       entry: 'src/main.ts',
+    //       config: 'vite.main.config.ts',
+    //     },
+    //     {
+    //       entry: 'src/preload.ts',
+    //       config: 'vite.preload.config.ts',
+    //     },
+    //   ],
+    //   renderer: [
+    //     {
+    //       name: 'main_window',
+    //       config: 'vite.renderer.config.ts',
+    //     },
+    //   ],
+    // }),
     // Fuses are used to enable/disable various Electron functionality
     // at package time, before code signing the application
     new FusesPlugin({

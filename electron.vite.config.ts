@@ -1,37 +1,27 @@
 import {
   defineConfig,
-  externalizeDepsPlugin,
 } from 'electron-vite'
+import { resolve } from 'path'
 import {
   getTsconfigAlias,
   pluginHotRestart
 } from './vite.base.config';
-import { resolve } from 'path'
+
+const exclude = ['electron', 'trpc-electron'];
 
 const external = [
   '@trpc/server',
   '@trpc/server/observable',
-  'electron',
 ];
 
-const stripContextBridgePlugin = {
-  name: 'strip-context-bridge',
-  transform(code: string, id: string) {
-    if (id.includes('trpc-electron')) {
-      // This regex finds the contextBridge import and deletes it from the library code
-      return code
-        .replace(/contextBridge\s*as\s*\w+,?/g, '')
-        .replace(/ipcRenderer\s*as\s*\w+,?/g, '')
-      ;
-    }
-  }
-};
+const noExternal = ['trpc-electron'];
 
 export default defineConfig({
   main: {
     build: {
+      externalizeDeps: { exclude },
       lib: {
-        entry: resolve(__dirname, 'src/main.ts'),
+        entry: resolve(import.meta.dirname, 'src/main.ts'),
         formats: ['es'],
       },
       rollupOptions: {
@@ -45,45 +35,46 @@ export default defineConfig({
       },
     },
     plugins: [
-      externalizeDepsPlugin(),
       pluginHotRestart('restart'),
-      stripContextBridgePlugin,
     ],
     resolve: {
-      alias: getTsconfigAlias(),
+      alias: {
+        ...getTsconfigAlias(),
+        // Shim electron because preload imports end up there.
+        'electron': resolve(import.meta.dirname, 'electron-shim-main.js'),
+      },
       mainFields: ['module', 'jsnext:main', 'jsnext'],
     },
+    // Force it to bundle so the alias will work.
+    ssr: { noExternal },
   },
   preload: {
     build: {
+      externalizeDeps: { exclude },
       lib: {
-        entry: resolve(__dirname, 'src/preload.ts'),
+        entry: resolve(import.meta.dirname, 'src/preload.ts'),
         formats: ['es'],
       },
-      rollupOptions: {
-        external: ['electron'],
+    },
+    resolve: {
+      alias: {
+        ...getTsconfigAlias(),
+        // Shim electron because main imports end up there.
+        'electron': resolve(import.meta.dirname, 'electron-shim-preload.js'),
       },
     },
-    plugins: [
-      externalizeDepsPlugin(),
-    ],
+    // Force it to bundle so the alias works
+    ssr: { noExternal },
   },
   renderer: {
     root: '.',
     build: {
       rollupOptions: {
         input: {
-          browser: resolve(__dirname, 'index.html'),
+          browser: resolve(import.meta.dirname, 'index.html'),
         },
       },
     },
-    plugins: [
-      externalizeDepsPlugin({
-        include: ['electron'],
-      }),
-    ],
-    resolve: {
-      alias: getTsconfigAlias(),
-    },
+    resolve: { alias: getTsconfigAlias() },
   },
 });

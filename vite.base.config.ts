@@ -1,7 +1,5 @@
 import { builtinModules } from 'node:module';
 import type { AddressInfo } from 'node:net';
-import { fileURLToPath } from 'node:url';
-import { dirname } from 'node:path';
 import path from 'path';
 import { getTsconfig } from 'get-tsconfig';
 import type {
@@ -10,8 +8,6 @@ import type {
   UserConfig
 } from 'vite' with { 'resolution-mode': 'import' };
 import pkg from './package.json';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export const builtins = [
   'electron', ...builtinModules.map((m) => [m, `node:${m}`]).flat()
@@ -128,7 +124,7 @@ export const getTsconfigAlias = () => {
     // Remove trailing "/*" from the first path entry and resolve it
     const target = paths[key][0].replace(/\/\*$/, '');
 
-    acc[name] = path.resolve(__dirname, target);
+    acc[name] = path.resolve(import.meta.dirname, target);
     return acc;
   }, {} as Record<string, string>);
 

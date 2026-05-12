@@ -16,6 +16,8 @@ const external = [
 
 const noExternal = ['trpc-electron'];
 
+const outDirRoot = 'dist';
+
 export default defineConfig({
   main: {
     build: {
@@ -24,6 +26,7 @@ export default defineConfig({
         entry: resolve(import.meta.dirname, 'src/main.ts'),
         formats: ['es'],
       },
+      outDir: `${outDirRoot}/main`,
       rollupOptions: {
         external,
         output: {
@@ -55,6 +58,7 @@ export default defineConfig({
         entry: resolve(import.meta.dirname, 'src/preload.ts'),
         formats: ['es'],
       },
+      outDir: `${outDirRoot}/preload`,
     },
     resolve: {
       alias: {
@@ -69,6 +73,7 @@ export default defineConfig({
   renderer: {
     root: '.',
     build: {
+      outDir: `${outDirRoot}/renderer`,
       rollupOptions: {
         input: {
           browser: resolve(import.meta.dirname, 'index.html'),

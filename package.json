@@ -4,7 +4,7 @@
   "description": "Personalized Operating System for Evaluation & Reflection",
   "type": "module",
   "version": "0.0.1",
-  "main": "./out/main/main.js",
+  "main": "./dist/main/main.js",
   "scripts": {
     "dev": "electron-vite dev -w",
     "build": "electron-vite build",

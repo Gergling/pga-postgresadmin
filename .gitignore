@@ -91,6 +91,9 @@ credentials/
 # Vite
 .vite/
 
-# Electron-Forge
+# Build
+dist/
 out/
+
+# Automated Assistance
 .aider*

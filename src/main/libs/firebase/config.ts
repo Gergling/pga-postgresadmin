@@ -1,46 +1,55 @@
 import firebaseAdmin from 'firebase-admin';
 import * as dotenv from 'dotenv';
-import task, { TaskAPI } from 'tasuku';
+import task, { Task, TaskAPI } from 'tasuku';
 import { log } from '@/main/shared/logging';
 import {
-  fetchAppSettings,
-  getElectronSetting,
+  loadAppSettings,
+  loadElectronSettings,
 } from '../../shared/settings';
+import { FirestoreRepository, ID } from '@spacelabstech/firestoreorm';
+import { ZodObject } from 'zod';
 
 dotenv.config();
 
 const firebaseServiceAccountPathDev = process.env.FIREBASE_SERVICE_ACCOUNT_PATH_DEV;
 
+export const isFirebaseDevEnabled = !!firebaseServiceAccountPathDev;
+
 const getEnvironmentName = async () => {
-  const environmentName = (await getElectronSetting('env')) ?? 'dev';
+  const environmentName = (await loadElectronSettings('env')) ?? 'dev';
   return environmentName;
 };
 
-const getFirebaseServiceAccountProductionCredential = async (): Promise<
-  firebaseAdmin.credential.Credential
-> => {
-  const settings = await fetchAppSettings();
-  const account = JSON.parse(settings.firebase.production);
-  return firebaseAdmin.credential.cert(account);
-}
+const getFirebaseServiceAccountProductionCredential = async (task: Task): Promise<
+  TaskAPI<firebaseAdmin.credential.Credential | undefined>
+> => task(
+  'Fetching Firebase production credentials...',
+  async () => {
+    const settings = await loadAppSettings();
+    if (!settings.firebase?.production) return;
+    const account = JSON.parse(settings.firebase.production);
+    return firebaseAdmin.credential.cert(account);
+  }
+);
 
-const fetchCredentials = async (): Promise<TaskAPI<
-  firebaseAdmin.credential.Credential
+const fetchCredentials = async (task: Task): Promise<TaskAPI<
+  firebaseAdmin.credential.Credential | undefined
 >> => task(
   'Fetching Firebase credentials...',
-  async ({ setError, setTitle, setWarning }) => {
+  async ({ setError, setTitle, setWarning, task }) => {
     try {
       if (!firebaseServiceAccountPathDev) {
         setWarning('No dev path defined. Assuming production environment.');
-        const result = await getFirebaseServiceAccountProductionCredential();
-        setWarning('No dev path defined. Got production credentials.');
+        const { result } = await getFirebaseServiceAccountProductionCredential(task);
+        if (!result) setWarning('No production credentials available.');
         return result;
       }
   
       const environmentName = await getEnvironmentName();
       if (environmentName === 'prod') {
-        const result = await getFirebaseServiceAccountProductionCredential();
         setWarning('Using production credentials.');
+        const { result } = await getFirebaseServiceAccountProductionCredential(task);
+        if (!result) setWarning('No production credentials available.');
         return result;
       }
   
@@ -56,45 +65,89 @@ const fetchCredentials = async (): Promise<TaskAPI<
 );
 
 const state: {
-  inProgress: boolean;
   db: firebaseAdmin.firestore.Firestore | null;
+  inProgress: boolean;
+  pendingInit: Promise<firebaseAdmin.firestore.Firestore> | null;
 } = {
-  inProgress: false,
   db: null,
+  inProgress: false,
+  pendingInit: null,
 };
 
-export const initializeFirebase = async () => {
-  state.inProgress = true;
-
-  await task('Checking for existing Firebase instance...', async ({
-    setError, setTitle
-  }) => {
+export const initializeFirebase = async (task: Task) => {
+  state.pendingInit = (async () => {
+    state.inProgress = true;
+  
     if (firebaseAdmin.apps.length > 0) {
-      try {
-        setTitle('Cleaning up existing Firebase instance...');
-        await firebaseAdmin.app().delete();
-        setTitle('Firebase instance cleaned up.');
-        return;
-      } catch (e) {
-        setError('Failed to clean up existing Firebase instance.');
-        console.error(e);
-        throw e;
+      await task(
+        'Cleaning up existing Firebase instance.',
+        () => firebaseAdmin.app().delete()
+      );
+    }
+  
+    const { result: credential } = await fetchCredentials(task);
+
+    const app = firebaseAdmin.initializeApp({ credential });
+    state.db = firebaseAdmin.firestore(app);
+    state.inProgress = false;
+    state.pendingInit = null;
+    return state.db;
+  })();
+  return state.pendingInit;
+};
+
+export const getFirebaseDb = (suppressInitialisation?: boolean) => {
+  if (!state.db) {
+    if (!suppressInitialisation) {
+      if (state.inProgress) {
+        log('Firebase is already initialising.', 'info');
+      } else {
+        // Deliberately not awaited, with the intention that it runs in the
+        // background.
+        task(
+          'Database not yet instantiated. Initialising Firebase.', ({ task }) => initializeFirebase(task)
+        );
       }
     }
-    setTitle('No existing Firebase instance found.');
-  });
-
-  const { result: credential } = await fetchCredentials();
-  const app = firebaseAdmin.initializeApp({ credential });
-  state.db = firebaseAdmin.firestore(app);
-  state.inProgress = false;
-  return state.db;
-};
-
-export const getFirebaseDb = async (suppressInitialisation = false) => {
-  if (!state.db && !suppressInitialisation) {
-    if (state.inProgress) log('Firebase is initialising...', 'info');
-    return initializeFirebase();
+    return new Proxy({} as firebaseAdmin.firestore.Firestore, {
+      get(_, prop) {
+        if (!state.db) {
+          throw new Error("Firestore accessed before credentials were loaded.");
+        }
+        return Reflect.get(state.db, prop);
+      }
+    });
+    // return firebaseAdmin.firestore();
   }
   return state.db;
-};
+}
+
+// A generic helper to make any repo "lazy"
+export function createProcrastinatedRepo<T extends { id?: ID; }>(
+  collectionName: string, 
+  schema: ZodObject
+) {
+  let _instance: FirestoreRepository<T> | null = null;
+
+  return new Proxy({} as FirestoreRepository<T>, {
+    get(_, prop, receiver) {
+      if (!state.db) {
+        throw new Error(`Cannot access ${collectionName} repo: Database not initialized. Check Settings.`);
+      }
+      
+      // Create the real repo singleton only on first access
+      if (!_instance) {
+        _instance = FirestoreRepository.withSchema<T>(
+          state.db, collectionName, schema
+        );
+      }
+      
+      const value = Reflect.get(_instance, prop, receiver);
+
+      // If it's a function, we must bind it to the real instance
+      // so it doesn't lose its "this" context
+      return typeof value === 'function' ? value.bind(_instance) : value;
+    }
+  });
+}
+

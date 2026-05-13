@@ -1,16 +1,9 @@
 import z from "zod";
 import { safeStorage } from "electron";
 
-export const secureCodec = z.codec(
-  z.string(), // Input: A string such as an API key.
-  z.string(), // Output: An encrypted string.
-  {
-    decode: (encrypted) => decrypt(encrypted),
-    encode: (plain) => encrypt(plain),
-  }
-);
+export const encrypt = (value?: string): string | undefined => {
+  if (!value) return;
 
-export const encrypt = (value: string): string => {
   if (!safeStorage.isEncryptionAvailable()) {
     throw new Error('Encryption is not available');
   }
@@ -20,7 +13,9 @@ export const encrypt = (value: string): string => {
   return base64;
 };
 
-export const decrypt = (base64: string): string => {
+export const decrypt = (base64: string | null): string | undefined => {
+  if (!base64) return;
+
   if (!safeStorage.isEncryptionAvailable()) {
     throw new Error('Encryption is not available');
   }
@@ -28,3 +23,7 @@ export const decrypt = (base64: string): string => {
   const buffer = Buffer.from(base64, 'base64');
   return safeStorage.decryptString(buffer);
 }
+
+export const decryptTransformer = z.string().nullable().catch(null)
+  .transform(decrypt);
+export const encryptTransformer = z.string().optional().transform(encrypt);

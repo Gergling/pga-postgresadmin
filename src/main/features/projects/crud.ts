@@ -1,12 +1,11 @@
 import { readdir } from 'fs/promises';
 import path from 'path';
 import { FetchItemFunction, FetchListFunction } from '@shared/lib/typesaurus';
-import { getEnvVar } from '@main/env';
 import {
   Project
 } from '@/shared/features/projects';
 import { getLlmInstructions } from '@/shared/features/llm';
-import { isGitRepository } from '@/main/shared';
+import { loadAppSettings, isGitRepository } from '@/main/shared';
 import {
   fetchLatestCommitDate,
   fetchStagedFileContents,
@@ -16,9 +15,11 @@ import {
 import { generateCommitMessage } from './rituals';
 import { GenerateCommitMessageUpdateEmitter } from './types';
 
-const targetPath = getEnvVar('VITE_PERSONAL_PROJECTS_PATH');
+async function getPersonalFolders() {
+  const appSettings = await loadAppSettings();
+  const targetPath = appSettings.projects?.path;
+  if (!targetPath) return;
 
-async function getPersonalFolders() {  
   try {
     const entries = await readdir(targetPath, { withFileTypes: true });
     const folders = entries

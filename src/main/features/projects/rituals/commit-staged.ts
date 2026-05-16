@@ -8,11 +8,11 @@ import { GenerateCommitMessageUpdateEmitter } from "../types";
 export const generateCommitMessage = async (
   project: Project, prompt: string, emit: GenerateCommitMessageUpdateEmitter
 ): Promise<void> => {
-  await task(
-    'Generate commit message', async ({ setError }) => {
+  const { state } = await task(
+    'Generate commit message', async ({ setError, task }) => {
       try {
         await runLanguageModel(
-          prompt, (props) => {
+          prompt, task, (props) => {
             const emission = { ...props, project };
 
             // If it's failed, it won't try again for whatever reason.
@@ -36,4 +36,6 @@ export const generateCommitMessage = async (
       }
     }
   );
+
+  if (state === 'success') return emit.complete();
 };

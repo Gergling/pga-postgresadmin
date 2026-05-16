@@ -40,7 +40,7 @@ Ultimately routing config should be moved to the `app` and `views` levels, with 
 
 Using the application will be easier if there is a "production mode" to run it in. That way I can run the production version while modifying (and potentially breaking) the dev version. That means I can use the project and task functionality (such as they are) on this very project.
 
-**Pareto Progress**: 4%
+**Pareto Progress**: 5%
 
 #### Tasks
 
@@ -51,7 +51,12 @@ Using the application will be easier if there is a "production mode" to run it i
 - Implement Github Actions build mechanism because the asynchronicity of the production workflow is more convenient. The `npm run make` can take 45 minutes locally.
   - [X] Tag from validation workflow when package.json version is pushed with a version number that has no tag.
   - [X] Create a workflow for build which triggers manually.
-  - [ ] Build workflow should generate a release artifact.
+  (put in the steps you had to go through so far)
+  - Build workflow should generate a release artifact.
+    - [X] Implement electron-vite. Completion is a working development-mode application.
+    - [X] Implement electron-vite's beta. Completion is a working development-mode application.
+    - [X] Get `make` working to prove a build will work at all.
+    - [ ] Fix production build so it's not a white background.
   - [ ] Build workflow should trigger from a new tag created.
 - Self-downloading mechanism, in which the latest build alerts IF of a higher version than the current interface build.
   - [ ] Component in Settings should check github for releases and provide a version for the latest.
@@ -71,6 +76,39 @@ Need a list of models that are suitable to the job.
 
 There will ultimately need to be room for running a local model when the internet isn't available and when the laptop has resources. If the criteria isn't supported, add to a queue. There needs to be the option where the user (likely me) simply clicks a button that comes up as available when there are items in the queue which forces that item to run right now regardless of constraints.
 
+#### Parameters
+
+Parameters should be considered out of scope since the current use-cases are pretty much just any available language model.
+
+- Preferences
+  - (?) Local/Remote: Undefined means no preference.
+- Requirements
+  - (?) Local/Remote: Undefined means no requirement.
+
+#### Inputs
+
+- System resources
+- Internet availability
+- Available context window size for model
+- Prompt size in characters
+
+#### Token Hueristics
+
+- Assuming a token is 3-4 characters.
+- Prompt characters / 3 and higher is "red".
+- Prompt characters / 4 and lower is "green".
+- The rest is "yellow".
+
+#### Logic
+
+- Needs requirements and preferences.
+- Requirements are things like "not this model" and will be used to filter.
+- Preferences are things like "biggest context window" and will be used to sort.
+
+- If no internet, local is a requirement.
+- If no system resources, remote is the preference.
+- If no internet OR system resources, should probably check with the user first. Would ideally looking into ensuring it doesn't eat the whole processor, but just waits until available or something.
+
 **Pareto Progress**: 6%
 
 #### Tasks
@@ -82,9 +120,7 @@ There will ultimately need to be room for running a local model when the interne
 - [X] Gemini configuration in libs. This is a source-level specific set up using Gemini and the appropriate API key.
 - [X] Configuration setup runner which is a factory for taking the source-level configurations.
 - Local runner configuration.
-  - [ ] Investigate whether docker is required and set it up to run when required if so.
-  - [ ] Local spin-up should be taken into account when selecting a model, as this does NOT need to be running the moment the app starts up.
-  - [ ] Whether local spin-up is started should be dependent on the system CPU/memory output.
+  - [X] Ollama requires no docker (although it can have docker).
   - [ ] Whether to use local once spun up should be dependent on the system CPU/memory output.
   - [ ] Choose thresholds for memory and CPU. E.g. memory can be at <85 (including 80-85 yellow zone), 85-95 (red zone, and it asks) and beyond that it vetoes. CPU can be 10%-15%.
 
@@ -99,6 +135,28 @@ Explicit format output means commit message generation uses JSON formats. These 
 ## Scoping
 
 Work which needs thought or experimentation.
+
+### Task Nesting
+
+The idea is to open a task detail view and see the child tasks in a table. The children of those tasks should appear under their parents, but ideally indented or something. The maximum display depth can be limited, but there should be no storage depth limit.
+
+This will need a system to keep the firebase calls efficient when getting data for a whole task tree. One simple way to do this is with summary data. A task can keep track of all ancestor ids and all descendant ids. That way, a secondary call can be made to batch-request the related tasks.
+
+### Project Tasks
+
+This is more about establishing a relationship between the concept of a project (which is largely SMART) and the concept of a task.
+
+A project essentially has two phases: Setup and maintenance. Some examples:
+- Neon Blood Icons
+  - Setup:
+    - Display and license icons
+    - Future collection release plans
+  - Maintenance:
+    - Modern package technology for stability and security
+    - Routine review of trends, the market/community and planning the next season's collection.
+- ACX
+  - Setup: Make an account
+  - Maintenance: Do some recordings
 
 ## Done
 

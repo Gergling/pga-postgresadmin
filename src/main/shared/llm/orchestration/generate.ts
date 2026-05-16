@@ -1,55 +1,15 @@
-import task from 'tasuku';
+import { Task } from 'tasuku';
+import { ZodType } from 'zod';
 import {
-  LanguageModelGeneratorFunction,
   LanguageModelOrchestrationUpdateFunction,
-  LanguageModelOrchestrationUpdateProps,
-  LanguageModelProps,
   LanguageModelResponseSchema,
   LanguageModelSourceLevelConfigResponse
 } from "../types";
-import { LanguageAnalysisState } from "./state";
+import { generatorFactory } from '../utilities';
 import { fetchNextModelFactory } from './select';
-import { ZodType } from 'zod';
+import { LanguageAnalysisState } from "./state";
 import { transformLanguageModelResponse } from './transform';
-
-export const generatorFactory = (
-  sources: LanguageModelSourceLevelConfigResponse[]
-) => (model: LanguageModelProps): LanguageModelGeneratorFunction => {
-  const sourceLevelConfig = sources.find(
-    ({ source }) => source === model.source
-  );
-
-  if (sourceLevelConfig === undefined) throw new Error(
-    `No source level config found for ${model.source}.`
-  );
-
-  const generator: LanguageModelGeneratorFunction = async (props) => {
-    // Probably a good place for a `task` call.
-    const response = await sourceLevelConfig.generate({
-      ...props, model: model.name
-    });
-    return {
-      source: model.source,
-      ...response,
-    };
-  }
-
-  return generator;
-};
-
-const getUpdateProps = <CompletionProps>(
-  state: LanguageAnalysisState,
-  payload: LanguageModelResponseSchema<CompletionProps>
-): LanguageModelOrchestrationUpdateProps<CompletionProps> => ({
-  attempts: {
-    current: state.attempts,
-    maximum: state.maximumAttempts,
-  },
-  payload,
-  retryTimeout: state.retryTimeout,
-  willRetry: state.canAttempt,
-});
-
+import { getRetryTimeout, getUpdateProps } from '../get-update-props';
 
 export const configureLanguageModelStrategies = (
   sources: LanguageModelSourceLevelConfigResponse[]
@@ -59,6 +19,7 @@ export const configureLanguageModelStrategies = (
 
   const analyser = async <CompletionProps>(
     prompt: string,
+    task: Task,
     update: LanguageModelOrchestrationUpdateFunction<CompletionProps>,
     options?: {
       schema?: ZodType<CompletionProps>,
@@ -117,6 +78,7 @@ export const configureLanguageModelStrategies = (
                 if (response === undefined) {
                   const payload: LanguageModelResponseSchema<CompletionProps> = {
                     ...result,
+                    canRetry: true,
                     status: 'parsing-incompatibility',
                   };
 
@@ -126,11 +88,12 @@ export const configureLanguageModelStrategies = (
 
                   return;
                 }
-    
-                // update(getUpdateProps<CompletionProps>(retry, { ...result, response }));
+
+                retry.logSuccess();
+
                 update({
                   attempts: {
-                    current: retry.attempts,
+                    current: retry.attempts + 1,
                     maximum: retry.maximumAttempts,
                   },
                   payload: { ...result, response },
@@ -144,8 +107,9 @@ export const configureLanguageModelStrategies = (
               update(getUpdateProps<CompletionProps>(retry, result));
 
               if (retry.canAttempt) {
-                setWarning(`Retrying in ${retry.retryTimeout}ms.`);
-                await new Promise(resolve => setTimeout(resolve, retry.retryTimeout));
+                const retryTimeout = getRetryTimeout(retry, result);
+                setWarning(`Retrying in ${retryTimeout}ms.`);
+                await new Promise(resolve => setTimeout(resolve, retryTimeout));
               } else {
                 setError('Will not be retrying.');
               }

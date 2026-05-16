@@ -10,7 +10,8 @@ const analyseLanguageStateSchema = z.object({
     model: z.string(),
     status: z.string(),
   })).default([]).describe('A log of what has been tried so far'),
-  maximumFailures: z.number().default(4),
+  maximumFailures: z.number().default(10),
+  succeeded: z.boolean().default(false),
 });
 
 export type AnalyseLanguageState = z.infer<typeof analyseLanguageStateSchema>;
@@ -33,6 +34,13 @@ const logFailureActionFactory = (
       ...state.log,
       { model, status },
     ],
+  };
+};
+
+const logSuccessActionFactory = (): AnalyseLanguageStateAction => (state) => {
+  return {
+    ...state,
+    succeeded: true,
   };
 };
 
@@ -101,6 +109,8 @@ export class LanguageAnalysisState {
   }
 
   get canAttempt() {
+    if (this.state.succeeded) return false;
+
     // We should try and run it at least once.
     if (this.attempts === 0) return true;
 
@@ -138,18 +148,23 @@ export class LanguageAnalysisState {
   }
 
   get temperature(): number {
-    if (this.attempts === 0) return 0;
+    if (this.attempts === 0) return 0.1;
     const {
       some: { parsingIncompatibility },
     } = this.logReport;
 
     if (parsingIncompatibility) return 0.1;
 
-    return 0;
+    return 0.1;
   }
 
   logFailure(model: string, status: LanguageModelResponseStatus) {
     const action = logFailureActionFactory(model, status);
+    this.state = action(this.state);
+    return this;
+  }
+  logSuccess() {
+    const action = logSuccessActionFactory();
     this.state = action(this.state);
     return this;
   }

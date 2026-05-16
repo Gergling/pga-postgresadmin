@@ -6,6 +6,10 @@ export const compareLanguageModels = (
   // Thinking models go at the top.
   if (a.thinking !== b.thinking) {
     if (a.thinking) return -1;
+    if (b.thinking) return 1;
+    // If we know one model is not a thinking model, and we don't know about
+    // the other one, we can assume the other one *might* be.
+    if (a.thinking === undefined) return -1;
     return 1;
   }
 

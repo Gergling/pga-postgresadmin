@@ -18,10 +18,11 @@ export type LanguageModelTransformFunctionParams<T> = LanguageModelTransformFunc
 };
 
 export type LanguageModelProps = {
+  local: boolean;
   name: string;
   source: string;
   temperature?: number;
-  thinking: boolean;
+  thinking?: boolean;
   tokenLimits: {
     input?: number;
     output?: number;

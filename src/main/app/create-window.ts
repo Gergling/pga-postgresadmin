@@ -1,14 +1,11 @@
 import { BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
-import { fileURLToPath } from 'node:url';
-import { dirname } from 'node:path';
 import { createIPCHandler } from 'trpc-electron/main';
 import { EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED } from '@/ipc';
 import { registerVessel } from '@/main/shared/vessel';
 import { setupRitualTelemetryHandler } from '@/main/features/ai';
 import { router } from './router';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
+import { isFirebaseDevEnabled } from '@main/libs/firebase';
 
 export const createWindow = (): void => {
   // Create the browser window.
@@ -16,21 +13,20 @@ export const createWindow = (): void => {
     width: 1000,
     height: 600,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-      nodeIntegration: true,
+      nodeIntegration: true, // Defaults to false.
+      preload: path.join(import.meta.dirname, '../preload/preload.mjs'),
     },
   });
 
-  // and load the index.html of the app.
-  // mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+  // Load the index.html of the app.
+  if (process.env.ELECTRON_RENDERER_URL) {
+    mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL);
   } else {
-    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
+    mainWindow.loadFile(path.join(import.meta.dirname, `../renderer/index.html`));
   }
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  if (isFirebaseDevEnabled) mainWindow.webContents.openDevTools();
 
   mainWindow.maximize();
 

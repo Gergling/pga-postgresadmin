@@ -8,6 +8,8 @@ import { systemRouter } from '@/main/features/system';
 const ee = new EventEmitter();
 
 export const router = tRPC.router({
+  diary: diaryRouter,
+  environments: environmentRouter,
   projects: projectsRouter,
   settings: settingsRouter,
   system: systemRouter,

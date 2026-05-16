@@ -41,13 +41,13 @@ jobs:
         shell: pwsh
         run: |
           # Finds the .exe in the out/make folder and renames it
-          $exePath = Get-ChildItem -Path out/make/squirrel/win32/x64/*.exe | Select-Object -First 1
+          $exePath = Get-ChildItem -Path out/make/squirrel.windows/x64/*.exe | Select-Object -First 1
           Rename-Item -Path $exePath.FullName -NewName "WSU-Setup.wsu"
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: out/make/squirrel/win32/x64/WSU-Setup.wsu
+          files: out/make/squirrel.windows/x64/WSU-Setup.wsu
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

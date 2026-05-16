@@ -32,12 +32,6 @@ jobs:
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: npm ci # 'npm ci' is cleaner for automated builds
 
-      - name: Build Assets
-        # This ensures the .vite folder is populated before Forge starts packaging
-        run: |
-          npx vite build --config vite.main.config.ts &&
-          npx vite build --config vite.renderer.config.ts
-
       - name: Build and Make
         run: npm run make
         env:

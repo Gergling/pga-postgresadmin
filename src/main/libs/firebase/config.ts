@@ -1,13 +1,13 @@
 import firebaseAdmin from 'firebase-admin';
 import * as dotenv from 'dotenv';
 import task, { Task, TaskAPI } from 'tasuku';
+import { FirestoreRepository, ID } from '@spacelabstech/firestoreorm';
+import { ZodObject } from 'zod';
 import {
   loadAppSettings,
   loadElectronSettings,
   log
 } from '@/main/shared';
-import { FirestoreRepository, ID } from '@spacelabstech/firestoreorm';
-import { ZodObject } from 'zod';
 
 dotenv.config();
 

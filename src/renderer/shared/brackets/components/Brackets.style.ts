@@ -45,7 +45,7 @@ const getBorderRadius = (position: BracketPosition, roundness: number) => {
       ],
       acc
     ),
-    []
+    [] as string[]
   ).join('\n');
 };
 const bracket = (
@@ -99,6 +99,14 @@ export const Parenthesis = styled.div<{
   }) => bracket(position, color, { roundness, size, thickness }))}
 `;
 
+/**
+ * Renders two parentheses around a block.
+ * @param color Bracket colour. Defaults to bloodglow.
+ * @param dimension Can be 'horizontal' or 'vertical'. Defaults to 'horizontal'.
+ * @param roundness Radial border roundness. Defaults to 40.
+ * @param size The height/width of the perpendicular edges. Defaults to 20.
+ * @param thickness The breadth of each bracket. Defaults to 3.
+ */
 export const ParentheticalContainer = styled(Block)<{
   color?: string;
   dimension?: BracketDimension;

@@ -1,121 +1,53 @@
-import { ParentheticalContainer } from "@/renderer/shared/brackets";
+import { useEffect } from "react";
 import {
   ChatMessageProps,
   ChatOnSubmitFunction,
   ChatWindow
-} from "@/renderer/shared/common/components/Chat";
-import { HorizontalLine } from "@/renderer/shared/common/components/HorizontalLine.style";
+} from "@/renderer/shared/common";
 import { Button } from "@/renderer/shared/form";
-import { useIpc } from "@/renderer/shared/ipc";
-import { COLORS, Typography } from "@/renderer/shared/theme";
-import { Grid, Paper, Stack } from "@mui/material";
-import { Project } from "@shared/features/projects";
-import { useQuery } from "@tanstack/react-query";
-import { PropsWithChildren, useEffect, useMemo, useState } from "react";
-import { getProjectHistoryItem, getProjectStatus } from "../utilities";
-import { Link } from "react-router-dom";
-import { PROJECTS_BASE_ROUTE_ABSOLUTE } from "../constants";
+import { ProjectRenderer } from "@/shared/features/projects";
 import { useNavigationRegister } from "@/renderer/shared/navigation";
-import { DoubleArrow } from "@mui/icons-material";
+import { getProjectHistoryItem } from "../utilities";
+import { ProjectHeading } from "./Heading";
+import { ChatMessage, useCommitMessage } from "../hooks";
+import { create } from "zustand";
 
-const Parenthetical = (
-  props: Parameters<typeof ParentheticalContainer>[0]
-) => <ParentheticalContainer roundness={0} style={{
-  padding: '20px',
-  textAlign: 'center',
-}}>{props.children}</ParentheticalContainer>
-
-const HeadingChip = ({ children }: PropsWithChildren) => <Grid
-  flexBasis={0} flexGrow={1}
-><Typography variant="body1">{children}</Typography></Grid>;
-
-const InfoChip = (props: {
-  label: React.ReactNode;
-  value: React.ReactNode;
-}) => <Stack style={{ flexBasis: 0, flexGrow: 1 }}>
-  <Typography variant="h6">{props.label}</Typography>
-  <HorizontalLine />
-  <Typography variant="body1">{props.value}</Typography>
-</Stack>
-
-export const ProjectDetail = (project: Project) => {
-  const status = useMemo(() => getProjectStatus(project), [project]);
-  const { register } = useNavigationRegister();
-
-  const [
-    enableFetchCommitMessage, setEnableFetchCommitMessage
-  ] = useState(false);
-  const {
-    commitProjectStagedFiles,
-    fetchProjectStagedCommitMessage
-  } = useIpc();
-  const { data: stagedCommitMessage } = useQuery({
-    enabled: enableFetchCommitMessage,
-    queryKey: ['project', project.name],
-    queryFn: () => project ? fetchProjectStagedCommitMessage(project) : undefined,
-  });
-  const [messages, setMessages] = useState<ChatMessageProps[]>([]);
-
-  const handleSubmit: ChatOnSubmitFunction = ({ messages }) => {
-    setMessages(messages);
-  };
-
-  const handleGenerateCommitMessage = () => {
-    setEnableFetchCommitMessage(true);
-  };
-
-  const handleCommitStagedFiles = (message: string) => async () => {
-    const { stderr, stdout } = await commitProjectStagedFiles(project, message);
-    const stdoutMessage = {
-      content: <>Commit generated this std output: <Paper>{stdout}</Paper></>,
-      role: 'assistant',
+const store = create<{
+  messages: ChatMessageProps[];
+  addMessage: (message: ChatMessage) => void;
+}>((set) => ({
+  messages: [],
+  addMessage: (message: ChatMessage) => set((state) => ({
+    messages: [{
       timestamp: Date.now(),
-    };
-    if (stderr) {
-      // TODO: Full error message can unfold in a collapsible or accordion or
-      // whatever.
-      setMessages((prev) => [
-        {
-          content: <>An error occurred while committing:</>,
-          role: 'assistant',
-          timestamp: Date.now()
-        },
-        stdoutMessage,
-        ...prev,
-      ]);
-    }
+      role: 'assistant',
+      ...message,
+    }, ...state.messages],
+  })),
+}));
 
-    // TODO: Refetch the staged files for this project.
-    setMessages((prev) => [
-      stdoutMessage,
-      ...prev,
-    ]);
+export const ProjectDetail = (project: ProjectRenderer) => {
+  const { register } = useNavigationRegister();
+  const { addMessage, messages } = store();
 
+  const handleSubmit: ChatOnSubmitFunction = ({ message }) => {
+    addMessage(message);
   };
 
-  useEffect(() => {
-    if (enableFetchCommitMessage && stagedCommitMessage) {
-      setEnableFetchCommitMessage(false);
-      setMessages((prev) => [
-        {
-          actions: <>
-            <Button onClick={handleCommitStagedFiles(stagedCommitMessage)}>
-              Commit
-            </Button>
-          </>,
-          content: <>
-            Commit message for staged files in project "{project.name}":
-            <Paper>{stagedCommitMessage}</Paper>
-          </>,
-          role: 'assistant',
-          timestamp: Date.now()
-        },
-        ...prev,
-      ]);
-    }
-  }, [enableFetchCommitMessage, stagedCommitMessage]);
-
-  console.log(messages, stagedCommitMessage)
+  const {
+    commitChatActivity: chatActivity,
+    // projectIsOutdated, // TODO: Use this to trigger refetch of project.
+    proposeCommitMessage,
+    // TODO: If we're using a store for this specific project across the detail
+    // page (the broader feature) AND the commit message specifically, either we
+    // need to pass the store here or use a provider. Given that we want to
+    // declutter the component, we want a provider. Might be worth having an
+    // additional provider for the chat window store.
+    // setProjectHasUpdated, // Run this when refetching project.
+  } = useCommitMessage(
+    project,
+    addMessage,
+  );
 
   useEffect(() => {
     register(getProjectHistoryItem(project));
@@ -126,40 +58,17 @@ export const ProjectDetail = (project: Project) => {
   // files as well.
 
   return <>
-    <Parenthetical>
-      <Grid container spacing={2}>
-        <Grid size={{ xs: 6, sm: 4 }}>
-          <HeadingChip>
-            <DoubleArrow sx={{ transform: 'rotate(180deg)' }} />
-            <Link
-              style={{
-                color: COLORS.bloodGlow,
-                margin: '0 0.5rem',
-                textDecoration: 'none',
-              }}
-              to={PROJECTS_BASE_ROUTE_ABSOLUTE}
-            >Project List</Link>
-          </HeadingChip>
-        </Grid>
-        <Grid size={{ xs: 6, sm: 4 }}>
-          <HeadingChip>{project.name}</HeadingChip>
-        </Grid>
-      </Grid>
-      <Grid container spacing={2}>
-        <InfoChip label="Local" value={status.local} />
-        <InfoChip label="Git" value={status.git} />
-        <InfoChip label="Unit Tests Installed" value="Unknown" />
-      </Grid>
-    </Parenthetical>
+    <ProjectHeading {...project} />
     <ChatWindow
       actions={<>
-        <Button onClick={handleGenerateCommitMessage}>
+        <Button onClick={proposeCommitMessage}>
           Generate Commit Message
         </Button>
         <Button>Generate Unit Test</Button>
       </>}
       messages={messages}
       onSubmit={handleSubmit}
+      status={chatActivity}
       storageKey="projects"
     />
   </>

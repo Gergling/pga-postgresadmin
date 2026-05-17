@@ -1,17 +1,24 @@
-import { useCallback, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useIpc } from "@/renderer/shared/ipc";
+import { useCallback, useEffect, useMemo } from "react";
 import {
   useNavigationRegister
 } from "@/renderer/shared/navigation";
+import { trpcReact } from "@/renderer/libs/react-query";
 import { getProjectHistoryItem } from "../utilities";
+import { projectCodec } from "@/shared/features/projects";
 
 export const useProjects = () => {
-  const { fetchProjectsList } = useIpc();
-  const { data: projects, refetch } = useQuery({
-    queryKey: ['projects'],
-    queryFn: () => fetchProjectsList(),
-  });
+  const {
+    data,
+    refetch,
+  } = trpcReact.projects.fetchList.useQuery();
+
+  const projects = useMemo(() => {
+    return data?.map(
+      (project) => {
+        return projectCodec.decode(project);
+      }
+    )
+  }, [data])
 
   const getProject = useCallback(
     (projectName: string) => projects?.find((p) => p.name === projectName),

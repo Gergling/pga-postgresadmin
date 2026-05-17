@@ -2,7 +2,7 @@ import { Project } from "@shared/features/projects";
 import { Runetator, RunetatorProps } from "../../svg-viewer/components";
 
 type ProjectRuneProps = {
-  project: Project;
+  project: Pick<Project, 'name'>;
   rune?: Partial<RunetatorProps>;
 };
 

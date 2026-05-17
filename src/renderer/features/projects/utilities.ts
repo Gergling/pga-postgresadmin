@@ -1,31 +1,31 @@
+import { createElement } from "react";
+import { Project, ProjectRenderer } from "@/shared/features/projects";
 import {
   getRelativeTimeStringNow
-} from "@/renderer/shared/common/utilities/relative-time";
+} from "@/renderer/shared/common";
 import { BreadcrumbNavigationHistoryItem } from "@/renderer/shared/navigation";
-import { Project } from "@shared/features/projects";
-import { getTemporalZonedDateTime } from "@shared/lib/temporal";
 import { ProjectRune } from "./components/Rune";
-import { createElement } from "react";
 import { PROJECTS_BASE_ROUTE_ABSOLUTE } from "./constants";
 
-export const getProjectStatus = ({ git, path }: Project): {
+export const getProjectStatus = ({ git, path }: ProjectRenderer): {
   git: string;
   gitLatestCommitDate?: string;
+  gitLastCheck?: string;
   local: string;
 } => {
   const local = path ? 'Yes' : 'No';
-  if (git === undefined) return { git: 'Unknown', local };
-  if (git === false) return { git: 'No', local };
-  const zonedDT = getTemporalZonedDateTime(git.latestCommitDate);
+  if (git === 'unknown') return { git: 'Unknown', local };
+  if (git === 'none') return { git: 'No', local };
   return {
-    git: `${git.staged ?? 'No'} staged files`,
-    gitLatestCommitDate: getRelativeTimeStringNow(zonedDT),
+    git: `${git.totalStagedFiles || 'No'} staged files`,
+    gitLatestCommitDate: getRelativeTimeStringNow(git.latestCommitDate.zonedDateTime),
+    gitLastCheck: getRelativeTimeStringNow(git.lastCheck.zonedDateTime),
     local
   };
 };
 
 export const getProjectHistoryItem = (
-  project: Project,
+  project: Pick<Project, 'name'>,
 ): BreadcrumbNavigationHistoryItem => ({
   icon: () => createElement(ProjectRune, { project }),
   label: `Project: ${project.name}`,

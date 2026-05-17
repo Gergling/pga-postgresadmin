@@ -10,28 +10,12 @@ export const ParentheticalHeadingBracketLine = styled.div<ParentheticalHeadingBr
   size = 20,
   thickness = 3,
 }) => `
-  flex-grow: 1;
-  height: ${size}px;
-  border-top-color: ${color};
-  border-top-style: solid;
-  border-top-width: ${thickness}px;
-  position: relative;
-  
-  /* The Fade */
-  mask-image: linear-gradient(
-    to ${side === 'left' ? 'right' : 'left'}, 
-    black 0%, 
-    transparent 100%
-  );
-
   ${fadingLine({ height: size, thickness, color, direction: side })}
 
   /* The Vertical "Foot" */
   &::before {
     content: '';
     position: absolute;
-    // top: 50%;
-    // transform: translateY(-50%);
     ${side === 'left' ? 'left: 0;' : 'right: 0;'}
     height: ${size}px;
     width: ${thickness}px;

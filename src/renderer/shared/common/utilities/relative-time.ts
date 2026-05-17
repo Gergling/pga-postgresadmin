@@ -1,13 +1,12 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { getRelativeTimeString } from "@shared/lib/temporal";
 
-// TODO: Function needs to be abstracted, since "now" can simply be "later" and
-// the function doesn't change but the usage makes more sense.
 export const getRelativeTimeNow = (
-  earlier: Temporal.ZonedDateTime,
-  now = Temporal.Now.zonedDateTimeISO()
+  start: Temporal.ZonedDateTime | Temporal.PlainDateTime,
+  end = Temporal.Now.plainDateTimeISO()
 ) => {
-  return now.since(earlier, { largestUnit: 'years' });
+  const startPlain = start instanceof Temporal.ZonedDateTime ? start.toPlainDateTime() : start;
+  return startPlain.until(end, { largestUnit: 'years' });
 };
 export const getRelativeTimeStringNow = (earlier: Temporal.ZonedDateTime) => {
   const duration = getRelativeTimeNow(earlier);

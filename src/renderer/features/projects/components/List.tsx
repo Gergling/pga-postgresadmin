@@ -1,14 +1,20 @@
-import { Card, CardContent, CardHeader } from "@/renderer/shared/card";
-import { Grid, Stack } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { useProjects } from "../hooks/all";
-import { Project } from "@shared/features/projects";
 import { useMemo } from "react";
-import { getProjectStatus } from "../utilities";
-import { Temporal } from "@js-temporal/polyfill";
+import { useNavigate } from "react-router-dom";
+import { Grid, Stack } from "@mui/material";
+import { ProjectRenderer } from "@/shared/features/projects";
+import {
+  getRecencyGroup,
+  getRecencyThresholds,
+  RECENCY_GROUPS,
+  RecencyGroupName,
+  RecencyThresholds
+} from "@/shared/features/recency";
+import { Card, CardContent, CardHeader } from "@/renderer/shared/card";
 import { Typography } from "@/renderer/shared/theme";
+import { useProjects } from "../hooks";
+import { getProjectStatus } from "../utilities";
 
-const ProjectCard = (project: Project) => {
+const ProjectCard = (project: ProjectRenderer) => {
   const { git, gitLatestCommitDate, local } = useMemo(
     () => getProjectStatus(project),
     [project]
@@ -34,81 +40,29 @@ const ProjectCard = (project: Project) => {
   </Grid>
 };
 
-const RECENCY_GROUPS = [
-  'today',
-  'recent days',
-  'recent weeks',
-  'recent months',
-  'this year', 'last year',
-  'older',
-] as const;
-
 const NOT_SOURCE_CONTROLLED = 'not source-controlled';
+const getGroupNameFactory = (
+  thresholds: RecencyThresholds
+) => ({ git }: ProjectRenderer) => {
+  if (typeof git !== 'object') return NOT_SOURCE_CONTROLLED;
+  return getRecencyGroup(
+    git.latestCommitDate.zonedDateTime.epochMilliseconds, thresholds
+  );
+};
 
-type RecencyGroupName = typeof RECENCY_GROUPS[number];
 
 type ProjectGroup = {
-  projects: Project[];
+  projects: ProjectRenderer[];
   name: RecencyGroupName | typeof NOT_SOURCE_CONTROLLED;
-};
-
-type RecencyThresholds = {
-  beginningLastYear: number;
-  beginningThisYear: number;
-  threeMonthsAgo: number;
-  threeWeeksAgo: number;
-  sevenDaysAgo: number;
-  threeDaysAgo: number;
-};
-
-const getRecencyThresholds = (): RecencyThresholds => {
-  const now = Temporal.Now.zonedDateTimeISO();
-  const beginningLastYear = now.with({
-    year: now.year - 1, month: 1, day: 1, hour: 0, minute: 0, second: 0
-  }).epochMilliseconds;
-  const beginningThisYear = now.with({
-    year: now.year, month: 1, day: 1, hour: 0, minute: 0, second: 0
-  }).epochMilliseconds;
-  const threeMonthsAgo = now.subtract({ months: 3 }).epochMilliseconds;
-  const threeWeeksAgo = now.subtract({ weeks: 3 }).epochMilliseconds;
-  const sevenDaysAgo = now.subtract({ days: 7 }).epochMilliseconds;
-  const threeDaysAgo = now.subtract({ days: 3 }).epochMilliseconds;
-  return {
-    beginningLastYear,
-    beginningThisYear,
-    threeMonthsAgo,
-    threeWeeksAgo,
-    sevenDaysAgo,
-    threeDaysAgo,
-  };
-};
-
-const getRecencyGroup = (
-  milliseconds: number, {
-    beginningLastYear,
-    beginningThisYear,
-    threeMonthsAgo,
-    threeWeeksAgo,
-    sevenDaysAgo,
-  }: RecencyThresholds
-): RecencyGroupName => {
-  if (sevenDaysAgo < milliseconds) return 'recent days';
-  if (threeWeeksAgo < milliseconds) return 'recent weeks';
-  if (threeMonthsAgo < milliseconds) return 'recent months';
-  if (beginningThisYear < milliseconds) return 'this year';
-  if (beginningLastYear < milliseconds) return 'last year';
-  return 'older';
 };
 
 export const ProjectsList = () => {
   const { projects } = useProjects();
   const groups = useMemo(() => {
     const thresholds = getRecencyThresholds();
+    const getGroupName = getGroupNameFactory(thresholds);
     const map = (projects ?? []).reduce((map, project) => {
-      const groupName = project.git
-        ? getRecencyGroup(project.git.latestCommitDate, thresholds)
-        : NOT_SOURCE_CONTROLLED
-      ;
+      const groupName = getGroupName(project);
       const group = map.get(groupName);
       const projects = group ? group.projects : [];
       return map.set(groupName, {

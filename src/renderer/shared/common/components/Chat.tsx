@@ -1,4 +1,5 @@
 import { Button, TextField } from '@/renderer/shared/form';
+import { Slab } from '../../base';
 import { Box, Grid, Stack } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 
@@ -18,12 +19,14 @@ type ChatWindowProps = {
   actions?: React.ReactNode;
   messages: ChatMessageProps[];
   onSubmit: ChatOnSubmitFunction;
+  status?: string;
   storageKey: string;
 };
 export const ChatWindow = ({
   actions,
   messages,
   onSubmit,
+  status,
   storageKey,
 }: ChatWindowProps) => {
   const [input, setInput] = useState<string>('');
@@ -32,14 +35,6 @@ export const ChatWindow = ({
     setInput(val);
     localStorage.setItem(storageKey, val);
   };
-
-  // Only update input from localStorage on initial load
-  useEffect(() => {
-    const savedText = localStorage.getItem(storageKey);
-    if (savedText) {
-      setInput(savedText);
-    }
-  }, []);
 
   const handleSubmitMessage = () => {
     if (!input.trim()) return;
@@ -62,6 +57,14 @@ export const ChatWindow = ({
     console.log('Message submitted:', input);
   };
 
+  // Only update input from localStorage on initial load
+  useEffect(() => {
+    const savedText = localStorage.getItem(storageKey);
+    if (savedText) {
+      setInput(savedText);
+    }
+  }, []);
+
   // TODO: Chat bubbles need styling.
 
   return (
@@ -79,16 +82,25 @@ export const ChatWindow = ({
         {actions}
       </Grid>
 
-      <Stack spacing={2} sx={{ border: '1px solid #ccc', minHeight: '50px', overflowY: 'scroll' }}>
-        {messages.map((msg, i) => (
-          <Box key={i} style={{ margin: '10px' }}>
-            <strong>{msg.role}:</strong>
-            <div>{msg.content}</div>
-            {msg.actions && <Grid container spacing={2}>
-              {msg.actions}
-            </Grid>}
-          </Box>
-        ))}
+      <Stack spacing={2} sx={{
+        border: '1px solid #ccc',
+        minHeight: '50px',
+        overflowY: 'scroll'
+      }}>
+        <Slab>
+          {status && <div>{status}</div>}
+          {messages.map((msg, i) => (
+            <Box key={i} style={{ margin: '10px' }}>
+              <div>
+                <strong>{msg.role}:</strong>
+              </div>
+              <div>{msg.content}</div>
+              {msg.actions && <Grid container spacing={2}>
+                {msg.actions}
+              </Grid>}
+            </Box>
+          ))}
+        </Slab>
       </Stack>
     </Stack>
   );

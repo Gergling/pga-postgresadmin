@@ -6,9 +6,12 @@ type TriageProps<
   T extends object,
   MandatoryProps extends keyof T = keyof T,
   OptionalProps extends keyof T = keyof T,
->
-= Pick<T, MandatoryProps>
-& Partial<Pick<T, OptionalProps>>;
+> = Pick<T, MandatoryProps> & Partial<Pick<T, OptionalProps>>;
+
+export type RitualTelemetrySubscriptionParamsProjectProps = {
+  name: string; // The name of the project.
+  operation: 'commit-message'; // Which operation was being run.
+};
 
 export type RitualTelemetrySubscriptionParams = {
   // Always supply a summary message and a timestamp for when this was sent. JIC I want it.
@@ -19,10 +22,7 @@ export type RitualTelemetrySubscriptionParams = {
   timestamp: number;
 
   // This section contains project management updates.
-  project?: {
-    name: string; // The name of the project.
-    operation: 'commit-message'; // Which operation was being run.
-  };
+  project?: RitualTelemetrySubscriptionParamsProjectProps;
 
   // This section contains initial task creation analysis.
   triage?: {

@@ -2,24 +2,29 @@ type BaseProps = {
   seeder: () => number;
 };
 
-// TODO: Diacritic probability should be maybe 0.01.
 const characterCategories = {
   vowel: {
-    lower: 'aeiouyàáâãäåæèéêëìíîïðòóôõöùúûüýÿą',
-    // lower: 'aeiouyàáâãäåæèéêëìíîïðòóôõöøùúûüýÿª°ą',
-    upper: 'AEIOUYÀÁÂÃÄÅÆÈÉÊËÌÍÎÏÒÓÔÕÖÙÚÛÜÝŸĀĂĄ',
-    // upper: 'AEIOUYÀÁÂÃÄÅÆÈÉÊËÌÍÎÏÒÓÔÕÖØÙÚÛÜÝŸĀĂĄ',
+    lower: 'aeiouy',
+    upper: 'AEIOUY',
   },
   soft: {
-    lower: 'cfhjlmnrsvwxzçćĉñ',
-    upper: 'CFHJLMNRSVWXZÇĆĈĈÑ',
+    lower: 'cfhjlmnrsvwxz',
+    upper: 'CFHJLMNRSVWXZ',
   },
   hard: {
     lower: 'bdgkpqt',
-    upper: 'BDGKPQTÐß',
+    upper: 'BDGKPQT',
   },
   number: '²³º¼½¾' + Array.from({ length: 10 }, (_, i) => i).join(''),
 } as const;
+
+// TODO: Diacritic probability should be maybe 0.01.
+const diacritics = {
+  a: 'àáâãäåąæ', e: 'æèéêë', i: 'ìíîï', o: 'ðòóôõö', u: 'ùúûü', y: 'ýÿ',
+  A: 'ÀÁÂÃÄÅĀĂĄÆ', E: 'ÆÈÉÊË', I: 'ÌÍÎÏ', O: 'ÒÓÔÕÖ', U: 'ÙÚÛÜ', Y: 'ÝŸ',
+  c: 'çćĉ', n: 'ñ', s: 'çćĉ',
+  C: 'ÇĆĈ', N: 'Ñ', S: 'ÇĆĈ', B: 'ß', D: 'Ð',
+};
 
 // Words should commonly be a mean of 1 syllable with a STD of 1 or 2.
 

@@ -72,3 +72,7 @@ export const getTemporalZonedDateTime = (
   .fromEpochMilliseconds(epochMilliseconds)
   .toZonedDateTimeISO(timeZoneId)
 ;
+
+export const getTemporalZonedDateTimeGroupKey = (
+  group: (keyof Temporal.ZonedDateTime)[]
+) => group.join('-');

@@ -1,3 +1,4 @@
+// TODO: Evaluate usage against zod codecs.
 // Utilities mapping between transfer types and other types.
 
 export function toTransferDate(value: Date): number;

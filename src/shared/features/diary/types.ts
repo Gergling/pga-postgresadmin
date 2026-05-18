@@ -30,7 +30,9 @@ export type DiaryEntry = DiaryEntryBase & {
   created: number;
 }
 
-
+/**
+ * @deprecated Use the other one.
+ */
 export interface DiaryEntryDb extends DiaryEntryBase {
   created: number;
 }

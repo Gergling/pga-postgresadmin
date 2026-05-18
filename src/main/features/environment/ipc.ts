@@ -5,10 +5,14 @@ import {
   getVessel,
   saveElectronSettings,
 } from '@/main/shared';
-import { initializeFirebase } from "@/main/libs/firebase";
+import {
+  initializeFirebase,
+  isFirebaseDevEnabled
+} from "@/main/libs/firebase";
 import { tRPC } from '@main/config';
 
 export const environmentRouter = tRPC.router({
+  devEnabled: tRPC.procedure.query(() => isFirebaseDevEnabled),
   get: tRPC.procedure.query(async () => {
     const value = await loadElectronSettings('env');
     return EnvironmentPropsSchema.parse(value);

@@ -2,37 +2,70 @@ import {
   LanguageModelSourceLevelResponse,
   log,
 } from "@/main/shared";
+import { ApiError } from "@google/genai";
+import z from "zod";
+
+const ApiErrorInfoSchema = z.object({
+  message: z.string(),
+  status: z.number(),
+});
 
 export const catchGeminiError = (
   caught: unknown,
   model: string,
 ): LanguageModelSourceLevelResponse => {
   if (typeof caught !== 'object' || caught === null) throw caught;
-
-  // If we can break down the error, we do, or we just throw.
-  if ('status' in caught) {
-    switch(caught.status) {
+  
+  const apiErrorInfo = ApiErrorInfoSchema.safeParse(caught);
+  if (apiErrorInfo.success) {
+    const apiError = new ApiError(apiErrorInfo.data);
+    switch(apiError.status) {
       case 503: return {
+        canRetry: true,
         model,
         status: 'traffic',
       };
       case 429: 
-      log('Gemini called too many times (429). Handling may require nuance.', 'error');
-      console.error(caught);
+      try {
+        const parsed = JSON.parse(apiError.message);
+        const reduced = parsed.error.details.reduce((acc: any, detail: any) => {
+          switch (detail['@type']) {
+            case 'type.googleapis.com/google.rpc.QuotaFailure': return {
+              ...acc,
+              violations: detail.violations,
+            };
+            case 'type.googleapis.com/google.rpc.RetryInfo': return {
+              ...acc,
+              retryDelay: detail.retryDelay.replace('s', '') * 1,
+            };
+          }
+        }, { retryDelay: 0, violations: [] } as {
+          // TODO: Update violations to be an actual type instead of this static nonsense.
+          retryDelay: number, violations: {
+            quotaMetric: 'generativelanguage.googleapis.com/generate_content_free_tier_requests',
+            quotaId: 'GenerateRequestsPerDayPerProjectPerModel-FreeTier',
+            quotaDimensions: { location: 'global', model: 'gemini-3-flash' },
+            quotaValue: '20'
+          }[],
+        });
+        return {
+          canRetry: true,
+          model,
+          retryTimeout: reduced.retryDelay,
+          status: 'rate-limitations',
+        }
+      } catch (e) {
+        log('Gemini 429 error. Could not parse message as JSON.', 'error');
+        console.error(apiError, caught, e);
+      }
       return {
+        canRetry: true,
         model,
         status: 'rate-limitations',
       };
     }
   } else {
-    console.error(`No status code available. Needs a handler.`);
-  }
-
-  if ('error' in caught) {
-    console.error(`Caught object contained an error property which will need a handler:`);
-    console.error(caught.error);
-  } else {
-    console.error(`No error property available. Needs a handler.`);
+    console.error(`Error is not an ApiErrorInfo object.`);
   }
 
   log(`Available error object keys:`, 'error');

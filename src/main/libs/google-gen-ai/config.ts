@@ -19,6 +19,7 @@ export const googleLanguageModelConfig = languageModelSourceLevelConfig({
       return [
         ...acc,
         {
+          local: false,
           name, thinking, temperature,
           tokenLimits: {
             input: model.inputTokenLimit,
@@ -40,7 +41,11 @@ export const googleLanguageModelConfig = languageModelSourceLevelConfig({
         },
       });
       if (response.text === undefined) throw new Error(`Model generated an undefined response. This will need handling.`);
+      // TODO: Need a separate status output for a response which has succeeded
+      // in generating the output, but may need to try again if it didn't follow
+      // the schema when outputting the JSON format.
       return {
+        canRetry: false,
         model,
         response: response.text,
         status: 'success',

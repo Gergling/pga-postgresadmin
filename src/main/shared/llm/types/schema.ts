@@ -6,15 +6,20 @@ const LanguageModelResponseSchemaBase = z.object({
 const LanguageModelResponseSchemaSourceExtension = z.object({
   source: z.string(),
 });
+const LanguageModelResponseSchemaRetryTimeoutExtension = z.object({
+  retryTimeout: z.number().optional(),
+});
 const getLanguageModelResponseSchemaSuccessExtension = <T>(
   response: z.ZodType<T>
 ) => z.object({
+  ...LanguageModelResponseSchemaRetryTimeoutExtension.shape,
   canRetry: z.literal(false),
   response: response ?? z.string(), status: z.literal('success')
 });
 const LanguageModelResponseSchemaRetryableExtension = z.object({
+  ...LanguageModelResponseSchemaRetryTimeoutExtension.shape,
   canRetry: z.literal(true),
-  retryTimeout: z.number().optional(),
+  // retryTimeout: z.number().optional(),
   status: z.union([
     z.literal('rate-limitations').describe(
       'Model access was rate-limited (e.g. 429).'

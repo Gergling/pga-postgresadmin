@@ -4,16 +4,18 @@ import { tRPC } from '@/main/config';
 import {
   diaryRouter,
   environmentRouter,
+  explorerRouter,
   projectsRouter,
   settingsRouter,
   systemRouter,
-} from '@main/features';
+} from '@/main/features';
 
 const ee = new EventEmitter();
 
 export const router = tRPC.router({
   diary: diaryRouter,
   environments: environmentRouter,
+  explorer: explorerRouter,
   projects: projectsRouter,
   settings: settingsRouter,
   system: systemRouter,

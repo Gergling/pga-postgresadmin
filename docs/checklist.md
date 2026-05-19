@@ -56,7 +56,8 @@ Using the application will be easier if there is a "production mode" to run it i
     - [X] Implement electron-vite. Completion is a working development-mode application.
     - [X] Implement electron-vite's beta. Completion is a working development-mode application.
     - [X] Get `make` working to prove a build will work at all.
-    - [ ] Fix production build so it's not a white background.
+    - [X] Fix production build so it's not a white background.
+    - [ ] Switch off dev features in production build.
   - [ ] Build workflow should trigger from a new tag created.
 - Self-downloading mechanism, in which the latest build alerts IF of a higher version than the current interface build.
   - [ ] Component in Settings should check github for releases and provide a version for the latest.
@@ -157,6 +158,22 @@ A project essentially has two phases: Setup and maintenance. Some examples:
 - ACX
   - Setup: Make an account
   - Maintenance: Do some recordings
+
+### Project Commit Message Caching
+
+This is to solve the problem of waiting on the AI to generate responses while
+doing other things.
+
+The idea is to take a hash of staged commit changes and evaluate it when the project is opened up. A commit message object is stored against the project, along with the hashed string. If the project's staged files hash to the same string, the commit message is still valid. Otherwise we're done with it. Ideally a successful commit should delete the cache anyway. Ideally the cache is on the main side, probably using electron settings.
+
+This means it should be possible to store commit messages against multiple projects while awaiting feedback concurrently.
+
+#### Tasks
+- [ ] Implement an electron setting for project commit message objects. While this could be an object, deletion might be easier via an array. The record key should be the project name. If the has doesn't match, the output object can simply omit the key for the project.
+- [ ] Implement a hashing function that transforms the staged code. For consistency, it should be based against the function which extracts the staged code.
+- [ ] Ideally, getting the staged code, hashing, comparing with the stored commit message for the project, and deleting if the hash doesn't match, all happen within a single function which runs before the language model runs. That way, the language model doesn't need to run if there is a legitimate commit message already.
+- [ ] If the language model runs, the output can be saved to the electron settings. This can simply override, but TBH it shouldn't exist at this point because it should have been deleted or used instead.
+- [ ] Cached or not, the output should go through the IPC.
 
 ## Done
 

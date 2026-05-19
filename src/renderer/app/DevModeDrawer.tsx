@@ -1,5 +1,5 @@
 // TODO: Library candidate.
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
   Box,
@@ -9,40 +9,29 @@ import {
   Typography,
   Switch,
   FormControlLabel,
-  Grid
+  Grid,
+  Stack
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import BuildCircleIcon from '@mui/icons-material/BuildCircle';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { MetricChip, useTheme } from '@gergling/ui-components';
-import { useIpc } from '../shared/ipc';
 import { ResponsiveIndicator } from '../shared/common/components/ResponsiveIndicator';
+import { Start } from '@mui/icons-material';
+import { trpcReact } from '../libs/react-query';
 
 const useEnvironment = () => {
-  const { getEnvironment: queryFn, setEnvironment: set } = useIpc();
-  const queryClient = useQueryClient();
-  const {
-    data: environment,
-  } = useQuery({
-    queryKey: ['environment'],
-    queryFn,
-  });
-  const {
-    mutate: setIsProd,
-  } = useMutation({
-    mutationFn: (isProd: boolean) => set(isProd ? 'prod' : 'dev'),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['environment']});
-      // window.location.reload();
-    },
-  });
+  const { data: environment } = trpcReact.environments.get.useQuery();
+  const { mutate: setIsProd } = trpcReact.environments.set.useMutation();
 
   const isProd = useMemo(() => environment === 'prod', [environment]);
+  const toggleEnvironment = useCallback(
+    () => setIsProd(isProd ? 'dev' : 'prod'), [isProd]
+  );
 
   return {
     isProd,
-    setIsProd,
+    toggleEnvironment,
   };
 };
 
@@ -63,7 +52,7 @@ const usePersistent = (key: string) => {
 };
 
 export const DevModeOverlay = () => {
-  const { isProd, setIsProd } = useEnvironment();
+  const { isProd, toggleEnvironment } = useEnvironment();
   const { item: expanded, setItem: setExpanded } = usePersistent('devModeDrawerExpanded');
   const { item: isFixedPosition, setItem: setFixedPosition } = usePersistent('devModeDrawerFixedPosition');
 
@@ -74,7 +63,7 @@ export const DevModeOverlay = () => {
   const handleToggleEnv = () => {
     const confirmChange = window.confirm(`Switch to ${!isProd ? 'PRODUCTION' : 'DEVELOPMENT'}? The app will reload.`);
     if (confirmChange) {
-      setIsProd(!isProd);
+      toggleEnvironment();
     }
   };
 
@@ -85,9 +74,14 @@ export const DevModeOverlay = () => {
         <Paper elevation={4} sx={{ p: 2, borderRadius: 0, borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
           <Grid container spacing={4} alignItems="center" justifyContent="center" flexWrap={'wrap'}>
             <Grid sx={{ flexBasis: '120px' }}>
-              <Typography variant="overline" color="primary" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1 }}>
-                <BuildCircleIcon fontSize="small" /> Dev Engine
-              </Typography>
+              <Stack>
+                <Typography variant="overline" color="primary" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <BuildCircleIcon fontSize="small" /> Dev Engine
+                </Typography>
+                <Typography variant="overline" color="primary" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Start fontSize="small" /> {new Date().toLocaleTimeString()}
+                </Typography>
+              </Stack>
             </Grid>
 
             <Grid sx={{ flex: '1 0 180px' }}>

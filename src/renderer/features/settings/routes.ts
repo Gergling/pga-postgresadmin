@@ -5,7 +5,7 @@ import { SettingsRoot } from "./components";
 
 export const SETTINGS_ROUTES: UiNavigationConfigItem = {
   icon: runeFactory('Settings'),
-  label: 'Setting',
+  label: 'Settings',
   path: SETTINGS_BASE_ROUTE,
   element: SettingsRoot,
 };

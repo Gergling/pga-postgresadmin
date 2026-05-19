@@ -15,7 +15,7 @@ const { useAppForm } = createFormHook({
 });
 
 export const useSettingsEditor = () => {
-  const { data: allSettings } = trpcReact.settings.fetchAll.useQuery();
+  const { data: allSettings } = trpcReact.settings.fetchApp.useQuery();
   const { mutate } = trpcReact.settings.update.useMutation();
   const form = useAppForm({
     defaultValues: allSettings,

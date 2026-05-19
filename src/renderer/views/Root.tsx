@@ -11,12 +11,18 @@ import { PhraseDuJour } from "../features/banners";
 import { useProjectNavigation } from "../features/projects";
 import { Box } from "@mui/material";
 import { StatusOverview } from "../features/status";
+import { trpcReact } from "../libs/react-query";
 // import type {} from '@mui/x-date-pickers/themeAugmentation';
 
 const useApp = () => {
   const { pathname, search } = useLocation();
   const { setTheme } = useTheme();
-  const { drawer: { setIsAvailable: setDiaryQuickEntryAvailability } } = useDiary();
+  const { drawer: {
+    setIsAvailable: setDiaryQuickEntryAvailability
+  } } = useDiary();
+  const {
+    data: devEnabled,
+  } = trpcReact.environments.devEnabled.useQuery();
 
   useEffect(() => {
     setTheme({ mode: 'dark', project: 'gds' });
@@ -32,6 +38,7 @@ const useApp = () => {
   useTaskNavigation();
 
   return {
+    devEnabled,
     pathname,
     search,
   };
@@ -54,7 +61,7 @@ const LAYOUT_MEASUREMENTS = Object.entries(LAYOUT_CONFIG).reduce(
 );
 
 export const RootView = () => {
-  const { pathname, search } = useApp();
+  const { devEnabled, pathname, search } = useApp();
 
   return (
     <ErrorBoundary fallback={<NavigationFallback>Something bad has happened.</NavigationFallback>}>
@@ -66,7 +73,7 @@ export const RootView = () => {
         right: 0,
         bottom: LAYOUT_MEASUREMENTS.MAIN_BOTTOM,
       }}>
-        <DevModeOverlay />
+        {devEnabled && <DevModeOverlay />}
 
         <ErrorBoundary fallback={<NavigationFallback>Navigation has failed.</NavigationFallback>}>
           <NavigationBreadcrumbs />

@@ -1,6 +1,6 @@
 import { RouterProvider } from "react-router-dom";
 import { NavigationRegisterProvider } from "../shared/navigation/context";
-import { NAVIGATION_ROUTER } from "../shared/navigation/constants";
+import { NAVIGATION_ROUTER } from "./routes";
 
 export const NavigationProvider = () => {
   return (

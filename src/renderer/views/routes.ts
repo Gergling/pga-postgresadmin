@@ -14,6 +14,7 @@ import { PROJECT_ROUTES } from "@/renderer/features/projects/routes";
 import { reduceRoutes } from "../shared/navigation/utilities";
 import { SETTINGS_ROUTES } from "../features/settings";
 import { HOME_BASE_ROUTE, HOME_ROUTES } from "../features/home";
+import { EXPLORER_ROUTES } from "../features/explorer";
 
 const lazyImports = {
   root: lazyImport(() => import('./Root')),
@@ -44,6 +45,7 @@ const config: UiNavigationConfigItem = {
     },
     PROJECT_ROUTES,
     SETTINGS_ROUTES,
+    EXPLORER_ROUTES,
     {
       icon: getNavigationIcon(Placeholder),
       label: 'SVG Viewer',

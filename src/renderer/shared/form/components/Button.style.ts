@@ -8,7 +8,6 @@ export const Button = styled(MuiButton)`
   border: 1px solid ${COLORS.ruddy};
   font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
-  margin-top: 24px;
   transition: all 0.3s ease;
   ${neonTextShadow({ color: alpha(COLORS.ruddy, 0.5) })}
 

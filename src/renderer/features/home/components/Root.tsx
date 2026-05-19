@@ -18,7 +18,7 @@ const seeder = () => Math.random();
 const paragraphs = Array.from({ length: 3 }, () => generateParagraph({ seeder }));
 
 export const HomeRoot = () => {
-  const { entries } = useDiaryPanels();
+  const entries = useDiaryPanels();
   console.log('home diary entries data', entries)
 
   return <div>

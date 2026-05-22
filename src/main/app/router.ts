@@ -6,6 +6,7 @@ import {
   environmentRouter,
   explorerRouter,
   projectsRouter,
+  releaseRouter,
   settingsRouter,
   systemRouter,
 } from '@/main/features';
@@ -17,6 +18,7 @@ export const router = tRPC.router({
   environments: environmentRouter,
   explorer: explorerRouter,
   projects: projectsRouter,
+  release: releaseRouter,
   settings: settingsRouter,
   system: systemRouter,
 

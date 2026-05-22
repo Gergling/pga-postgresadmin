@@ -43,11 +43,12 @@ type ProgressBarBaseProps = {
   discrete?: boolean;
   style?: React.CSSProperties;
 };
+type ProgressBarUnknownProps = ProgressBarBaseProps & { value?: never; };
 type ProgressBarBooleanProps = ProgressBarBaseProps & { value: number; };
 type ProgressBarSegmentsProps = ProgressBarBaseProps & { segments: ProgressBarSegmentProps[]; };
 
 export type ProgressBarProps = 
-  | ProgressBarBaseProps
+  | ProgressBarUnknownProps
   | ProgressBarBooleanProps
   | ProgressBarSegmentsProps
 ;
@@ -84,7 +85,7 @@ export const ProgressBar = (props: ProgressBarProps) => {
     return false;
   }, [props]);
 
-  if ('value' in props) return <ProgressBarBoolean {...props} discrete={discrete} />;
+  if ('value' in props && props.value !== undefined) return <ProgressBarBoolean {...props} discrete={discrete} />;
 
   if ('segments' in props) return <ProgressBarSegments {...props} discrete={discrete} />;
 

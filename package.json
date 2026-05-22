@@ -19,6 +19,16 @@
     "orchestrate": "tsx scripts/agent/orchestrator",
     "scripts-main": "tsx scripts/main/run.ts"
   },
+  "build": {
+    "appId": "com.gergling.wsu",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "gergling",
+        "repo": "postgresadmin"
+      }
+    ]
+  },
   "keywords": [],
   "author": {
     "name": "Greg",
@@ -88,6 +98,7 @@
     "dotenv": "^17.2.3",
     "electron-settings": "^4.0.4",
     "electron-squirrel-startup": "^1.0.1",
+    "electron-updater": "^6.8.3",
     "firebase": "^12.7.0",
     "firebase-admin": "^13.6.0",
     "imapflow": "^1.2.3",

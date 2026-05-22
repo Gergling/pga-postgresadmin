@@ -1,5 +1,6 @@
 export * from './aggregator';
 export * from './colour';
+export * from './history';
 export * from './initialiser';
 export * from './maths';
 export * from './object';

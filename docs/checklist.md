@@ -175,6 +175,42 @@ This means it should be possible to store commit messages against multiple proje
 - [ ] If the language model runs, the output can be saved to the electron settings. This can simply override, but TBH it shouldn't exist at this point because it should have been deleted or used instead.
 - [ ] Cached or not, the output should go through the IPC.
 
+### Calendar/Weather Integration
+
+Basically shows my (Google) calendar with the expected weather on the given days.
+
+This is also an opportunity to apply my IDA (information -> decision -> action) system for clothing choices on those days if I'm going out.
+
+Features will therefore include:
+- API for reading calendar events.
+- API for getting weather.
+- Calendar view (simple to begin with, but may have a day/week/month stack of some kind in the interface, since that's not difficult to do).
+- Calendar will include basic weather information to begin with.
+- Could have a panel for showing a list of requirements in terms of clothing for the selected day.
+- Technically out of scope, but data could project spikes in laundary due to things like jumper and trousers usage. Ideally this would be projected by logging laundry cycles.
+
+#### Logic
+
+IDA thresholds are as follows:
+- Wind: None < 5mph: Low <= 10mph: Medium <= 15mph: High
+- Temperature: Freezing < 5C: Cold <= 13C: Cool <= 18C: Room <= 21C: Warm <= 25C: Hot <= 30C: Very Hot
+- Rain: None < 5% @ 1mm: Some
+- Direct Sunlight needs thresholds and measurements, but for now: Direct|Some|Cloudy|Dark.
+
+Clothing options:
+- Bottoms: Trousers|Shorts. Formal descriptor should be an option later dependent on events.
+- Top: Thick|Sleeves|None.
+- Coat: Two dimensions. Rain is None|Some|Backup (for low wind and maybe high temperature when an umbrella is preferred), Thick is boolean. Backup is either part of the rain dimension or an additional dimension (need to decide).
+- Umbrella: None|Yes|Backup.
+
+Decisions:
+- Cool with no wind or rain and direct sunlight is the lowest shorts/t-shirt temperature.
+- Rain at 30C can be considered the maximum temperature for a raincoat.
+- Raincoat weather without wind (below 5mph) can substitute an umbrella. Should always include a backup raincoat.
+- 25C with wind below, say 10mph
+
+### Calendar/Email Event Creation
+
 ## Done
 
 It's good to have a list of your achievements.

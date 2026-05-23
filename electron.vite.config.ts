@@ -7,14 +7,14 @@ import {
   pluginHotRestart
 } from './vite.base.config';
 
-const exclude = ['electron', 'trpc-electron'];
+const noExternal = ['electron-updater', 'trpc-electron'];
+
+const exclude = ['electron', ...noExternal];
 
 const external = [
   '@trpc/server',
   '@trpc/server/observable',
 ];
-
-const noExternal = ['trpc-electron'];
 
 const outDirRoot = 'dist';
 

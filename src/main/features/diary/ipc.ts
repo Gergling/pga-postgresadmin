@@ -1,28 +1,16 @@
-import { DiaryEntry, DiaryIpc } from "../../../shared/features/diary/types";
-import { createNewDiaryEntry, fetchRecentDiaryEntries, updateDiaryEntry } from "./db";
-import { triageCommittedDiaryEntries } from "./triage";
+import { tRPC } from "@/main/config";
+import { createNewDiaryEntry, fetchRecentDiaryEntries } from "./db";
+import { diaryEntryTransferSchema } from "@shared/features/diary";
 
-export const diaryIpc = (): DiaryIpc => {
-  return {
-    create: {
-      entry: createNewDiaryEntry
+export const diaryRouter = tRPC.router({
+  create: tRPC.procedure.input(diaryEntryTransferSchema).mutation(
+    async ({ input }) => {
+      const payload = await createNewDiaryEntry(input.payload);
+      return diaryEntryTransferSchema.parse({ ...input, payload });
     },
-    read: {
-      recent: fetchRecentDiaryEntries,
-    },
-    update: {
-      set: async (entryId: string, newData: Partial<DiaryEntry>, immediateConvergence?: boolean) => {
-        const entry = await updateDiaryEntry(entryId, newData);
-        if (newData.status === 'committed') {
-          if (immediateConvergence) {
-            // initiate triage for this 
-          } else {
-            // initiate triage for committed
-            triageCommittedDiaryEntries();
-          }
-        }
-        return entry;
-      }
-    },
-  };
-};
+  ),
+  fetchRecent: tRPC.procedure.query(async () => {
+    const entries = await fetchRecentDiaryEntries();
+    return entries.map(entry => diaryEntryTransferSchema.parse({ ...entry, payload: entry }));
+  }),
+});

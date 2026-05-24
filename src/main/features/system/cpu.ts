@@ -19,6 +19,8 @@ const getCpuUsageSnapshot = () => summariseCpuUsage(os.cpus());
 
 /**
  * Takes a CPU usage snapshot every second.
+ * @todo Move into a child thread JIC. It needs to run consistently on its own,
+ * and the other operations are just for fetching the data.
  */
 const tick = async () => {
   /**

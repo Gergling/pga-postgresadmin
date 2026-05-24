@@ -1,9 +1,9 @@
 import firebaseAdmin from "firebase-admin";
-import { DiaryEntry, DiaryIpc } from "../../../shared/features/diary/types";
-import { Mandatory, Optional } from "../../../shared/types";
-import { getFirebaseDb } from "../../libs/firebase";
+import { DiaryEntry, DiaryIpc } from "../../../../shared/features/diary/types";
+import { Mandatory, Optional } from "../../../../shared/types";
+import { getFirebaseDb } from "../../../libs/firebase";
 
-type DiaryEntryDb = Optional<DiaryEntry, 'id'>;
+// type DiaryEntryDb = Optional<DiaryEntry, 'id'>;
 
 const converter: firebaseAdmin.firestore.FirestoreDataConverter<Optional<DiaryEntry, 'id'>> = {
   toFirestore: (task) => task,
@@ -17,46 +17,46 @@ export const diaryEntryCollection = () => getFirebaseDb()
   .collection('diary_entries')
   .withConverter(converter);
 
-export const createNewDiaryEntry: DiaryIpc['create']['entry'] = async (entryEnvelope) => {
-  // Envelope id is a temporary id generated from the renderer. It should simply be returned.
-  const entry = entryEnvelope.content;
-  const record: DiaryEntryDb = {
-    created: Date.now(),
-    status: 'draft',
-    ...entry
-  };
-  try {
-    const { id } = await diaryEntryCollection().add(record);
-    return { ...entryEnvelope, content: { ...record, id } };
-  } catch (error) {
-    console.error("Create Failed:", error);
-    throw error;
-  }
-};
+// export const createNewDiaryEntry: DiaryIpc['create']['entry'] = async (entryEnvelope) => {
+//   // Envelope id is a temporary id generated from the renderer. It should simply be returned.
+//   const entry = entryEnvelope.content;
+//   const record: DiaryEntryDb = {
+//     created: Date.now(),
+//     status: 'draft',
+//     ...entry
+//   };
+//   try {
+//     const { id } = await diaryEntryCollection().add(record);
+//     return { ...entryEnvelope, content: { ...record, id } };
+//   } catch (error) {
+//     console.error("Create Failed:", error);
+//     throw error;
+//   }
+// };
 
 // Mainly for rendering.
-export const fetchRecentDiaryEntries = async (): Promise<DiaryEntry[]> => {
-  try {
-    const ref = diaryEntryCollection();
-    const recentQuery = ref.orderBy('created', 'desc').limit(10);
-    const statusQuery = ref.where('status', 'in', ['processing', 'committed', 'draft']);
+// export const fetchRecentDiaryEntries = async (): Promise<DiaryEntry[]> => {
+//   try {
+//     const ref = diaryEntryCollection();
+//     const recentQuery = ref.orderBy('created', 'desc').limit(10);
+//     const statusQuery = ref.where('status', 'in', ['processing', 'committed', 'draft']);
   
-    const [recentSnapshot, statusSnapshot] = await Promise.all([
-      recentQuery.get(),
-      statusQuery.get(),
-    ]);
+//     const [recentSnapshot, statusSnapshot] = await Promise.all([
+//       recentQuery.get(),
+//       statusQuery.get(),
+//     ]);
   
-    const entryMap = new Map();
+//     const entryMap = new Map();
   
-    recentSnapshot.forEach(doc => entryMap.set(doc.id, { id: doc.id, ...doc.data() }));
-    statusSnapshot.forEach(doc => entryMap.set(doc.id, { id: doc.id, ...doc.data() }));
+//     recentSnapshot.forEach(doc => entryMap.set(doc.id, { id: doc.id, ...doc.data() }));
+//     statusSnapshot.forEach(doc => entryMap.set(doc.id, { id: doc.id, ...doc.data() }));
   
-    return Array.from(entryMap.values()).sort((a, b) => b.created - a.created);
-  } catch (error) {
-    console.error("Fetch Failed:", error);
-    throw error;
-  }
-};
+//     return Array.from(entryMap.values()).sort((a, b) => b.created - a.created);
+//   } catch (error) {
+//     console.error("Fetch Failed:", error);
+//     throw error;
+//   }
+// };
 
 // For processing.
 export const fetchCommittedDiaryEntries = async (): Promise<DiaryEntry[]> => {

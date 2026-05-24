@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
+import task from 'tasuku';
+import { runLanguageModel } from '@/main/features/ai';
 import { TASK_IMPORTANCE, TASK_MOMENTUM, TaskSourceType } from '../../../../shared/features/user-tasks';
-import { analyseLanguage } from '../../ai';
 import { validateLanguageModelResponse } from '../../../llm/shared';
 import { proposedTaskAnalysisResponseSchema } from './validation';
 import { ProposedAnalysisResponse } from './proposed';
@@ -76,8 +77,19 @@ export const generateTaskContent = async (
   data: string,
 ) => {
   const prompt = buildTriagePrompt(source, data);
-  const result = await analyseLanguage(prompt);
-  return getPromptAnalysis(result);
+  // TODO: Needs a responseJsonSchema
+  let response;
+  await task(
+    `Generate tasks from ${source}`,
+    ({ task }) => runLanguageModel(prompt, task, (props) => {
+      console.log(props);
+      response = props;
+    }),
+    // TODO: Needs emission.
+  );
+  // TODO: Zod schema will make this irrelevant.
+  return getPromptAnalysis('');
+  // return response;
 }
 
 export const generateProposedTasks = async <T>(

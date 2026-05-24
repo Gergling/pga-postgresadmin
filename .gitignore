@@ -93,6 +93,7 @@ credentials/
 
 # Build
 dist/
+dist-installer/
 out/
 
 # Automated Assistance

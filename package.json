@@ -9,8 +9,8 @@
     "dev": "electron-vite dev -w",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
-    "package": "electron-vite build && electron-forge package",
-    "make": "electron-vite build && electron-forge make",
+    "package": "electron-vite build && electron-builder --dir",
+    "make": "electron-vite build && electron-builder",
     "start": "electron-forge start",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
@@ -21,6 +21,35 @@
   },
   "build": {
     "appId": "com.gergling.wsu",
+    "productName": "WSU",
+    "asar": true,
+    "asarUnpack": [
+      "**/*.node"
+    ],
+    "files": [
+      "dist/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist-installer"
+    },
+    "electronFuses": {
+      "runAsNode": false,
+      "enableCookieEncryption": true,
+      "enableEmbeddedAsarIntegrityValidation": true,
+      "enableNodeCliInspectArguments": false,
+      "enableNodeOptionsEnvironmentVariable": false,
+      "onlyLoadAppFromAsar": true
+    },
+    "forceCodeSigning": false,
+    "win": {
+      "target": ["nsis"]
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false
+    },
     "publish": [
       {
         "provider": "github",
@@ -51,6 +80,9 @@
     "@emotion/babel-plugin": "^11.13.5",
     "@types/electron-squirrel-startup": "^1.0.2",
     "@types/mailparser": "^3.4.6",
+    "@types/pg": "^8.15.5",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "@vercel/webpack-asset-relocator-loader": "^1.7.3",
@@ -58,6 +90,7 @@
     "babel-loader": "^10.0.0",
     "css-loader": "^6.11.0",
     "electron": "37.3.0",
+    "electron-builder": "^26.8.1",
     "electron-reloader": "^1.2.3",
     "electron-vite": "^6.0.0-beta.0",
     "eslint": "^8.57.1",
@@ -91,9 +124,6 @@
     "@trpc/client": "^11.16.0",
     "@trpc/react-query": "^11.16.0",
     "@trpc/server": "^11.16.0",
-    "@types/pg": "^8.15.5",
-    "@types/react": "^19.1.10",
-    "@types/react-dom": "^19.1.7",
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
     "electron-settings": "^4.0.4",

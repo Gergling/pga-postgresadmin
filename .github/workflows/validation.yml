@@ -75,6 +75,7 @@ jobs:
         run: |
           echo "tag-created: ${{ steps.create_tag.outputs.tag-created }}"
   release:
+    name: Trigger Release
     needs: tag
     uses: ./.github/workflows/release.yml
     secrets: inherit

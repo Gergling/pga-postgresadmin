@@ -1,4 +1,4 @@
-name: Build WSU Production
+name: Build & Release
 
 on:
   workflow_dispatch: # Allows you to trigger the build manually from the GitHub UI
@@ -34,6 +34,8 @@ jobs:
 
       - name: Build, Package and Release
         # electron-builder reads the --publish flag and pushes straight to GitHub Releases
-        run: npx electron-vite build && npx electron-builder --win --publish always
+        run: |
+          npx electron-vite build
+          npx electron-builder --win --publish always
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

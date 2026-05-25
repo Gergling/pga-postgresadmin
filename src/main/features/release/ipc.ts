@@ -3,8 +3,9 @@ import { observable } from '@trpc/server/observable';
 import { ReleaseUpdateSubscriptionParameters } from '@/shared/features/release';
 import { tRPC } from "@/main/config";
 
-// Disable automatic background downloading if you want users to click "Update Now"
 autoUpdater.autoDownload = false;
+autoUpdater.allowPrerelease = true; 
+autoUpdater.allowDowngrade = false;
 
 export const releaseRouter = tRPC.router({
   // Mutation to manually trigger a GitHub release check

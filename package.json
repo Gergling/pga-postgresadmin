@@ -4,6 +4,10 @@
   "description": "Personalized Operating System for Evaluation & Reflection",
   "type": "module",
   "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com"
+  },
   "main": "./dist/main/main.js",
   "scripts": {
     "dev": "electron-vite dev -w",

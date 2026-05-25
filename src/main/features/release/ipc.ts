@@ -3,10 +3,6 @@ import { observable } from '@trpc/server/observable';
 import { ReleaseUpdateSubscriptionParameters } from '@/shared/features/release';
 import { tRPC } from "@/main/config";
 
-autoUpdater.autoDownload = false;
-autoUpdater.allowPrerelease = true; 
-autoUpdater.allowDowngrade = false;
-
 export const releaseRouter = tRPC.router({
   // Mutation to manually trigger a GitHub release check
   checkForUpdates: tRPC.procedure.mutation(async () => {

@@ -1,10 +1,31 @@
 import { BrowserWindow, ipcMain } from "electron";
+import { autoUpdater } from "electron-updater";
+import pkg from '../../../package.json';
 import { log } from "@/main/shared/logging";
 import { createWindow } from "./create-window";
 
 export const setupElectronEventHandlers = (app: Electron.App) => app
   .on('ready', () => {
     createWindow();
+
+    if (app.isPackaged) {
+      const provider = 'github';
+      const githubConfig = pkg.build?.publish?.find((p) => p.provider === provider);
+
+      if (githubConfig) {
+        autoUpdater.setFeedURL({
+          ...githubConfig,
+          provider,
+          vPrefixedTagName: false 
+        });
+      }
+
+      autoUpdater.allowPrerelease = true;
+      autoUpdater.allowDowngrade = false;
+      autoUpdater.autoDownload = false;
+
+      autoUpdater.checkForUpdatesAndNotify();
+    }
   })
   .on('window-all-closed', () => {
     log('All windows closed. Quitting app.');
@@ -22,3 +43,8 @@ export const setupElectronEventHandlers = (app: Electron.App) => app
     }
   })
 ;
+
+autoUpdater.autoDownload = false;
+autoUpdater.allowPrerelease = true; 
+autoUpdater.allowDowngrade = false;
+

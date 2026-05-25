@@ -17,7 +17,8 @@
     "test": "vitest",
     "type-check": "tsc -p tsconfig.check.json",
     "orchestrate": "tsx scripts/agent/orchestrator",
-    "scripts-main": "tsx scripts/main/run.ts"
+    "scripts-main": "tsx scripts/main/run.ts",
+    "shared-experiments": "tsx src/shared/experiments/reductive-unifying-theory.ts"
   },
   "build": {
     "appId": "com.gergling.wsu",
@@ -54,7 +55,7 @@
       {
         "provider": "github",
         "owner": "gergling",
-        "repo": "postgresadmin"
+        "repo": "pga-postgresadmin"
       }
     ]
   },

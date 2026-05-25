@@ -1,10 +1,16 @@
-import { useMemo, useEffect, useCallback } from 'react';
+import {
+  useMemo,
+  useEffect,
+  useCallback,
+  createElement,
+  PropsWithChildren
+} from 'react';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { contextFactory } from '@gergling/ui-components';
 import { useInactivityDebounce } from '../../shared/user-activity';
 import { useDiaryIpc } from './hooks';
 import { getConvergenceSummary } from './utilities';
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 const store = create<{
   isListFetchingEnabled: boolean;
@@ -33,11 +39,8 @@ const store = create<{
   partialize: (state) => ({ inputEntryText: state.inputEntryText }), 
 }));
 
-export const {
-  Provider: DiaryProvider,
-  useContextHook: useDiary,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-} = contextFactory(() => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const context = contextFactory(({ children }: PropsWithChildren) => {
   const drawer = store();
   const entryInput = {
     text: drawer.inputEntryText,
@@ -92,3 +95,9 @@ export const {
     rejectDiaryEntry,
   };
 }, 'diary');
+
+export const useDiary = context.useContextHook;
+
+export const DiaryProvider = (
+  { children }: PropsWithChildren
+) => createElement(context.Provider, { children });

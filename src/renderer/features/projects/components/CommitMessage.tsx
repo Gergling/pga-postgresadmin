@@ -7,10 +7,13 @@ import { ParentheticalContainer } from "@/renderer/shared/brackets";
 export const ProjectFormattedCommitMessage = ({
   body, scope, summary, type,
 }: CommitMessage) => {
-  return <Slab showScanLines>
-    <ParentheticalContainer>
+  return <Slab showScanLines style={{ margin: '1rem 0' }}>
+    <ParentheticalContainer roundness={0} style={{ padding: '1rem' }}>
       <Stack spacing={1}>
-        <strong>{type}{scope && `(${scope})`}: </strong>{summary}
+        <Grid container spacing={1}>
+          <strong>{type}{scope && `(${scope})`}: </strong>
+          <span>{summary}</span>
+        </Grid>
         <div>{body}</div>
       </Stack>
     </ParentheticalContainer>

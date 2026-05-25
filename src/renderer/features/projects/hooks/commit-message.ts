@@ -14,13 +14,12 @@ export type ChatMessage = Optional<ChatMessageProps, 'role' | 'timestamp'>;
 
 export const useCommitMessage = (
   project: ProjectRenderer,
-  // messages: ChatMessage[],
   pushMessage: (message: ChatMessage) => void
 ) => {
   const {
     chatActivity, enableFetchCommitMessage, outdated,
-    onCommit, startFetchingCommitMessage, setFetchingStarted,
-    setProjectHasUpdated,
+    onCommit, setCommitMessageFetched, startFetchingCommitMessage,
+    setFetchingStarted, setProjectHasUpdated,
   } = commitMessageStore();
   const encodedProject = useMemo(() => projectCodec.encode(project), [project]);
   const subscription = trpcReact.projects.fetchStagedCommitMessage.useSubscription(
@@ -41,55 +40,52 @@ export const useCommitMessage = (
         `${(Math.round(retryTimeout / 100) / 10)}s to retry.`
       ].join(' ');
 
-      switch (payload.status) {
-        case 'failed': {
-          // Put in a message with the attempts and project. Also the failure message.
-          const error = payload.message;
-          pushMessage({
-            content: [
-              contentMessage,
-              error,
-              '(This could do with a component)'
-            ].join(' '),
-          });
-        } break;
-        case 'success': {
-          // We get the structured commit message.
-          const commitMessage = payload.response;
-          if (typeof commitMessage === 'string') {
-            console.log('WTF just happened?', data)
-            return;
-          }
-          // This means we can have an action for committing.
-          // That will need to be added to pushMessage.
-          pushMessage({
-            content: contentMessage,
-          });
-          pushMessage({
-            actions: createElement(ProjectCommitButton, {
-              message: commitMessage,
-              onCommit,
-              project,
-              pushMessage,
-            }),
-            content: createElement(ProjectFormattedCommitMessage, commitMessage),
-          });
-        } break;
-        default: {
-          // Put in a message with the attempts and project.
-          pushMessage({
-            content: contentMessage,
-          });
-        } break;
+      // On failure or success, we update the store to say as much.
+      // TODO: Evaluate whether to move this to the store by just passing the
+      // payload status.
+      if (['failed', 'success'].includes(payload.status)) {
+        setCommitMessageFetched();
+      }
+
+      // One failure, we add a special message to the chat. Otherwise, we
+      // *always* add a generic content message with the update information.
+      if (payload.status === 'failed') {
+        pushMessage({
+          content: [
+            contentMessage,
+            payload.message,
+            '(This could do with a component)'
+          ].join(' '),
+        });
+      } else {
+        pushMessage({
+          content: contentMessage,
+        });
+      }
+
+      // On success, we output a special message containing the commit message.
+      if (payload.status === 'success') {
+        const commitMessage = payload.response;
+        // Responses can be a string, but shouldn't be.
+        if (typeof commitMessage === 'string') {
+          console.error('WTF just happened?', data)
+          return;
+        }
+        pushMessage({
+          actions: createElement(ProjectCommitButton, {
+            message: commitMessage,
+            onCommit,
+            project,
+            pushMessage,
+          }),
+          content: createElement(ProjectFormattedCommitMessage, commitMessage),
+        });
       }
     }
 
     if (subscription.error) console.error('Commit message subscription error', subscription.error);
   }, [subscription]);
 
-  useEffect(() => {
-    console.log('enabled', enableFetchCommitMessage)
-  }, [enableFetchCommitMessage]);
   useEffect(() => {
     if (subscription.status !== 'idle') return;
     setFetchingStarted();

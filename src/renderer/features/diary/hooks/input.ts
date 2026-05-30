@@ -13,12 +13,12 @@ export const useDiaryEntryCreator = () => {
     onSuccess: () => setText(''),
   });
 
-  const create = () => {
+  const create = (onSuccess: () => void) => {
     const entry: DiaryEntryTransfer = diaryEntryTransferSchema.parse({
       data: { text }
     });
     // TODO: Set the cache with the id as the creationKey or whatever.
-    mutate(entry);
+    mutate(entry, { onSuccess });
   };
 
   return {

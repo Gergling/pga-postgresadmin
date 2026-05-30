@@ -1,12 +1,23 @@
 import { useMemo } from "react";
-// import { Mandatory } from "../../../../shared/types";
-import { useDiary } from "../context";
-// import { DiaryEntryUi } from "../types";
-import { CyberPanel, RectangularBracketContainer, StyledBody, StyledButton, StyledControls, StyledDiaryEntryItem, StyledDiaryEntryItemContainer, StyledStatus } from "./DiaryEntryItem.style";
 import { DiaryEntryUi } from "@/shared/features/diary";
+import {
+  ParentheticalContainer,
+  ParentheticalGrid
+} from "@/renderer/shared/brackets";
+import { RelativeTime } from "@/renderer/shared/common";
+import {
+  CyberPanel,
+  StyledBody,
+  StyledButton,
+  StyledControls,
+  StyledDiaryEntryItem,
+  StyledDiaryEntryItemContainer,
+  StyledStatus
+} from "./DiaryEntryItem.style";
+import { useDiary } from "../context";
 
 export const DiaryEntryItem = ({
-  entry: { data: { status, text }, id }
+  entry: { created: { zonedDateTime }, data: { status, text }, id }
 }: { entry: DiaryEntryUi; }) => {
   const { commitDiaryEntry, rejectDiaryEntry } = useDiary();
 
@@ -23,21 +34,28 @@ export const DiaryEntryItem = ({
   // Status and controls on the right
   return (
     <StyledDiaryEntryItemContainer>
-      <RectangularBracketContainer color="#d40000">
+      <ParentheticalContainer roundness={0}>
+        <ParentheticalGrid styleOverrides={{
+          item: {
+            size: { md: 3 }
+          }
+        }}>
+          <RelativeTime time={zonedDateTime} />
+          <StyledStatus>{statusLabel}</StyledStatus>
+        </ParentheticalGrid>
         <StyledDiaryEntryItem status={status}>
           
           <StyledBody>{text}</StyledBody>
           <CyberPanel status={status || ''} />
 
           <StyledControls>
-            <StyledStatus>{statusLabel}</StyledStatus>
             {!isLocked && (
               <>
                 <StyledButton onClick={() => commitDiaryEntry(id)}>
                   Commit
                 </StyledButton>
                 
-                <StyledButton onClick={() => rejectDiaryEntry(id)} className="danger">
+                <StyledButton onClick={() => rejectDiaryEntry(id)}>
                   Reject
                 </StyledButton>
               </>
@@ -46,7 +64,7 @@ export const DiaryEntryItem = ({
 
           {status === 'processing' && <small>The Librarian is sifting...</small>}
         </StyledDiaryEntryItem>
-      </RectangularBracketContainer>
+      </ParentheticalContainer>
     </StyledDiaryEntryItemContainer>
   );
 };

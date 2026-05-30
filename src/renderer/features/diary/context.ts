@@ -8,7 +8,7 @@ import {
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { contextFactory } from '@gergling/ui-components';
-import { useInactivityDebounce } from '../../shared/user-activity';
+import { useInactivityDebounce } from '../../shared/events';
 import {
   useDiaryEntryCreator,
   useDiaryEntryList,
@@ -46,55 +46,78 @@ const store = create<{
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const context = contextFactory(({ children }: PropsWithChildren) => {
   const drawer = store();
-  const entryInput = {
-    text: drawer.inputEntryText,
-    setText: drawer.setInputEntryText,
-  };
   const {
-    aboutToInitiateConvergence,
     commitDiaryEntry,
-    ipcStatus,
     rejectDiaryEntry,
     triageTasks,
   } = useDiaryIpc(drawer.isListFetchingEnabled);
-  const creation = useDiaryEntryCreator();
-  const {
-    recentDiaryEntries: diaryEntries,
-  } = useDiaryEntryList();
 
+  /**
+   * IPC: Extraction and Loading.
+   */
+  const {
+    create,
+    ...creation
+  } = useDiaryEntryCreator();
+  const {
+    recentDiaryEntries,
+    fetchRecentDiaryEntries,
+    ...recentDiaryEntriesList
+  } = useDiaryEntryList();
+  // TODO: Creation (and updates) need to refetch the list.
+
+  /**
+   * Transformation.
+   */
   const {
     canInitiateConvergence,
     shouldInitiateConvergence,
     ...summary
-  } = useMemo(() => getConvergenceSummary(diaryEntries), [diaryEntries]);
+  } = useMemo(() => getConvergenceSummary(recentDiaryEntries), [recentDiaryEntries]);
 
+  /**
+   * Handlers.
+   */
   const handleConvergence = useCallback(() => {
     triageTasks({ source: 'diary', type: 'committed' })
       .then(console.log)
       .catch(console.error);
   }, [triageTasks]);
+  const handleCreateDiaryEntry = useCallback(() => {
+    create(() => fetchRecentDiaryEntries());
+  }, [create, fetchRecentDiaryEntries]);
 
-  // Trigger A: Inactivity (30s)
+  /**
+   * Side Effects.
+   */
+  
+  /**
+   * Diary entries start processing after an inactivity timeout period passes.
+   */
   useInactivityDebounce(() => {
     if (!canInitiateConvergence) return;
     handleConvergence();
   }, 60000);
 
-  // Trigger B: Threshold (1000 chars)
+  /**
+   * Diary entries start processing once there is a lot of information.
+   */
   useEffect(() => {
     if (!shouldInitiateConvergence) return;
     handleConvergence();
   }, [handleConvergence, shouldInitiateConvergence]);
 
+  /**
+   * Return.
+   */
   return {
     ...creation,
+    ...recentDiaryEntriesList,
     ...summary,
-    aboutToInitiateConvergence,
-    commitDiaryEntry,
-    diaryEntries,
     drawer,
-    entryInput,
-    ipcStatus,
+    recentDiaryEntries,
+    commitDiaryEntry,
+    handleCreateDiaryEntry,
     rejectDiaryEntry,
   };
 }, 'diary');

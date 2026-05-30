@@ -5,6 +5,10 @@ import { trpcReact } from "@/renderer/libs/react-query";
 export const useDiaryEntryList = () => {
   const {
     data: recentEntriesTransfer,
+    error: recentDiaryEntriesError,
+    isError: isRecentDiaryEntriesError,
+    isLoading: isRecentDiaryEntriesLoading,
+    refetch: fetchRecentDiaryEntries,
   } = trpcReact.diary.fetchRecent.useQuery();
 
   // Transform into a manageable format.
@@ -13,6 +17,10 @@ export const useDiaryEntryList = () => {
   ) ?? [], [recentEntriesTransfer]);
 
   return {
+    isRecentDiaryEntriesError,
+    isRecentDiaryEntriesLoading,
     recentDiaryEntries,
+    recentDiaryEntriesError,
+    fetchRecentDiaryEntries,
   };
 };

@@ -3,7 +3,7 @@ import { useDiary } from '../context';
 import { DiaryEntryItem } from './DiaryEntryItem';
 import { DiaryEntryInput } from './DiaryEntryInput';
 import { Slab } from '@/renderer/shared/base';
-import { Skeleton } from '@mui/material';
+import { ProgressBar } from '@/renderer/shared/progress-bar';
 
 const Container = styled.div`
   display: flex;
@@ -14,10 +14,31 @@ const Container = styled.div`
   margin: 0 auto;
 `;
 
-const DiaryInterface = () => {
-  const { diaryEntries, drawer } = useDiary();
+const DiaryList = () => {
+  const {
+    isRecentDiaryEntriesLoading,
+    isRecentDiaryEntriesError,
+    recentDiaryEntries,
+    recentDiaryEntriesError,
+  } = useDiary();
 
-  // TODO: Should show when mutations and reloading are happening.
+  // TODO: Could do with a nicer loading output.
+  if (isRecentDiaryEntriesLoading) return <ProgressBar />;
+
+  if (isRecentDiaryEntriesError) return <Slab showScanLines>
+    {recentDiaryEntriesError?.message}
+  </Slab>;
+
+  if (recentDiaryEntries.length === 0) return <Slab showScanLines>
+    No entries yet.
+  </Slab>;
+
+  return recentDiaryEntries.map(entry => (
+    <DiaryEntryItem key={entry.id} entry={entry} />
+  ));
+};
+
+const DiaryInterface = () => {
   return (
     <Container>
       <section>
@@ -25,13 +46,7 @@ const DiaryInterface = () => {
       </section>
 
       <section>
-        {false && <Skeleton variant={'rectangular'}>Loading...</Skeleton>}
-        {diaryEntries.length > 0
-          ? diaryEntries.map(entry => (
-            <DiaryEntryItem key={entry.id} entry={entry} />
-          ))
-          : <Slab>No entries yet.</Slab>
-        }
+        <DiaryList />
       </section>
     </Container>
   );

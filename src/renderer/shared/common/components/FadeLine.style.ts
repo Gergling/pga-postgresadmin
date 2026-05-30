@@ -3,14 +3,12 @@ import styled from '@emotion/styled';
 import { COLORS } from '@/renderer/shared/theme';
 
 export type FadeLineProps = {
-  height?: number;
   thickness?: number;
   color?: string;
   direction?: 'left' | 'right';
 };
 
 export const getFadeLine = ({
-  height = 20,
   thickness = 1,
   color = COLORS.bloodGlow,
   direction = 'left',
@@ -19,7 +17,6 @@ export const getFadeLine = ({
   borderTopStyle: 'solid',
   borderTopWidth: thickness,
   flexGrow: 1,
-  height,
   position: 'relative',
   
   /* The Fade */

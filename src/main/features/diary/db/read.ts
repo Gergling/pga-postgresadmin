@@ -22,7 +22,7 @@ export const fetchRecentDiaryEntries = async (): Promise<DiaryEntryTransfer[]> =
       : []
     ;
 
-    const entries = [...recentSnapshot, ...snapshot].map(
+    const entries = snapshot.map(
       (item) => diaryEntryTransferSchema.parse(item)
     );
 

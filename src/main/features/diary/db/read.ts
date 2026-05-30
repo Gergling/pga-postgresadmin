@@ -31,7 +31,7 @@ export const fetchRecentDiaryEntries = async (): Promise<DiaryEntryTransfer[]> =
       if (a.created === b.created) return 0;
       const aZdt = temporalCodec.decode(a.created).zonedDateTime;
       const bZdt = temporalCodec.decode(b.created).zonedDateTime;
-      return Temporal.ZonedDateTime.compare(aZdt, bZdt);
+      return Temporal.ZonedDateTime.compare(bZdt, aZdt);
     });
   } catch (error) {
     console.error("Fetch Failed:", error);

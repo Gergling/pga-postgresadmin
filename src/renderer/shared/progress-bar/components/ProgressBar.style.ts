@@ -59,19 +59,15 @@ const StyledProgressBarBase = css({
   },
 });
 
-export const StyledProgressBarBoolean = styled.div({
-  ...StyledProgressBarBase,
-  // width: `60%`,
-});
+export const StyledProgressBarBoolean = styled.div(StyledProgressBarBase);
 
 const lateralMove = keyframes`
-  0% { transform: translateX(-20%); }
-  100% { transform: translateX(80%); }
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(50%); }
 `;
 
-export const StyledProgressBarAnimated = styled.div({
-  ...StyledProgressBarBase,
+export const StyledProgressBarAnimated = styled.div(StyledProgressBarBase, {
   width: '40%',
   left: '30%',
-  animation: `${lateralMove} 2s ease-in-out alternate`,
+  animation: `${lateralMove} 2s ease-in-out alternate infinite`,
 });

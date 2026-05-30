@@ -3,7 +3,8 @@ import { DiaryEntry } from "../../../shared/features/diary/types";
 import { getFirebaseDb } from "../../libs/firebase";
 import { emitRitualTelemetry } from "../ai/ipc";
 import { generateTaskContent, generateProposedTasks, TriageTasksResponse, UserTaskDb } from "../tasks";
-import { batchDiary, fetchCommittedDiaryEntries } from "./db";
+import { fetchCommittedDiaryEntries } from "./db";
+import { batchDiary } from "./db/db";
 
 const source = 'diary';
 
@@ -35,37 +36,38 @@ const updateProcessingEntries = async (committed: DiaryEntry[]) => {
   return processing;
 };
 
-const emit = (
-  message: string,
-  entries: Optional<DiaryEntry, 'created' | 'text'>[],
-  tasks?: UserTaskDb[],
-) => {
-  emitRitualTelemetry({
-    message,
-    triage: {
-      diary: entries.map(({ id, created, status }) => ({ created, id, status })),
-      tasks,
-    }
-  });
-}
+// const emit = (
+//   message: string,
+//   entries: Optional<DiaryEntry, 'created' | 'text'>[],
+//   tasks?: UserTaskDb[],
+// ) => {
+//   emitRitualTelemetry({
+//     message,
+//     triage: {
+//       diary: entries.map(({ id, created, status }) => ({ created, id, status })),
+//       tasks,
+//     }
+//   });
+// }
 
 export const triageCommittedDiaryEntries = async (): Promise<TriageTasksResponse> => {
   try {
     const committed = await fetchCommittedDiaryEntries();
-    const simplifiedEntries = committed.map(simplifyEntry);
-    const simplifiedEntryJson = JSON.stringify(simplifiedEntries, null, 2);
+    // const simplifiedEntries = committed.map(simplifyEntry);
+    // const simplifiedEntryJson = JSON.stringify(simplifiedEntries, null, 2);
 
     // Update the status of the entries to "processing".
-    const processing = await updateProcessingEntries(committed);
-    emit("Librarian is triaging the diary.", processing);
+    // const processing = await updateProcessingEntries(committed);
+    // emit("Librarian is triaging the diary.", processing);
 
-    const analysis = await generateTaskContent(source, simplifiedEntryJson);
+    // const analysis = await generateTaskContent(source, simplifiedEntryJson);
 
-    const { batchUpdatedResponse: processed, tasks } = await generateProposedTasks(analysis, batchUpdateFactory(processing));
+    // const { batchUpdatedResponse: processed, tasks } = await generateProposedTasks(analysis, batchUpdateFactory(processing));
 
-    emit("Librarian has completed a diary triage.", processed, tasks);
+    // emit("Librarian has completed a diary triage.", processed, tasks);
 
-    return { source, status: 'success', message: `Updated ${processed.length} entries.` };
+    return { source, status: 'success', message: `Defunct triage run.` };
+    // return { source, status: 'success', message: `Updated ${processed.length} entries.` };
   } catch (error) {
     return { source, status: 'error', message: `Diary Triage Failed: ${error}` };
   }

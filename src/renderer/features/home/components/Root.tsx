@@ -34,7 +34,7 @@ export const HomeRoot = () => {
       </DashboardPanel>
     </Grid>
     <Slab>
-      {paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
+      {/* {paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)} */}
     </Slab>
     <EmailSyncPanel />
     <Diary />

@@ -8,16 +8,33 @@ import { DiaryEntryUi, DiaryEntryUiNew, DiaryEntryUiOptional } from "../types";
 import { cleanEntries, cleanEntry } from "../utilities";
 import { createEnvelope } from "../../../shared/common/utilities/envelope";
 import { Temporal } from "@js-temporal/polyfill";
+import { trpcReact } from "@/renderer/libs/react-query";
+
+// Create: We have the version in the input box stashed locally, we have the
+// persistent version once it comes back. We have a waiting phase in between.
+// A successful return clears the local stash.
+// Persistent success followed by UI failure could result in the local not being
+// cleared, but the persistence has succeeded, so it's not too much of a problem.
+// This can be checked by comparing the local to the persistent response.
+// So the local process has a flag on whether it's being submitted.
+// The input is uneditable when it's submitted.
+// If there is an entry in the UI with the same content, there should be a modal
+// saying "delete local?" or equivalent.
+// This leaves a hole between the input submitting successfully but the UI
+// crashing and reloading before getting back the persistence, resulting in a
+// local copy which can be modified, and is no longer identical to the content
+// of the persisted entry.
+// I think I'll not worry about that.
 
 type UnsavedDiaryEntry = Envelope<DiaryEntryUiNew>;
 type NewlySavedDiaryEntry = Envelope<DiaryEntry>;
 
-type SetEntries = (entries: (DiaryEntryUi | DiaryEntry)[]) => DiaryEntryUi[];
+type SetEntries = (entries: (DiaryEntryUi | DiaryEntry)[]) => void;
 
 const store = create<{
   aboutToInitiateConvergence: boolean;
-  addUnsavedEntry: (text: string) => UnsavedDiaryEntry;
-  savedEntries: DiaryEntryUi[];
+  addUnsavedEntry: (text: string) => void;
+  savedEntries: void;
   setAboutToInitiateConvergence: (value: boolean) => void;
   setDraftEntry: (entry: NewlySavedDiaryEntry) => void;
   setSavedEntries: SetEntries;
@@ -31,14 +48,14 @@ const store = create<{
   setSavedEntries: (entries) => {
     const savedEntries = cleanEntries(entries);
     set({ savedEntries });
-    return savedEntries;
+    // return savedEntries;
   },
   addUnsavedEntry: (text) => {
     const entries = get().unsavedEntries;
     const unsavedEntry = createEnvelope({ text });
     const unsavedEntries = [...entries, unsavedEntry];
     set({ unsavedEntries });
-    return unsavedEntry;
+    // return unsavedEntry;
   },
   setDraftEntry: ({ content, id }) => {
     const unsavedEntries = get().unsavedEntries.filter((e) => e.id !== id);
@@ -55,6 +72,11 @@ const store = create<{
   },
 }));
 
+/**
+ * @deprecated Or, more to the point, *deprecating*.
+ * @param isListFetchingEnabled 
+ * @returns 
+ */
 export const useDiaryIpc = (isListFetchingEnabled: boolean) => {
   const {
     aboutToInitiateConvergence,
@@ -67,13 +89,16 @@ export const useDiaryIpc = (isListFetchingEnabled: boolean) => {
     updateEntry,
   } = store();
   const {
-    createDraftDiaryEntry: create,
+    // createDraftDiaryEntry: create,
     fetchRecentDiaryEntries,
     subscribeToRitualTelemetry,
     triageTasks,
     updateDiaryEntry,
   } = useIpc();
 
+  const {
+    mutate: create,
+  } = trpcReact.diary.create.useMutation();
   const createDraftDiaryEntryWrapper = useCallback(async (text: string) => {
     const envelope = addUnsavedEntry(text);
     return create(envelope);

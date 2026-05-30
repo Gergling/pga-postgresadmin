@@ -11,6 +11,8 @@ import {
   TEMPORAL_GRANULARITY_WEIGHTS
 } from "@/renderer/shared/dashboard";
 import { TEMPORAL_UNIT_PROPS_SINGULARISED } from "@shared/lib/temporal";
+import { useDiaryEntryList } from "./list";
+import { getRelativeTimeNow } from "@/renderer/shared/common/utilities/relative-time";
 
 // const recencyConfig: Partial<Record<keyof Temporal.Duration, {
 //   label: string;
@@ -34,11 +36,13 @@ export const useDiaryPanels = (): PanelData => {
   //   diaryEntries,
   //   ipcStatus: { fetch: status },
   // } = useDiaryIpc(true);
+  const { recentDiaryEntries: diaryEntries } = useDiaryEntryList();
+  console.log('entries', diaryEntries)
 
-  // const dates = useMemo(() => diaryEntries?.map(
-  //   ({ created }) => created.toZonedDateTimeISO(Temporal.Now.timeZoneId())
-  // ), [diaryEntries]);
-  const dates: Temporal.ZonedDateTime[] = [];
+  const dates = useMemo(() => diaryEntries.map(
+    ({ created: { zonedDateTime } }) => zonedDateTime
+  ) ?? [], [diaryEntries]);
+  // const dates: Temporal.ZonedDateTime[] = [];
   // Four possible sparklines available from this.
   // Pick the highest granularity with the fewest 0 values.
   // No 0 values should maximise the weight.
@@ -74,16 +78,15 @@ export const useDiaryPanels = (): PanelData => {
     };
   }, []);
 
-  // const chips = useMemo(() => diaryEntries?.reduce((acc, entry) => {
-  //   const created = entry.created.toZonedDateTimeISO(Temporal.Now.timeZoneId());
-  //   const since = getRelativeTimeNow(created);
-  //   // if (since.days < 2) {}
-  //   // TODO: Get the recency counts based on various thresholds.
-  //   // console.log(since.toString())
-  //   return {
-  //     ...entry,
-  //   };
-  // }, {}), [diaryEntries]);
+  const chips = useMemo(() => diaryEntries?.reduce((acc, entry) => {
+    const since = getRelativeTimeNow(entry.created.zonedDateTime);
+    // if (since.days < 2) {}
+    // TODO: Get the recency counts based on various thresholds.
+    // console.log(since.toString())
+    return {
+      ...entry,
+    };
+  }, {}), [diaryEntries]);
 
   return candidates;
 };

@@ -3,8 +3,9 @@ import { VentingArea } from "./DiaryEntryInput.style";
 
 export const DiaryEntryInputText = () => {
   const {
-    createDraftDiaryEntry,
-    entryInput: { text, setText }
+    create,
+    text,
+    setText,
   } = useDiary();
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -12,8 +13,7 @@ export const DiaryEntryInputText = () => {
   };
   const handleSubmit = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && e.ctrlKey && text.trim()) {
-      createDraftDiaryEntry(text);
-      setText('');
+      create();
     }
   };
 
@@ -21,7 +21,7 @@ export const DiaryEntryInputText = () => {
     <VentingArea 
       onChange={handleChange}
       onKeyDown={handleSubmit}
-      placeholder="Inscribe your thoughts..."
+      placeholder="Enter your thoughts..."
       spellCheck={false}
       value={text}
     />

@@ -1,19 +1,19 @@
-// Use "crud" schema (rename to db).
-
 import { Temporal } from "@js-temporal/polyfill";
-import { zonedDateTimeSchema } from "@/shared/lib/temporal";
-import { DiaryEntryPersistent, diaryEntrySchema } from "@/shared/features/diary";
-import { diaryRepo } from "./schema";
+import { temporalCodec } from "@/shared/lib/temporal";
+import {
+  DiaryEntryTransfer,
+  diaryEntryTransferSchema
+} from "@/shared/features/diary";
+import { diaryRepo } from "../schema";
 
 const recentDiaryCountFiller = 10;
 
-export const fetchRecentDiaryEntries = async (): Promise<DiaryEntryPersistent[]> => {
+export const fetchRecentDiaryEntries = async (): Promise<DiaryEntryTransfer[]> => {
   try {
     const recentSnapshot = await diaryRepo.query()
-      .where('status', 'in', ['processing', 'committed', 'draft']).get();
+      .where('data.status', 'in', ['processing', 'committed', 'draft']).get();
 
     const snapshot = recentSnapshot.length < recentDiaryCountFiller
-      && recentSnapshot.length > 0
       ? await diaryRepo.query()
         .where('id', 'not-in', recentSnapshot.map(doc => doc.id))
         .orderBy('created', 'desc')
@@ -22,13 +22,15 @@ export const fetchRecentDiaryEntries = async (): Promise<DiaryEntryPersistent[]>
       : []
     ;
 
-    console.log(snapshot)
+    const entries = [...recentSnapshot, ...snapshot].map(
+      (item) => diaryEntryTransferSchema.parse(item)
+    );
 
     // Need to sort by descending created date.
-    return snapshot.sort((a, b) => {
+    return entries.sort((a, b) => {
       if (a.created === b.created) return 0;
-      const aZdt = zonedDateTimeSchema.parse(a.created);
-      const bZdt = zonedDateTimeSchema.parse(b.created);
+      const aZdt = temporalCodec.decode(a.created).zonedDateTime;
+      const bZdt = temporalCodec.decode(b.created).zonedDateTime;
       return Temporal.ZonedDateTime.compare(aZdt, bZdt);
     });
   } catch (error) {
@@ -36,3 +38,26 @@ export const fetchRecentDiaryEntries = async (): Promise<DiaryEntryPersistent[]>
     throw error;
   }
 };
+
+export const fetchCommittedDiaryEntries = async (): Promise<DiaryEntryTransfer[]> => {
+  const snapshot = await diaryRepo.query()
+    .where('status', '==', 'committed')
+    .orderBy('created', 'desc')
+    // TODO: Probably need to choose the limit appropriately.
+    .limit(10)
+    .get();
+
+  const entries = snapshot.map((item) => diaryEntryTransferSchema.parse(item));
+
+  return entries;
+};
+export const fetchDiaryEntry = async (id: string): Promise<DiaryEntryTransfer> => {
+  const snapshot = await diaryRepo.query().where('id', '==', id).getOne();
+
+  if (!snapshot) throw new Error(`Diary entry not found for id: ${id}`);
+
+  return diaryEntryTransferSchema.parse(snapshot);
+};
+export const fetchProcessingCount = async (): Promise<number> => diaryRepo
+  .query().count();
+

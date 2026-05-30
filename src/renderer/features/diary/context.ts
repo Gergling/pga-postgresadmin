@@ -9,7 +9,11 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { contextFactory } from '@gergling/ui-components';
 import { useInactivityDebounce } from '../../shared/user-activity';
-import { useDiaryIpc } from './hooks';
+import {
+  useDiaryEntryCreator,
+  useDiaryEntryList,
+  useDiaryIpc
+} from './hooks';
 import { getConvergenceSummary } from './utilities';
 
 const store = create<{
@@ -49,20 +53,20 @@ const context = contextFactory(({ children }: PropsWithChildren) => {
   const {
     aboutToInitiateConvergence,
     commitDiaryEntry,
-    createDraftDiaryEntry,
-    diaryEntries,
-    diaryEntriesSaved,
     ipcStatus,
     rejectDiaryEntry,
     triageTasks,
   } = useDiaryIpc(drawer.isListFetchingEnabled);
+  const creation = useDiaryEntryCreator();
+  const {
+    recentDiaryEntries: diaryEntries,
+  } = useDiaryEntryList();
 
   const {
     canInitiateConvergence,
-    isConverging,
-    progress,
     shouldInitiateConvergence,
-  } = useMemo(() => getConvergenceSummary(diaryEntriesSaved), [diaryEntriesSaved]);
+    ...summary
+  } = useMemo(() => getConvergenceSummary(diaryEntries), [diaryEntries]);
 
   const handleConvergence = useCallback(() => {
     triageTasks({ source: 'diary', type: 'committed' })
@@ -74,7 +78,7 @@ const context = contextFactory(({ children }: PropsWithChildren) => {
   useInactivityDebounce(() => {
     if (!canInitiateConvergence) return;
     handleConvergence();
-  }, 30000);
+  }, 60000);
 
   // Trigger B: Threshold (1000 chars)
   useEffect(() => {
@@ -83,15 +87,14 @@ const context = contextFactory(({ children }: PropsWithChildren) => {
   }, [handleConvergence, shouldInitiateConvergence]);
 
   return {
+    ...creation,
+    ...summary,
     aboutToInitiateConvergence,
     commitDiaryEntry,
-    createDraftDiaryEntry,
     diaryEntries,
     drawer,
     entryInput,
     ipcStatus,
-    isConverging,
-    progress,
     rejectDiaryEntry,
   };
 }, 'diary');

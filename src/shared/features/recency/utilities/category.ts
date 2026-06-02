@@ -1,6 +1,6 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { TemporalGranularity } from "../config";
-import { TemporalRelativeCategory } from "../types";
+import { TemporalRelativeCategory } from "../schema";
 
 export const getTemporalRelativeSinceOverlap = (
   granularity: TemporalGranularity,
@@ -33,7 +33,6 @@ export const getTemporalRelativeOverlapThreshold = (
  * @param prior The threshold at the beginning of the previous time period.
  * @returns 
  */
-
 export const getTemporalRelativeCategory = (
   date: Temporal.ZonedDateTime,
   { prior, overlap, window, now }: {

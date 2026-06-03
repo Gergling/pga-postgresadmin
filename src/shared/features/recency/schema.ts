@@ -107,7 +107,7 @@ export const temporalGranularityConfigItemSchemaFactory = <
 
 export type TemporalGranularityConfigItem<
   BreakdownKey extends keyof Temporal.ZonedDateTime & string = keyof Temporal.ZonedDateTime & string,
-  DurationKey extends keyof Temporal.Duration & string = keyof Temporal.Duration & string,
+  DurationKey extends keyof Temporal.DurationLike & string = keyof Temporal.DurationLike & string,
   SizeKey extends keyof Temporal.ZonedDateTime & string = keyof Temporal.ZonedDateTime & string,
 > = z.infer<ReturnType<typeof temporalGranularityConfigItemSchemaFactory<
   BreakdownKey, DurationKey, SizeKey
@@ -133,17 +133,25 @@ export const temporalGranularityParse = (
 ) => temporalGranularityConfigSchema.parse(config);
 
 export const temporalGranularityFrequenciesSchema = z.object({
+  current: z.instanceof(Temporal.ZonedDateTime).describe(
+    'The date at the beginning of the current granularity period, e.g. 1st of this month or year.'
+  ),
+  from: z.instanceof(Temporal.ZonedDateTime).describe(
+    'The date at the beginning of the previous granularity period, e.g. 1st of last month or year.'
+  ),
   granularity: temporalGranularitySchema,
   breakdownKey: z.string(), // Technically should be a keyof Temporal.ZonedDateTime.
   priorThreshold: z.instanceof(Temporal.ZonedDateTime),
+  /**
+   * @deprecated Try to avoid using this as it's not consistent on a monthly
+   * level. We can calculate numbers of 0-values from frequencies.
+   */
   size: z.number(), // Because we already have it.
-  from: z.instanceof(Temporal.ZonedDateTime), // Because we already have it.
   // to: Temporal.ZonedDateTime; // If we need it.
   quantise: z.function({
     input: z.array(z.instanceof(Temporal.ZonedDateTime)),
     output: z.instanceof(Temporal.ZonedDateTime),
   }),
-  current: z.instanceof(Temporal.ZonedDateTime),
   frequencies: z.record(z.string(), temporalPeriodSchema),
   summary: z.object({
     populated: temporalGranularitySummaryPopulationSchema.default('insufficient'),

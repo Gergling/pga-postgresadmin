@@ -44,8 +44,8 @@ export const getTemporalRelativeCategory = (
 ): TemporalRelativeCategory => {
   const ms = date.epochMilliseconds;
   if (ms > now.epochMilliseconds) return 'future';
-  if (ms > window.epochMilliseconds) return 'window';
-  if (ms > overlap.epochMilliseconds) return 'overlap';
-  if (ms > prior.epochMilliseconds) return 'prior';
+  if (ms >= window.epochMilliseconds) return 'window';
+  if (ms >= overlap.epochMilliseconds) return 'overlap';
+  if (ms >= prior.epochMilliseconds) return 'prior';
   return 'older';
 };

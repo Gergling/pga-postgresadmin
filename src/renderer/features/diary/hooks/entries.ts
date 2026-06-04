@@ -1,30 +1,20 @@
 import { useMemo } from "react";
 import { Temporal } from "@js-temporal/polyfill";
+import { TEMPORAL_UNIT_PROPS_SINGULARISED } from "@/shared/lib/temporal";
 import {
   recencyFactory,
   TEMPORAL_GRANULARITIES
 } from '@/shared/features/recency';
+import {
+  getRelativeTimeNow
+} from "@/renderer/shared/common/utilities/relative-time";
 import {
   PanelData,
   PanelDataItem,
   TEMPORAL_GRANULARITY_SUMMARY_WEIGHTS,
   TEMPORAL_GRANULARITY_WEIGHTS
 } from "@/renderer/shared/dashboard";
-import { TEMPORAL_UNIT_PROPS_SINGULARISED } from "@shared/lib/temporal";
 import { useDiaryEntryList } from "./list";
-import { getRelativeTimeNow } from "@/renderer/shared/common/utilities/relative-time";
-
-// const recencyConfig: Partial<Record<keyof Temporal.Duration, {
-//   label: string;
-//   value: number;
-// }>>[] = [
-//   { days:  }
-// ];
-
-// const x = {
-//   recent: { days: 2 },
-
-// };
 
 export const useDiaryPanels = (): PanelData => {
   const recency = useMemo(() => {
@@ -63,8 +53,7 @@ export const useDiaryPanels = (): PanelData => {
     ;
     // If populated === 'last', then we can filter out the frequency categories
     // such as 'prior'.
-    console.log(frequencies)
-    const value = Object.values(frequencies).sort(
+    const value = Object.values(frequencies).filter(({ key }) => key).sort(
       (a, b) => a.key.localeCompare(b.key)
     ).filter(
       // TODO: Slightly wasteful. Doesn't need to run this loop at all if

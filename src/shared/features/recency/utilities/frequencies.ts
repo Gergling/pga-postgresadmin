@@ -1,8 +1,8 @@
 import { Temporal } from "@js-temporal/polyfill";
-import { TemporalGranularity } from "../config";
 import { getTemporalRelativeCategory } from "./category";
 import {
   TemporalFrequencies,
+  TemporalGranularity,
   TemporalGranularityConfig,
   TemporalGranularityConfigItem,
   TemporalGranularityFrequencies,

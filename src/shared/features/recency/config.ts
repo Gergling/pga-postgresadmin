@@ -9,10 +9,16 @@ export const RECENCY_GROUPS = [
 
 export type RecencyGroupName = typeof RECENCY_GROUPS[number];
 
-export const TEMPORAL_GRANULARITIES = [
+/**
+ * @deprecated Use the zod schema.
+ */
+const TEMPORAL_GRANULARITIES = [
   'years', 'months', 'weeks', 'days'
 ] as const;
-export type TemporalGranularity = typeof TEMPORAL_GRANULARITIES[number];
+type TemporalGranularity = typeof TEMPORAL_GRANULARITIES[number];
+/**
+ * @deprecated Use the zod schema.
+ */
 export const TEMPORAL_GRANULARITIES_DESC = TEMPORAL_GRANULARITIES.reduce(
   (acc, granularity) => [granularity, ...acc], [] as TemporalGranularity[]
 );

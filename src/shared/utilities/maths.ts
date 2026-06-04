@@ -16,6 +16,16 @@ export const interpolate = (
   return interpolated;
 };
 
+export const sum = (series: number[]) => {
+  const sum = series.reduce((acc, value) => acc + value, 0);
+  return sum;
+};
+
+export const mean = (series: number[]) => {
+  const mean = sum(series) / series.length;
+  return mean;
+};
+
 /**
  * Takes a median from a series of numbers.
  * @param series The numbers to find the median for.

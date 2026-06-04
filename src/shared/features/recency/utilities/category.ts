@@ -1,6 +1,5 @@
 import { Temporal } from "@js-temporal/polyfill";
-import { TemporalGranularity } from "../config";
-import { TemporalRelativeCategory } from "../schema";
+import { TemporalGranularity, TemporalRelativeCategory } from "../schema";
 
 export const getTemporalRelativeSinceOverlap = (
   granularity: TemporalGranularity,

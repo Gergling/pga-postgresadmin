@@ -10,6 +10,7 @@ export const temporalGranularitySchema = z.enum([
 ]);
 
 export type TemporalGranularity = z.infer<typeof temporalGranularitySchema>;
+export const TEMPORAL_GRANULARITIES = temporalGranularitySchema.options;
 
 /**
  * This type expresses the individual divisions between time periods.

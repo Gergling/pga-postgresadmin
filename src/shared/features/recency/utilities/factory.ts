@@ -1,7 +1,7 @@
 import { Temporal } from "@js-temporal/polyfill";
-import { TEMPORAL_GRANULARITIES, TemporalGranularity } from "../config";
+// import { TEMPORAL_GRANULARITIES, TemporalGranularity } from "../config";
 import { generateZeroFrequencies, getFrequencyKey } from "./frequencies";
-import { TemporalFrequencies, TemporalGranularitySummaryPopulation, TemporalPeriod } from "../schema";
+import { TEMPORAL_GRANULARITIES, TemporalFrequencies, TemporalGranularity, TemporalGranularitySummaryPopulation, TemporalPeriod } from "../schema";
 
 /**
  * Maps a date to a granularity level and a breakdown key (which is a

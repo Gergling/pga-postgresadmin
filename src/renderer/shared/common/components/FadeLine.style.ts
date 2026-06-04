@@ -20,7 +20,7 @@ export const getFadeLine = ({
   position: 'relative',
   
   /* The Fade */
-  'mask-image': `linear-gradient(
+  maskImage: `linear-gradient(
     to ${direction === 'left' ? 'right' : 'left'}, 
     black 0%, 
     transparent 100%

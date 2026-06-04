@@ -1,5 +1,5 @@
 import { Grid } from "@mui/material";
-import { Children } from "react";
+import { Children, Fragment } from "react";
 import { ParentheticalContainer } from "./Brackets.style";
 import { StyledParentheticalBreadcrumbSeparator } from "./Breadcrumbs.style";
 import { FadeLine } from "../../common";
@@ -36,8 +36,8 @@ export const ParentheticalGrid = ({
     </Grid>
     {childrenArray.map((child, index) => {
       const isLast = index === childrenArray.length - 1;
-      return <>
-        <Grid key={index} {...item}>
+      return <Fragment key={index}>
+        <Grid {...item}>
           <ParentheticalContainer
             roundness={0} style={{ padding: '0.5rem' }} {...parenthetical}
           >
@@ -47,7 +47,7 @@ export const ParentheticalGrid = ({
           </ParentheticalContainer>
         </Grid>
         {!isLast && <Grid alignSelf={'center'}>{separatorComponent}</Grid>}
-      </>;
+      </Fragment>;
     })}
     <Grid container alignSelf={'center'} size={'grow'}>
       <Grid size={6}>

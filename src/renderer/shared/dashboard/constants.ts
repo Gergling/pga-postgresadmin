@@ -1,8 +1,8 @@
 import {
   TEMPORAL_GRANULARITIES,
   TemporalGranularity,
-  TemporalGranularitySummaryPopulation
-} from "@shared/features/recency";
+  TemporalGranularitySummaryPopulation,
+} from "@/shared/features/recency";
 
 export const TEMPORAL_GRANULARITY_WEIGHTS = TEMPORAL_GRANULARITIES.reduce(
   (acc, granularity, index, arr) => ({

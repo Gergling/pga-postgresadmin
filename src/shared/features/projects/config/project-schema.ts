@@ -2,8 +2,8 @@ import zod from 'zod';
 import { temporalCodec, temporalSchema } from '@/shared/lib/temporal';
 
 export const projectGitSchema = zod.object({
-  lastCheck: zod.iso.datetime(),
-  latestCommitDate: zod.iso.datetime(),
+  lastCheck: zod.string(),
+  latestCommitDate: zod.string(),
   totalStagedFiles: zod.number(),
 });
 

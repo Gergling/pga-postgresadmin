@@ -2,32 +2,26 @@ import { createHashRouter, redirect } from "react-router-dom";
 import { Placeholder } from "../features/svg-viewer/components";
 import {
   JobSearchView,
+  RootView,
   SvgViewerView,
   View404
 } from ".";
 import { UiNavigationConfigItem } from "../shared/navigation/types";
-import { getNavigationItem, lazyImport } from "../shared/navigation/constants/utilities";
+import { getNavigationItem } from "../shared/navigation/constants/utilities";
 import { TASKS_ROUTES } from "../features/tasks/routes";
 import { JOB_SEARCH_VIEW_CONFIG } from "../shared/navigation/constants/job-search";
 import { getNavigationIcon } from "../shared/navigation/components/getNavigationIcon";
 import { PROJECT_ROUTES } from "@/renderer/features/projects/routes";
 import { reduceRoutes } from "../shared/navigation/utilities";
-import { SETTINGS_ROUTES } from "../features/settings";
 import { HOME_BASE_ROUTE, HOME_ROUTES } from "../features/home";
 import { EXPLORER_ROUTES } from "../features/explorer";
-import { ADMIN_ROUTES } from "../features/admin";
-
-const lazyImports = {
-  root: lazyImport(() => import('./Root')),
-  home: lazyImport(() => import('./Home')),
-  tasks: lazyImport(() => import('./Tasks')),
-};
+import { META_ROUTES } from "../features/meta";
 
 const config: UiNavigationConfigItem = {
   HydrateFallback: () => null,
   icon: getNavigationIcon(Placeholder),
   label: 'Root',
-  lazy: lazyImports.root,
+  element: RootView,
   path: '/',
   children: [
     {
@@ -45,9 +39,8 @@ const config: UiNavigationConfigItem = {
       children: JOB_SEARCH_VIEW_CONFIG,
     },
     PROJECT_ROUTES,
-    SETTINGS_ROUTES,
     EXPLORER_ROUTES,
-    ADMIN_ROUTES,
+    META_ROUTES,
     {
       icon: getNavigationIcon(Placeholder),
       label: 'SVG Viewer',

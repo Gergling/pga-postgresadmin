@@ -3,7 +3,7 @@ import { VentingArea } from "./DiaryEntryInput.style";
 
 export const DiaryEntryInputText = () => {
   const {
-    create,
+    handleCreateDiaryEntry,
     text,
     setText,
   } = useDiary();
@@ -13,7 +13,7 @@ export const DiaryEntryInputText = () => {
   };
   const handleSubmit = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && e.ctrlKey && text.trim()) {
-      create();
+      handleCreateDiaryEntry();
     }
   };
 

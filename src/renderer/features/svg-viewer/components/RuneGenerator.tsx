@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Typography } from "@mui/material";
 import { useTheme } from "@gergling/ui-components";
+import { hashFactory } from "@/shared/utilities";
 import { GUIDES } from "../config";
 import { NEON_PLASMA_GLOW_CONFIG_NAMES, NeonPlasmaGlowConfigNames, SIZE_CONFIG, SizeName } from "../config/neon";
 import { mapLinePath } from "../paths";
@@ -35,14 +36,6 @@ const stringToSeed = (str: string): number => {
   return hash;
 };
 
-function getGenerator(seed: number) {
-  return function() {
-    let t = seed += 0x6D2B79F5;
-    t = Math.imul(t ^ t >>> 15, t | 1);
-    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-    return ((t ^ t >>> 14) >>> 0) / 4294967296;
-  };
-}
 
 type HexagonalKey = 0 | 1 | 2 | 3 | 4 | 5;
 type RuneState = Record<HexagonalKey, boolean>; // 24 states
@@ -93,7 +86,7 @@ const getRunetatorState = (
 };
 const getFullState = () => getRunetatorState(() => true);
 const getSeededState = (seed: number): RunetatorState => {
-  const generate = getGenerator(seed);
+  const generate = hashFactory(seed);
   const generateBool = () => generate() > 0.5;
   return getRunetatorState(generateBool);
 };

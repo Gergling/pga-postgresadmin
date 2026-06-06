@@ -35,6 +35,8 @@ const projectRendererGitSchema = zod.object({
   latestCommitDate: temporalSchema,
 });
 
+export type ProjectRendererGit = zod.infer<typeof projectRendererGitSchema>;
+
 const projectRendererGitPropSchema = zod.union([
   projectRendererGitSchema,
   zod.literal('none'),

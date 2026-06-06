@@ -30,7 +30,7 @@ export const extractLocalProject: FetchItemFunction<
     if (!path) return;
   
     const project = transformProjectFromPath(path, name);
-    const git = await fetchProjectStagedFiles(path);
+    const git = await fetchProjectStagedFiles(project.path);
     
     return {
       ...project,

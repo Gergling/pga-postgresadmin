@@ -1,7 +1,10 @@
 import { create } from "zustand";
 import { useProjectDetail } from "../context";
 import { alpha, Badge } from "@mui/material";
+import { BugReport, Commit } from "@mui/icons-material";
 import { ProjectRenderer } from "@/shared/features/projects";
+import { useFocus } from "@/renderer/shared/events";
+import { COLORS, neonGlowStyle } from "@/renderer/shared/theme";
 import {
   ChatMessageProps,
   ChatOnSubmitFunction,
@@ -9,8 +12,6 @@ import {
 } from "@/renderer/shared/common";
 import { Button } from "@/renderer/shared/form";
 import { ChatMessage, useCommitMessage } from "../hooks";
-import { BugReport, Commit } from "@mui/icons-material";
-import { COLORS, neonGlowStyle } from "@/renderer/shared/theme";
 
 const store = create<{
   messages: ChatMessageProps[];
@@ -47,7 +48,7 @@ const CommitMessagePresetButton = ({ project: { git }, onClick }: {
 };
 
 export const ProjectDetailChat = () => {
-  const { project } = useProjectDetail();
+  const { project, projectRefreshLocal } = useProjectDetail();
   const { addMessage, messages } = store();
 
   const handleSubmit: ChatOnSubmitFunction = ({ message }) => {
@@ -68,6 +69,12 @@ export const ProjectDetailChat = () => {
     project,
     addMessage,
   );
+
+  useFocus({
+    handleFocus: () => {
+      projectRefreshLocal();
+    },
+  });
 
   return <>
     <ChatWindow

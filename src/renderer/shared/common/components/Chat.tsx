@@ -2,6 +2,7 @@ import { Button, TextField } from '@/renderer/shared/form';
 import { Slab } from '../../base';
 import { Box, Grid, Stack } from '@mui/material';
 import React, { useState, useEffect } from 'react';
+import { Check } from '@mui/icons-material';
 
 export type ChatMessageProps = {
   actions?: React.ReactNode;
@@ -76,9 +77,7 @@ export const ChatWindow = ({
       />
 
       <Grid container spacing={2}>
-        <Button onClick={handleSubmitMessage}>
-          Submit
-        </Button>
+        <Button onClick={handleSubmitMessage}><Check /></Button>
         {actions}
       </Grid>
 

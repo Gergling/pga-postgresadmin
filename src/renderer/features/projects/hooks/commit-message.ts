@@ -9,6 +9,7 @@ import {
   ProjectFormattedCommitMessage
 } from "../components";
 import { commitMessageStore } from "../stores";
+import { useProjectDetail } from "../context";
 
 export type ChatMessage = Optional<ChatMessageProps, 'role' | 'timestamp'>;
 
@@ -29,6 +30,7 @@ export const useCommitMessage = (
     pushMessage({ content: 'Initiated fetching commit message...' });
     startFetchingCommitMessage();
   }, [startFetchingCommitMessage]);
+  const { projectRefreshLocal } = useProjectDetail();
 
   useEffect(() => {
     if (subscription.data) {
@@ -74,7 +76,10 @@ export const useCommitMessage = (
         pushMessage({
           actions: createElement(ProjectCommitButton, {
             message: commitMessage,
-            onCommit,
+            onCommit: () => {
+              onCommit();
+              projectRefreshLocal();
+            },
             project,
             pushMessage,
           }),

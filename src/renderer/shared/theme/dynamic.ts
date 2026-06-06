@@ -1,3 +1,4 @@
+import { CSSProperties } from "@mui/material";
 import { COLORS } from "./colors";
 import { NeonShadowProps } from "./types";
 
@@ -12,6 +13,21 @@ export const neonTextShadow = ({
   blur = '5px',
   color = COLORS.bloodGlow
 }: NeonShadowProps) => `text-shadow: 0 0 ${blur} ${color};`;
+
+export const neonGlowStyle = ({
+  blur = '15px',
+  color = COLORS.bloodGlow,
+  shadow: {
+    box = true,
+    text,
+  } = { box: true },
+}: NeonShadowProps): {
+  boxShadow?: CSSProperties['boxShadow'];
+  textShadow?: CSSProperties['textShadow'];
+} => ({
+  boxShadow: box ? `0 0 ${blur} ${color}` : undefined,
+  textShadow: text ? `0 0 ${blur} ${color}` : undefined,
+});
 
 export type FadingLineProps = {
   height?: number;

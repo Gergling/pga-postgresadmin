@@ -1,3 +1,4 @@
+export * from './cli';
 export * from './diary';
 export * from './environment';
 export * from './explorer';

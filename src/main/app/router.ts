@@ -2,6 +2,7 @@ import z from 'zod';
 import { EventEmitter } from 'events';
 import { tRPC } from '@/main/config';
 import {
+  cliRouter,
   diaryRouter,
   environmentRouter,
   explorerRouter,
@@ -14,6 +15,7 @@ import {
 const ee = new EventEmitter();
 
 export const router = tRPC.router({
+  cli: cliRouter,
   diary: diaryRouter,
   environments: environmentRouter,
   explorer: explorerRouter,

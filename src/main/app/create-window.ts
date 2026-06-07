@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import { createIPCHandler } from 'trpc-electron/main';
 import { EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED } from '@/ipc';
@@ -19,7 +19,7 @@ export const createWindow = (): void => {
   });
 
   // Load the index.html of the app.
-  if (process.env.ELECTRON_RENDERER_URL) {
+  if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
     mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL);
   } else {
     mainWindow.loadFile(path.join(import.meta.dirname, `../renderer/index.html`));

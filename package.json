@@ -48,7 +48,9 @@
     },
     "forceCodeSigning": false,
     "win": {
-      "target": ["nsis"]
+      "target": [
+        "nsis"
+      ]
     },
     "nsis": {
       "oneClick": true,
@@ -138,6 +140,7 @@
     "firebase-admin": "^13.6.0",
     "imapflow": "^1.2.3",
     "mailparser": "^3.9.1",
+    "ml-random-forest": "^2.1.0",
     "motion": "^12.34.3",
     "ollama": "^0.6.3",
     "pg": "^8.16.3",

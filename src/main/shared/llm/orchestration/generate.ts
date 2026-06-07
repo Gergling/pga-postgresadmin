@@ -6,7 +6,7 @@ import {
   LanguageModelSourceLevelConfigResponse
 } from "../types";
 import { generatorFactory } from '../utilities';
-import { fetchNextModelFactory } from './select';
+import { fetchNextModelFactory } from '../selection';
 import { LanguageAnalysisState } from "./state";
 import { transformLanguageModelResponse } from './transform';
 import { getRetryTimeout, getUpdateProps } from '../get-update-props';

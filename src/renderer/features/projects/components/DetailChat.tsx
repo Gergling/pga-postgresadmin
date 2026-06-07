@@ -12,6 +12,8 @@ import {
 } from "@/renderer/shared/common";
 import { Button } from "@/renderer/shared/form";
 import { ChatMessage, useCommitMessage } from "../hooks";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 const store = create<{
   messages: ChatMessageProps[];
@@ -48,6 +50,7 @@ const CommitMessagePresetButton = ({ project: { git }, onClick }: {
 };
 
 export const ProjectDetailChat = () => {
+  const { pathname } = useLocation();
   const { project, projectRefreshLocal } = useProjectDetail();
   const { addMessage, messages } = store();
 
@@ -70,11 +73,17 @@ export const ProjectDetailChat = () => {
     addMessage,
   );
 
+  // Refresh project local data when application has focus.
   useFocus({
     handleFocus: () => {
       projectRefreshLocal();
     },
   });
+
+  // Refresh project local data when switching tabs within a project.
+  useEffect(() => {
+    projectRefreshLocal();
+  }, [pathname])
 
   return <>
     <ChatWindow

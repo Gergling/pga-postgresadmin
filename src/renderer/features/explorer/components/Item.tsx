@@ -1,48 +1,40 @@
-import { useEffect, useReducer } from "react";
-import z from "zod";
-import { Folder, InsertDriveFile } from "@mui/icons-material";
+import { useEffect } from "react";
+import { BugReport, Folder, InsertDriveFile } from "@mui/icons-material";
 import { Grid, Stack } from "@mui/material";
-import { DirentSummary } from "@/main/features";
+import { skipToken } from "@tanstack/react-query";
+import { DirentSummary } from "@/shared/features/explorer";
 import { Button } from "@/renderer/shared/form";
 import { ListItem } from "@/renderer/shared/list";
-import { useExporerLocks } from "../hooks";
+import { trpcReact } from "@/renderer/libs/react-query";
+import { useExplorerListItem } from "../hooks";
 import { explorerHistoryStore } from "../stores";
 import { ExplorerList } from "./List";
-import { StatusIcon } from "./StatusIcon";
-
-// TODO: Probably don't need all of this.
-const stateSchema = z.object({
-  open: z.boolean().default(false),
-  fetchLocks: z.enum(['empty', 'initiated', 'done']).default('empty'),
-});
-const initialState = stateSchema.parse({});
-type State = z.infer<typeof stateSchema>;
-type Action = 'fetch' | 'lock' | 'open' | 'toggle';
-const reducer = (state: State, action: Action): State => {
-  switch (action) {
-    case 'fetch': return {
-      ...state,
-      fetchLocks: state.fetchLocks === 'empty' ? 'initiated' : state.fetchLocks,
-    };
-    case 'lock': return { ...state, fetchLocks: 'done' };
-    case 'open': return { ...state, open: true };
-    case 'toggle': return { ...state, open: !state.open };
-    default: return state;
-  }
-}
 
 export const ExplorerItem = ({
-  absolutePath, isDirectory, name
+  absolutePath, name, options: { expand, testable }
 }: DirentSummary) => {
-  const [{ open }, dispatch] = useReducer(reducer, initialState);
-  const { refetch, result } = useExporerLocks(absolutePath);
+  const [{ open, unitTest }, dispatch] = useExplorerListItem({
+    unitTest: testable === 'create' ? 'eligible' : 'none'
+  });
+  // const { refetch, result } = useExplorerLocks(absolutePath);
 
   const { addHistory, history } = explorerHistoryStore();
-  const handleClick = () => {
+  const {
+    data: unitTestCreationData
+  } = trpcReact.explorer.createUnitTest.useSubscription(
+    unitTest === 'initiated' ? absolutePath : skipToken
+  );
+
+  const handleExpand = () => {
     dispatch('toggle');
     // Note: Should probably disable until settled.
-    refetch();
+    // refetch();
   }
+  const handleCreateUnitTest = () => {
+    if (unitTest === 'eligible') dispatch({
+      type: 'unit-test', payload: 'initiate'
+    });
+  };
 
   useEffect(() => {
     history.includes(absolutePath) && dispatch('open');
@@ -50,29 +42,55 @@ export const ExplorerItem = ({
   useEffect(() => {
     if (open) addHistory(absolutePath);
   }, [absolutePath, open]);
+  useEffect(() => {
+    dispatch({ type: 'unit-test', payload: 'create' });
+  }, [unitTest]);
+  useEffect(() => {
+    if (unitTestCreationData) {
+      const { payload: { status } } = unitTestCreationData;
+      console.log(unitTestCreationData)
+      if (status === 'success') {
+        dispatch({
+          type: 'unit-test', payload: 'complete'
+        });
+      }
+      if (status === 'failed') {
+        dispatch({
+          type: 'unit-test', payload: 'fail'
+        });
+      }
+    }
+  }, [unitTestCreationData]);
 
   return <>
     <ListItem>
       <Stack spacing={2} direction={'column'}>
         <Grid container spacing={2} alignItems={'center'}>
           <Grid size={'auto'}>
-            <Button onClick={handleClick} sx={{
-              borderRadius: '50%', p: 0, m: 0, w: 4, h: 4
+            <Button onClick={handleExpand} sx={{
+              p: 0, m: 0, w: 4, h: 4
             }}>
-              {isDirectory
+              {expand
                 ? <Folder />
                 : <InsertDriveFile />
               }
             </Button>
           </Grid>
           <Grid size={'auto'}>
-            <StatusIcon result={result} />
+            {/* <StatusIcon result={result} /> */}
           </Grid>
           <Grid size={'grow'}>
             {name}
           </Grid>
+          {testable && <Grid size={'auto'}>
+            <Button onClick={handleCreateUnitTest} sx={{
+              p: 0, m: 0, w: 4, h: 4
+            }}>
+              <BugReport />
+            </Button>
+          </Grid>}
         </Grid>
-        {isDirectory && open && <ExplorerList path={absolutePath} />}
+        {expand && open && <ExplorerList path={absolutePath} />}
       </Stack>
     </ListItem>
   </>

@@ -14,6 +14,11 @@ const tabs = [
     // TODO: Provide a hover "i" icon to display the "why" it's disabled.
     disable: () => '',
   },
+  {
+    label: 'Explorer', path: 'explorer',
+    // If no local presence, disable the tab.
+    disable: () => '',
+  },
   { label: 'Notes', path: 'notes' },
 ] as const;
 

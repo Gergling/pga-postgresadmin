@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { useProjectDetail } from "../context";
+import { useProjectDetail } from "../../context";
 import { alpha, Badge } from "@mui/material";
 import { BugReport, Commit } from "@mui/icons-material";
 import { ProjectRenderer } from "@/shared/features/projects";
@@ -11,7 +11,7 @@ import {
   ChatWindow,
 } from "@/renderer/shared/common";
 import { Button } from "@/renderer/shared/form";
-import { ChatMessage, useCommitMessage } from "../hooks";
+import { ChatMessage, useCommitMessage } from "../../hooks";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 

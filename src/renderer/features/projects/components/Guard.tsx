@@ -1,8 +1,8 @@
 import { useParams } from "react-router-dom";
-import { useProjects } from "../hooks";
 import { ErrorBoundary } from "@/renderer/shared/common";
 import { ProjectDetailProvider } from "../context";
-import { ProjectDetail } from "./Detail";
+import { useProjects } from "../hooks";
+import { ProjectDetail } from "./detail";
 
 export const ProjectGuard = () => {
   const { projectName } = useParams();

@@ -26,7 +26,7 @@ const getResult = ({
   return 'unknown';
 }
 
-export const useExporerLocks = (path: string) => {
+export const useExplorerLocks = (path: string) => {
   const props = trpcReact.explorer.locks.useQuery(path, { enabled: false });
 
   const result = useMemo(() => getResult(props), [props]);

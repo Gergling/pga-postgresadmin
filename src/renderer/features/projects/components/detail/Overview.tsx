@@ -1,6 +1,6 @@
 import { ParentheticalContainer } from "@/renderer/shared/brackets";
-import { ProjectStatus } from "./Status";
-import { useProjectDetail } from "../context";
+import { ProjectStatus } from "../Status";
+import { useProjectDetail } from "../../context";
 
 const Parenthetical = (
   props: Parameters<typeof ParentheticalContainer>[0]

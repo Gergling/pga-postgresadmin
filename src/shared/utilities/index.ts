@@ -2,6 +2,7 @@ export * from './aggregator';
 export * from './codec';
 export * from './colour';
 export * from './date';
+export * from './fallback';
 export * from './history';
 export * from './initialiser';
 export * from './maths';

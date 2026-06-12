@@ -98,3 +98,6 @@ out/
 
 # Automated Assistance
 .aider*
+
+# Reporting
+reports/

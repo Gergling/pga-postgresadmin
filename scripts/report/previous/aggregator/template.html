@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Health & Debt Triage Report</title>
+    <!-- Load Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for clarity */
+        :root {
+            font-family: 'Inter', sans-serif;
+        }
+        .status-highlight {
+            background-color: #fca5a5; /* Red-300 */
+            color: #7f1d1d; /* Red-900 */
+            font-weight: 600;
+        }
+        .status-default {
+            background-color: #d1fae5; /* Green-100 */
+            color: #065f46; /* Green-900 */
+        }
+        .status-mute {
+            background-color: #f3f4f6; /* Gray-100 */
+            color: #4b5563; /* Gray-600 */
+        }
+        .status-header {
+            min-width: 150px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-8 p-4 bg-white shadow-lg rounded-xl">
+            <h1 class="text-3xl font-bold text-gray-900">Code Health Aggregation Report</h1>
+            <p class="text-gray-500 mt-1">Unified view of Technical Debt (Knip, Coverage, TS Errors).</p>
+        </header>
+
+        <div id="summary" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <!-- Summary cards will be injected here -->
+        </div>
+
+        <div class="bg-white shadow-lg rounded-xl p-6">
+            <h2 class="text-2xl font-semibold mb-6 border-b pb-3">File-Level Debt Triage</h2>
+            
+            <div id="filter-controls" class="mb-4 flex flex-wrap gap-4">
+                <input type="text" id="file-filter" placeholder="Filter by file name..." 
+                       class="p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 w-full md:w-64">
+                <select id="status-filter" class="p-2 border border-gray-300 rounded-lg shadow-sm w-full md:w-48">
+                    <option value="">All Statuses</option>
+                    <!-- Options populated dynamically -->
+                </select>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr id="table-header-row">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50">File Path</th>
+                            <!-- Aggregation headers will be injected here -->
+                        </tr>
+                    </thead>
+                    <tbody id="report-body" class="bg-white divide-y divide-gray-200">
+                        <!-- Report rows will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <p id="no-results" class="hidden text-center text-gray-500 p-8">No files match the current filters.</p>
+        </div>
+    </div>
+
+    <script>
+        // *** 1. EMBEDDED REPORT DATA ***
+        // Your Node.js script replaces this placeholder with the final JSON string:
+        const rawReportData = 'REPORT_DATA_PLACEHOLDER'; 
+        
+        // Example structure for demonstration purposes (DELETE THIS SECTION in final implementation):
+        const exampleReport = {
+            "src/utils/math.ts": {
+                "src": "src/utils/math.ts",
+                "aggregation": {
+                    "ts-errors": "default",
+                    "knip-usage": "highlight", // Unused
+                    "coverage-unit": "highlight" // Untested
+                },
+                "lines": []
+            },
+            "src/components/button.tsx": {
+                "src": "src/components/button.tsx",
+                "aggregation": {
+                    "ts-errors": "default",
+                    "knip-usage": "default", // Used
+                    "coverage-unit": "default" // Covered
+                },
+                "lines": []
+            },
+            "src/api/config.ts": {
+                "src": "src/api/config.ts",
+                "aggregation": {
+                    "ts-errors": "highlight", // Has error
+                    "knip-usage": "highlight", // Unused
+                    "coverage-unit": "mute" // Ignored
+                },
+                "lines": []
+            }
+        };
+
+        const NormalisedReport = rawReportData.startsWith('{') ? JSON.parse(rawReportData) : exampleReport;
+        
+        // --- Core Rendering Logic ---
+
+        const reportBody = document.getElementById('report-body');
+        const headerRow = document.getElementById('table-header-row');
+        const statusFilter = document.getElementById('status-filter');
+        const fileFilter = document.getElementById('file-filter');
+        const noResultsMessage = document.getElementById('no-results');
+        
+        // Get all unique aggregation names (e.g., 'ts-errors', 'knip-usage')
+        let aggregationNames = [];
+        if (Object.keys(NormalisedReport).length > 0) {
+            aggregationNames = Object.keys(Object.values(NormalisedReport)[0].aggregation);
+        }
+
+        // Map statuses to CSS classes
+        const statusClassMap = {
+            'highlight': 'status-highlight',
+            'default': 'status-default',
+            'mute': 'status-mute'
+        };
+
+        // --- Step 2: Build Table Headers and Filters ---
+
+        function setupHeadersAndFilters() {
+            // Build table headers
+            aggregationNames.forEach(name => {
+                const th = document.createElement('th');
+                th.className = 'status-header px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+                th.textContent = name.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
+                headerRow.appendChild(th);
+            });
+
+            // Populate filter options (for demonstration, filtering on CRITICAL debt)
+            const criticalDebtFilter = document.createElement('option');
+            criticalDebtFilter.value = 'CRITICAL_DEBT';
+            criticalDebtFilter.textContent = 'CRITICAL DEBT (Knip+Cov Fail)';
+            statusFilter.appendChild(criticalDebtFilter);
+        }
+
+        // --- Step 3: Filtering and Rendering ---
+
+        function renderReport() {
+            reportBody.innerHTML = '';
+            let filesRendered = 0;
+            const searchTerm = fileFilter.value.toLowerCase();
+            const selectedStatus = statusFilter.value;
+
+            Object.entries(NormalisedReport).forEach(([filePath, fileData]) => {
+                // Apply Text Filter
+                if (searchTerm && !filePath.toLowerCase().includes(searchTerm)) {
+                    return;
+                }
+
+                // Apply Custom CRITICAL DEBT Filter
+                let meetsCustomFilter = true;
+                if (selectedStatus === 'CRITICAL_DEBT') {
+                    const isKnipFail = fileData.aggregation['knip-usage'] === 'highlight';
+                    const isCovFail = fileData.aggregation['coverage-unit'] === 'highlight';
+                    meetsCustomFilter = isKnipFail && isCovFail;
+                }
+
+                if (!meetsCustomFilter) {
+                    return;
+                }
+
+                filesRendered++;
+
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 transition-colors';
+
+                // File Path Cell (Sticky)
+                let filePathCell = document.createElement('td');
+                filePathCell.className = 'px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 sticky left-0 bg-white border-r';
+                filePathCell.textContent = filePath;
+                row.appendChild(filePathCell);
+
+                // Status Cells
+                aggregationNames.forEach(name => {
+                    const status = fileData.aggregation[name] || 'mute';
+                    const cell = document.createElement('td');
+                    cell.className = `px-6 py-2 whitespace-nowrap text-xs text-center font-mono rounded-full m-1 inline-block ${statusClassMap[status]}`;
+                    
+                    // Simple text mapping for status
+                    let statusText = '';
+                    if (status === 'highlight') statusText = 'FAIL';
+                    else if (status === 'default') statusText = 'PASS';
+                    else statusText = 'MUTE';
+                    
+                    cell.textContent = statusText;
+                    
+                    const wrapperCell = document.createElement('td');
+                    wrapperCell.className = 'px-2 py-2 whitespace-nowrap text-sm text-gray-500 text-center';
+                    wrapperCell.appendChild(cell);
+                    row.appendChild(wrapperCell);
+                });
+
+                reportBody.appendChild(row);
+            });
+            
+            // Show message if no results
+            if (filesRendered === 0) {
+                noResultsMessage.classList.remove('hidden');
+            } else {
+                noResultsMessage.classList.add('hidden');
+            }
+        }
+
+        // --- Step 4: Initialization and Event Listeners ---
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            setupHeadersAndFilters();
+            renderReport(); 
+
+            fileFilter.addEventListener('input', renderReport);
+            statusFilter.addEventListener('change', renderReport);
+        });
+
+    </script>
+</body>
+</html>

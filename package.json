@@ -22,7 +22,8 @@
     "type-check": "tsc -p tsconfig.check.json",
     "orchestrate": "tsx scripts/agent/orchestrator",
     "scripts-main": "tsx scripts/main/run.ts",
-    "shared-experiments": "tsx src/shared/experiments/reductive-unifying-theory.ts"
+    "shared-experiments": "tsx src/shared/experiments/reductive-unifying-theory.ts",
+    "report": "tsx scripts/report/run.ts"
   },
   "build": {
     "appId": "com.gergling.wsu",
@@ -152,6 +153,7 @@
     "trpc-electron": "^0.1.2",
     "typesaurus": "^10.7.0",
     "zod": "^4.3.6",
+    "zod-deep-partial": "^1.4.4",
     "zustand": "^5.0.7"
   },
   "overrides": {

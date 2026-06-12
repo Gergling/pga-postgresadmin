@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Code Health & Debt Triage Report</title>
+    <style>
+      :root {
+        font-family: 'Inter', sans-serif;
+      }
+      .overview .visibility {
+        width: 320px; height: 200px; display: flex;
+        background-color: #eee;
+        padding: 5px;
+      }
+      .overview .visibility .overview-visibility-cell {
+        background-color: #eee;
+        /* border-radius: 5px;
+        border-style: solid;
+        border-width: 2px; */
+        /* margin: 5px;
+        padding: 5px; */
+        text-align: center;
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        gap: 5px;
+        flex-grow: 1;
+      }
+      /* .overview .visibility .overview-visibility-cell.even {  } */
+      .overview .visibility .overview-visibility-cell.odd { flex-direction: column; }
+      .overview .visibility .overview-visibility-cell > .body {
+        flex-grow: 1;
+        
+        background-color: white;
+        padding: 5px;        
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-content: center;
+      }
+      .overview .visibility .overview-visibility-cell > .body > .label {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        flex: 1;
+        text-align: center;
+      }
+      .overview .visibility .overview-visibility-cell > .body > .value {
+        flex: 1;
+        border-radius: 5px;
+        color: white;
+        align-content: center;
+        /* border-style: solid; */
+        /* border-width: 2px; */
+      }
+      .overview .visibility .overview-visibility-cell.even > .body {
+        /* width: 100%; height: 50%; */
+      }
+      .overview .visibility .overview-visibility-cell.odd > .body {
+        /* width: 50%; height: 100%; */
+      }
+      .overview .visibility .overview-visibility-cell > .child {
+        flex-grow: 1;
+
+        display: flex;
+      }
+      /* .overview .visibility .highlight { width: 50%; height: 100%; }
+      .overview .visibility .default { width: 50%; height: 50%; }
+      .overview .visibility .overview { width: 25%; height: 50%; }
+      .overview .visibility .mute { width: 25%; height: 25%; }
+      .overview .visibility .reports { width: 25%; height: 25%; } */
+        
+
+    </style>
+  </head>
+  <body class="bg-gray-50 text-gray-800 p-4 md:p-8">
+    %%BODY%%
+  </body>
+</html>

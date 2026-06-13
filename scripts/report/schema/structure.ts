@@ -1,46 +1,10 @@
-import { Temporal } from '@js-temporal/polyfill';
-import z from 'zod';
+import z from "zod";
 import { zodDeepPartial } from "zod-deep-partial";
+import { qualityReportAnalysesSchema } from "./analysis";
+import { architectureSchema, architectureTypeSchema } from "./base";
+import { getNow } from "./utilities";
 
-export const getNow = () => Temporal.Now.zonedDateTimeISO().toString();
-
-const qualityReportCategorySchema = z.enum(['coverage', 'dead', 'lint']);
-// type QualityReportCategory = z.infer<typeof qualityReportCategorySchema>;
-const qualityReportCategoryEntries = qualityReportCategorySchema.def.entries;
-
-// const qualityReportPriorityTypeSchema = z
-//   .enum(['highlight', 'default', 'mute'])
-//   .describe('Can be set against the file level (via globbing) to describe certain types of quality aggregation.');
-const qualityReportCoverageTypeSchema = z.enum(['unit', 'component', 'integration']);
-
-const qualityReportLintSchema = z.enum(['ok', 'info', 'warn', 'error']);
-export type QualityReportLint = z.infer<typeof qualityReportLintSchema>;
-
-const qualityReportCoverageSchema = z.object({
-  // hasTestFile: z.boolean(),
-  // hasTests: z.boolean(),
-  // TODO: Statements, branches, etc.
-  // TODO: Also type of test, e.g. unit, integration.
-  type: qualityReportCoverageTypeSchema,
-}).describe(
-  'Data around test coverage, including unit, component, integration, etc.'
-);
-
-export const qualityReportAnalysisSchema = z.object({
-  [qualityReportCategoryEntries.coverage]: qualityReportCoverageSchema.optional(),
-  [qualityReportCategoryEntries.dead]: z.boolean().optional(),
-  [qualityReportCategoryEntries.lint]: qualityReportLintSchema.default('ok'),
-});
-
-export type QualityReportAnalysis = z.infer<typeof qualityReportAnalysisSchema>;
-
-const qualityReportAnalysesSchema = z.record(
-  z.string(), qualityReportAnalysisSchema.extend({
-    updated: z.string()
-  })
-).default({}).describe('Each configured analysis should put its data here.');
-
-const qualityReportLineSchema = z.object({
+export const qualityReportLineSchema = z.object({
   analyses: qualityReportAnalysesSchema,
   git: z.union([
     z.literal('none'),
@@ -54,16 +18,7 @@ const qualityReportLineSchema = z.object({
 
 export type QualityReportLine = z.infer<typeof qualityReportLineSchema>;
 
-const architectureTypeSchema = z.enum(['commentary', 'deviations']);
-
-const architectureSchema = z.object({
-  content: z.string().default(''),
-  type: architectureTypeSchema,
-  updated: z.string(), // temporalCodec.encode to store, ideally should
-  // validate to something or whatever
-});
-
-const qualityReportFileSchema = z.object({
+export const qualityReportFileSchema = z.object({
   analyses: qualityReportAnalysesSchema,
   architecture: z.record(architectureTypeSchema, architectureSchema).default(
     () => architectureTypeSchema.options.reduce((acc, type) => ({
@@ -139,7 +94,6 @@ export const qualityReportSchema = z.object({
   //   },
   // },
 });
-
 
 export type QualityReport = z.infer<typeof qualityReportSchema>;
 const deepPartialQualityReportSchema = zodDeepPartial(qualityReportSchema);

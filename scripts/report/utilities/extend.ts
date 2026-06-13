@@ -1,5 +1,12 @@
 import { deepMerge } from "./";
-import { DeepPartialQualityReport, QualityReport, QualityReportFile, qualityReportSchema } from "../schema";
+import {
+  DeepPartialQualityReport,
+  DeepPartialQualityReportFile,
+  getNow,
+  QualityReport,
+  QualityReportAnalysis,
+  qualityReportSchema
+} from "../schema";
 
 type ExcludeFilesKeyExplicitly = Exclude<keyof QualityReport, 'files'>;
 type FilesRecord = DeepPartialQualityReport['files'];
@@ -15,7 +22,7 @@ type MergeReportPayload = DeepPartialQualityReport | {
     value: FilesRecord;
   } | {
     path: string;
-    value: QualityReportFile;
+    value: DeepPartialQualityReportFile;
   }
 ))
 // & (
@@ -79,4 +86,32 @@ export const mergeReport = (
   return qualityReportSchema.parse(
     deepMerge(report, { files: { [payload.path]: payload.value } })
   );
+};
+
+type MergeReportFactoryParams = {
+  analysis: QualityReportAnalysis;
+  line?: number;
+  name: string;
+  path: string;
+};
+
+export type SetAnalysis = (params: MergeReportFactoryParams) => QualityReport;
+
+export const mergeReportFactory = (base: QualityReport) => {
+  const setAnalysis: SetAnalysis = ({ analysis, line, name, path }) => {
+    const analyses = { [name]: { updated: getNow(), ...analysis } };
+    if (line === undefined) {
+      base = mergeReport(base, {
+        type: 'files', path, value: { analyses },
+      });
+      return base;
+    }
+
+    base = qualityReportSchema.parse(
+      deepMerge(base, { files: { [path]: { lines: { [line]: { analyses }}} } })
+    );
+    return base;
+  };
+
+  return { base, setAnalysis };
 };

@@ -3,12 +3,12 @@ import { resolve } from "path";
 import { readFileContents } from "@/main/shared/file/contents";
 import { fileExists } from "@/main/shared/file/exists";
 import { QualityReport, QualityReportFile, qualityReportSchema } from "./schema";
-import { config } from "./config";
 import { normalise } from "./utilities/normalise";
-import { mergeReport } from "./utilities";
+import { mergeReportFactory } from "./utilities";
 import { Task } from "tasuku";
+import { ConfigParams } from "./utilities/config";
 
-const extractQualityReportData = async (path: string) => {
+const extractQualityReportData = async (path: string): Promise<unknown> => {
   try {
     // Check whether the file exists.
     // If not, return an empty object.
@@ -65,59 +65,61 @@ const extractFileStructureFactory = (
 export const extractQualityReport = async (
   basePath: string,
   reportPath: string,
+  analyses: ConfigParams['analyses'],
   task: Task
 ) => {
   // Get file structure.
   const path = resolve(basePath, reportPath);
   try {
-    const { result: reportData } = await task(
+    const { result: report } = await task(
       `Extracting report data for ${basePath} expecting report at ${reportPath}.`,
-      () => extractQualityReportData(path)
+      async ({ setError }) => {
+        try {
+          const data = await extractQualityReportData(path);
+          const parsed = typeof data === 'string' && typeof data !== 'object'
+            ? JSON.parse(data)
+            : data
+          ;
+          return qualityReportSchema.parse(parsed);
+        } catch(e) {
+          if (e instanceof Error || typeof e === 'string') {
+            setError(e);
+          } else {
+            setError(JSON.stringify(e));
+          }
+          throw e;
+        }
+      }
     );
 
-    const report = qualityReportSchema.parse(reportData);
     // TODO: Need to feed filtered excluded or included files into here.
     const files = extractFileStructureFactory(basePath, report.files);
 
     const { result } = await task(
       'Running config functions',
       async ({ task }) => {
-        let acc = { ...report, files };
-        for (const configIdx in config) {
-          const { result } = await task(
+        const { base, setAnalysis } = mergeReportFactory({ ...report, files });
+        for (const configIdx in analyses) {
+          await task(
             `Running config function ${configIdx}`,
             async ({ setWarning, task }) => {
-              const fn = config[configIdx];
+              const fn = analyses[configIdx];
 
               try {
                 // TODO: Include a function to easily find the included/excluded files.
-                const report = fn({ task });
-                try {
-                  return mergeReport(acc, report);
-                } catch (e) {
-                  setWarning('Config Result Parse Error');
-                  // if (e instanceof Error  || typeof e === 'string') {
-                  //   setWarning(e);
-                  // } else {
-                  //   setWarning(JSON.stringify(e));
-                  // }
-                  // console.error(report);
-                  // return acc;
-                  throw e;
-                }
+                fn({ setAnalysis, task });
               } catch (e) {
                 if (e instanceof Error  || typeof e === 'string') {
                   setWarning(e);
                 } else {
                   setWarning(JSON.stringify(e));
                 }
-                return acc;
               }
+              return;
             }
           );
-          acc = { ...acc, ...result };
         }
-        return acc;
+        return base;
       }
     );
 

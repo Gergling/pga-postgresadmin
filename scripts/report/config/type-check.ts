@@ -1,8 +1,12 @@
 import ts from 'typescript';
 import * as path from 'path';
 import { normalizeAndRelativizePath } from '@/main/shared/file/path';
-import { DeepPartialQualityReport, QualityReport, QualityReportLine, QualityReportLint } from '../schema';
-import { ConfigFnc } from '../types';
+import {
+  DeepPartialQualityReport,
+  QualityReportLine,
+  QualityReportLint
+} from '../schema';
+import { AnalysisFunction } from '../utilities/config';
 
 const getLintCategory = (category: ts.DiagnosticCategory): QualityReportLint => {
   switch (category) {
@@ -24,7 +28,7 @@ const getLintCategory = (category: ts.DiagnosticCategory): QualityReportLint => 
  *
  * @returns A NormalisedReport object highlighting files with TypeScript errors.
  */
-export const typeCheck: ConfigFnc = ({ task }) => {
+export const typeCheck: AnalysisFunction = ({ task }) => {
   // TODO: Take into account the production excluded files and highlight
   // everything else. Anything from the production tsconfig that has an
   // error will fail the build.

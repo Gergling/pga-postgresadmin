@@ -1,21 +1,6 @@
 import { Task } from "tasuku";
 import z from "zod";
 import { qualityReportAnalysisSchema } from "../schema";
-// import task from "tasuku";
-// import { Config, ConfigFnc } from "../types";
-
-// (props: {
-//   setAnalysis: SetAnalysis, task: Task
-// }) => void;
-
-// type MergeReportFactoryParams = {
-//   analysis: QualityReportAnalysis;
-//   line?: number;
-//   name: string;
-//   path: string;
-// };
-
-// export type SetAnalysis = (params: MergeReportFactoryParams) => void;
 
 export const mergeReportFactoryParamsSchema = z.object({
   analysis: qualityReportAnalysisSchema,
@@ -32,9 +17,10 @@ export const setAnalysisSchema = z.function({
 
 export const analysisFunctionSchema = z.function({ input: z.array(z.object({
   setAnalysis: setAnalysisSchema,
-  task: z.custom<Task>((val) => {
-    return val !== null && typeof val === 'object' && 'clear' in val;
-  }, "Invalid Tasuku Task instance"),
+  task: z.custom<Task>(
+    (val) => val !== null && typeof val === 'function' && 'group' in val,
+    "Invalid Tasuku Task instance"
+  ),
 })) });
 
 export type AnalysisFunction = z.infer<typeof analysisFunctionSchema>;

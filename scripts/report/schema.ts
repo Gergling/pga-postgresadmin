@@ -22,12 +22,33 @@ const qualityReportCoverageSchema = z.object({
   // TODO: Statements, branches, etc.
   // TODO: Also type of test, e.g. unit, integration.
   type: qualityReportCoverageTypeSchema,
-}).describe('Data around test coverage, including unit, component, integration, etc.');
+}).describe(
+  'Data around test coverage, including unit, component, integration, etc.'
+);
+
+export const qualityReportAnalysisSchema = z.object({
+  [qualityReportCategoryEntries.coverage]: qualityReportCoverageSchema.optional(),
+  [qualityReportCategoryEntries.dead]: z.boolean().optional(),
+  [qualityReportCategoryEntries.lint]: qualityReportLintSchema.default('ok'),
+});
+
+export type QualityReportAnalysis = z.infer<typeof qualityReportAnalysisSchema>;
+
+const qualityReportAnalysesSchema = z.record(
+  z.string(), qualityReportAnalysisSchema.extend({
+    updated: z.string()
+  })
+).default({}).describe('Each configured analysis should put its data here.');
 
 const qualityReportLineSchema = z.object({
-  [qualityReportCategoryEntries.coverage]: qualityReportCoverageSchema,
-  [qualityReportCategoryEntries.dead]: z.string().default('Not implemented yet'), // Dead lines of code.
-  [qualityReportCategoryEntries.lint]: qualityReportLintSchema,
+  analyses: qualityReportAnalysesSchema,
+  git: z.union([
+    z.literal('none'),
+    z.literal('unknown'),
+    z.object({
+      lastCommitDate: z.string(),
+    })
+  ]).default('unknown'),
   line: z.number(),
 }).describe('Line-level data.');
 
@@ -43,6 +64,7 @@ const architectureSchema = z.object({
 });
 
 const qualityReportFileSchema = z.object({
+  analyses: qualityReportAnalysesSchema,
   architecture: z.record(architectureTypeSchema, architectureSchema).default(
     () => architectureTypeSchema.options.reduce((acc, type) => ({
       ...acc,
@@ -58,23 +80,25 @@ const qualityReportFileSchema = z.object({
     path: z.string(),
     type: z.enum(['directory', 'file']),
   }).describe('Data about the file structure.'),
-  summary: z.object({
-    [qualityReportCategoryEntries.coverage]: z.record(
-      qualityReportCoverageTypeSchema, qualityReportCoverageSchema
-    ).optional(), // Possibly needs a special file-level coverage aggregation.
-    // Can/should be aggregated by type
-    [qualityReportCategoryEntries.dead]: z.object({
-      exports: z.number().describe('Names the unused exports in the file.'),
-    }).optional(),
-    [qualityReportCategoryEntries.lint]: z.object({
-      circular: z.string()
-        .describe('This is a simple array of circular dependency file paths associated with this file.'),
-      lines: qualityReportLintSchema,
-    }).optional(),
-  }).optional().describe('Summarises anything from the line-level data.'),
+  // summary: z.object({
+  //   [qualityReportCategoryEntries.coverage]: z.record(
+  //     qualityReportCoverageTypeSchema, qualityReportCoverageSchema
+  //   ).optional(), // Possibly needs a special file-level coverage aggregation.
+  //   // Can/should be aggregated by type
+  //   [qualityReportCategoryEntries.dead]: z.object({
+  //     exports: z.number().describe('Names the unused exports in the file.'),
+  //   }).optional(),
+  //   [qualityReportCategoryEntries.lint]: z.object({
+  //     circular: z.string()
+  //       .describe('This is a simple array of circular dependency file paths associated with this file.'),
+  //     lines: qualityReportLintSchema,
+  //   }).optional(),
+  // }).optional().describe('Summarises anything from the line-level data.'),
 });
 
 export type QualityReportFile = z.infer<typeof qualityReportFileSchema>;
+const deepPartialQualityReportFileSchema = zodDeepPartial(qualityReportFileSchema);
+export type DeepPartialQualityReportFile = z.infer<typeof deepPartialQualityReportFileSchema>;
 
 export const qualityReportSchema = z.object({
   files: z.record(z.string(), qualityReportFileSchema).default({})

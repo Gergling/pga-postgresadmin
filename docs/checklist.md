@@ -57,8 +57,8 @@ Using the application will be easier if there is a "production mode" to run it i
     - [X] Implement electron-vite's beta. Completion is a working development-mode application.
     - [X] Get `make` working to prove a build will work at all.
     - [X] Fix production build so it's not a white background.
-    - [ ] Switch off dev features in production build.
-  - [ ] Build workflow should trigger from a new tag created.
+    - [X] Switch off dev features in production build.
+  - [X] Build workflow should trigger from a new tag created.
 - Self-downloading mechanism, in which the latest build alerts IF of a higher version than the current interface build.
   - [ ] Component in Settings should check github for releases and provide a version for the latest.
   - [ ] This component should update when the app is brought into focus.
@@ -210,6 +210,19 @@ Decisions:
 - 25C with wind below, say 10mph
 
 ### Calendar/Email Event Creation
+
+### Project Creation
+
+Initial functionality is just creating a local folder in the relevant folder (if it exists) and (for now) a command line shortcut (we can remove this functionality if we put in a custom CLI later).
+
+#### Tasks
+
+- [ ] Code for the main thread folder creation.
+- [ ] Code for the main thread CLI shortcut creation.
+- [ ] Code for IPC.
+- Projects List Renderer
+  - [ ] Projects list needs a create button which triggers a modal with an input for the project name.
+  - [ ] Input should validate for folder-name-compatible characters. Could provide substitution. This is probably a simple snippet or library somewhere.
 
 ## Done
 

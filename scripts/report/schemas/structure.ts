@@ -3,6 +3,7 @@ import { zodDeepPartial } from "zod-deep-partial";
 import { qualityReportAnalysesSchema } from "./analysis";
 import { architectureSchema, architectureTypeSchema } from "./base";
 import { getNow } from "./utilities";
+import { qualityReportScoringSchema } from "./scoring";
 
 export const qualityReportLineSchema = z.object({
   analyses: qualityReportAnalysesSchema,
@@ -35,6 +36,7 @@ export const qualityReportFileSchema = z.object({
     path: z.string(),
     type: z.enum(['directory', 'file']),
   }).describe('Data about the file structure.'),
+  scores: qualityReportScoringSchema,
   // summary: z.object({
   //   [qualityReportCategoryEntries.coverage]: z.record(
   //     qualityReportCoverageTypeSchema, qualityReportCoverageSchema

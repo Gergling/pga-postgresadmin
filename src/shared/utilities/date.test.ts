@@ -4,7 +4,8 @@ import z from "zod";
 // Relative imports for the module under test
 import {
   transformToRfc9557,
-  Rfc9557ObjectSchemaInput
+  Rfc9557ObjectSchemaInput,
+  transformStringToRfc9557
 } from './date';
 
 describe('date', () => {
@@ -84,6 +85,74 @@ describe('date', () => {
       };
       expect(() => transformToRfc9557(input)).toThrow(z.ZodError);
       expect(() => transformToRfc9557(input)).toThrow(/Invalid input: Must be a 4-digit string/);
+    });
+  });
+
+  describe('transformStringToRfc9557', () => {
+    it('should correctly format a human-readable local string (BST) to an RFC 9557 string', () => {
+      const rawString = '05/01/2023, 09:30:05 BST';
+      const expected = '2023-01-05T09:30:05+01:00[Europe/London]';
+      expect(transformStringToRfc9557(rawString)).toBe(expected);
+    });
+
+    it('should correctly format a human-readable local string (GMT) to an RFC 9557 string with UTC offset', () => {
+      // Note: transformStringToRfc9557's internal logic only checks for "BST"
+      // If "GMT" is present, it falls back to UTC offset and name.
+      const rawString = '05/01/2023, 09:30:05 GMT';
+      const expected = '2023-01-05T09:30:05+00:00[UTC]';
+      expect(transformStringToRfc9557(rawString)).toBe(expected);
+    });
+
+    it('should correctly format a human-readable local string without TZ abbreviation to an RFC 9557 string with UTC offset', () => {
+      const rawString = '05/01/2023, 09:30:05';
+      const expected = '2023-01-05T09:30:05+00:00[UTC]';
+      expect(transformStringToRfc9557(rawString)).toBe(expected);
+    });
+
+    it('should handle double-digit hour correctly', () => {
+      const rawString = '05/01/2023, 19:30:05 BST';
+      const expected = '2023-01-05T19:30:05+01:00[Europe/London]';
+      expect(transformStringToRfc9557(rawString)).toBe(expected);
+    });
+
+    it('should handle double-digit month correctly', () => {
+      const rawString = '05/11/2023, 09:30:05 BST';
+      const expected = '2023-11-05T09:30:05+01:00[Europe/London]';
+      expect(transformStringToRfc9557(rawString)).toBe(expected);
+    });
+
+    it('should handle double-digit day correctly', () => {
+      const rawString = '15/01/2023, 09:30:05 BST';
+      const expected = '2023-01-15T09:30:05+01:00[Europe/London]';
+      expect(transformStringToRfc9557(rawString)).toBe(expected);
+    });
+
+    it('should throw an error for an invalid date separator', () => {
+      const rawString = '05-01-2023, 09:30:05 BST';
+      expect(() => transformStringToRfc9557(rawString)).toThrow(
+        'Format is not DD/MM/YYYY, HH:mm:ss.'
+      );
+    });
+
+    it('should throw an error for a missing comma between date and time', () => {
+      const rawString = '05/01/2023 09:30:05 BST';
+      expect(() => transformStringToRfc9557(rawString)).toThrow(
+        'Format is not DD/MM/YYYY, HH:mm:ss.'
+      );
+    });
+
+    it('should throw an error for an invalid time separator', () => {
+      const rawString = '05/01/2023, 09.30.05 BST';
+      expect(() => transformStringToRfc9557(rawString)).toThrow(
+        'Format is not DD/MM/YYYY, HH:mm:ss.'
+      );
+    });
+
+    it('should throw an error for an entirely invalid string format', () => {
+      const rawString = 'invalid string';
+      expect(() => transformStringToRfc9557(rawString)).toThrow(
+        'Format is not DD/MM/YYYY, HH:mm:ss.'
+      );
     });
   });
 });

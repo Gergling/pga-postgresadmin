@@ -1,12 +1,14 @@
 import { deepMerge } from "./";
 import {
+  AnalysisConfig,
   DeepPartialQualityReport,
   DeepPartialQualityReportFile,
+  ExtractionFunction,
   getNow,
   QualityReport,
   QualityReportAnalysis,
   qualityReportSchema
-} from "../schema";
+} from "../schemas";
 
 type ExcludeFilesKeyExplicitly = Exclude<keyof QualityReport, 'files'>;
 type FilesRecord = DeepPartialQualityReport['files'];
@@ -97,7 +99,9 @@ type MergeReportFactoryParams = {
 
 export type SetAnalysis = (params: MergeReportFactoryParams) => QualityReport;
 
-export const mergeReportFactory = (base: QualityReport) => {
+export const mergeReportFactory = (
+  base: QualityReport
+) => {
   const setAnalysis: SetAnalysis = ({ analysis, line, name, path }) => {
     const analyses = { [name]: { updated: getNow(), ...analysis } };
     if (line === undefined) {

@@ -5,8 +5,8 @@ import {
   DeepPartialQualityReport,
   QualityReportLine,
   QualityReportLint
-} from '../schema';
-import { AnalysisFunction } from '../utilities/config';
+} from '../schemas';
+import { analysisFactory } from '../utilities/analysis';
 
 const getLintCategory = (category: ts.DiagnosticCategory): QualityReportLint => {
   switch (category) {
@@ -28,11 +28,20 @@ const getLintCategory = (category: ts.DiagnosticCategory): QualityReportLint => 
  *
  * @returns A NormalisedReport object highlighting files with TypeScript errors.
  */
-export const typeCheck: AnalysisFunction = ({ task }) => {
+export const typeCheck = analysisFactory<{ configFilePath?: string; }>(({
+  config: { custom: { configFilePath = './tsconfig.json' } },
+  setAnalysis, // TODO: This is the "meat" of the operation instead of a return.
+  // TODO: Analysis factory should accept a function that returns a promise, including rejection on failure.
+  // task // TODO: This can be removed and better logging implemented instead.
+  setError, // TODO: Implement this and use it instead of the existing error
+  // logs.
+  // setProgress, // TODO: Implement instead of logging.
+  // TODO: Analysis factory can wrap in a function and log accordingly regardless.
+}): Promise<void> | void => {
   // TODO: Take into account the production excluded files and highlight
   // everything else. Anything from the production tsconfig that has an
   // error will fail the build.
-  const configFilePath = './tsconfig.json';
+  // const configFilePath = './tsconfig.json';
   // const report: NormalisedReport<AggregationName> = {};
   const absoluteConfigPath = path.resolve(configFilePath);
   const configDir = path.dirname(absoluteConfigPath);
@@ -40,17 +49,25 @@ export const typeCheck: AnalysisFunction = ({ task }) => {
   // 1. Read and parse the tsconfig file
   const configFileText = ts.sys.readFile(absoluteConfigPath);
   if (!configFileText) {
+    setError(`ERROR: Could not read tsconfig file at ${absoluteConfigPath}`);
     console.error(`ERROR: Could not read tsconfig file at ${absoluteConfigPath}`);
     // return report;
-    return {};
+    // return {};
+    return;
   }
 
-  const { config, error: jsonError } = ts.parseConfigFileTextToJson(absoluteConfigPath, configFileText);
+  // setProgress('Parsing tsconfig.json');
+
+  const { config, error: jsonError } = ts.parseConfigFileTextToJson(
+    absoluteConfigPath, configFileText
+  );
   if (jsonError) {
     // console.error('ERROR parsing tsconfig JSON:', ts.formatDiagnostic(jsonError));
+    setError(`ERROR parsing tsconfig JSON: ${jsonError}`);
     console.error('ERROR parsing tsconfig JSON', jsonError);
     // return report;
-    return {};
+    // return {};
+    return;
   }
 
   // 2. Resolve 'extends', 'include', and 'exclude'
@@ -128,5 +145,5 @@ export const typeCheck: AnalysisFunction = ({ task }) => {
     }, {} as DeepPartialQualityReport
   );
 
-  return report;
-}
+  // return report;
+});

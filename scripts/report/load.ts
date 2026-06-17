@@ -2,7 +2,7 @@ import { mkdir, writeFile } from "fs";
 import { promisify } from "util";
 import { dirname } from "path";
 import { fileExists } from "@/main/shared/file/exists";
-import { getNow, QualityReport, qualityReportSchema } from "./schema";
+import { getNow, QualityReport, qualityReportSchema } from "./schemas";
 import { mergeReport } from "./utilities";
 import { Task } from "tasuku";
 

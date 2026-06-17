@@ -2,12 +2,15 @@ import task from "tasuku";
 import { extractQualityReport } from "./extract";
 import { resolve } from "path";
 import { writeQualityReport } from "./load";
-import { configParamsSchema } from "./utilities/config";
+import { configParamsSchema } from "./schemas";
 
 const configPath = '../../quality-report.config';
 
 const run = async () => {
+  // Extract
   // TODO: Handle when config doesn't exist and create it accordingly.
+  // TODO: Config may have... oddities. Might be worth checking them. Maybe a
+  // transform function will do it.
   const { result: content } = await task(
     'Loading config', async () => (await import(configPath)).default
   );
@@ -21,7 +24,13 @@ const run = async () => {
       base, report, analyses, task
     )
   );
+
   // Transform
+  // const transformation = [].reduce(
+  //   (report, transformer) => transformer(report), extractionResult
+  // );
+
+  // Load
   const {
     error: loadError, result: loadResult, state: loadState, warning: loadWarning
   } = await task(
@@ -30,8 +39,6 @@ const run = async () => {
       path, extractionResult, task
     )
   );
-  // console.log(extraction.files);
-
 };
 
 run();

@@ -4,7 +4,8 @@ import {
   qualityReportCategorySchema,
   qualityReportPriorityTypeSchema
 } from "./base";
-import { Task } from "tasuku";
+import { Task, TaskInnerAPI } from "tasuku";
+import { extractionFunctionParamsSchema, extractionFunctionSchema } from "./extraction";
 
 export const mergeReportFactoryParamsSchema = z.object({
   analysis: qualityReportAnalysisSchema,
@@ -20,6 +21,7 @@ export const setAnalysisSchema = z.function({
 });
 
 const analysisConfigSchema = z.object({
+  // custom: z.record(z.string(), z.unknown()).default({}).optional(),
   name: z.string(),
   priority: z.array(z.object({
     category: qualityReportCategorySchema,
@@ -28,22 +30,29 @@ const analysisConfigSchema = z.object({
   })).default([]),
 });
 
-export type AnalysisConfig = z.infer<typeof analysisConfigSchema>;
+export type AnalysisConfig<
+  T extends object = object
+> = z.infer<typeof analysisConfigSchema> & { custom: T; };
 
-const analysisFunctionParamsSchema = z.object({
+const analysisFunctionParamsSchema = extractionFunctionParamsSchema.extend({
   config: analysisConfigSchema,
   setAnalysis: setAnalysisSchema,
-  task: z.custom<Task>(
-    (val) => val !== null && typeof val === 'function' && 'group' in val,
-    "Invalid Tasuku Task instance"
-  ),
+  // setError: z.function({ input: z.array(z.string()) }),
+  // setProgress: z.function({ input: z.array(z.string()) }),
+  // task: z.custom<Task>(
+  //   (val) => val !== null && typeof val === 'function' && 'group' in val,
+  //   "Invalid Tasuku Task instance"
+  // ),
 });
 
-export type AnalysisFunctionParams = z.infer<
-  typeof analysisFunctionParamsSchema
->;
+export type AnalysisFunctionParams<
+  T extends object = object
+> = AnalysisConfig<T> & TaskInnerAPI;
+// export type AnalysisFunctionParams<T extends object = object> = z.infer<
+//   typeof analysisFunctionParamsSchema
+// > & TaskInnerAPI;
 
-export const analysisFunctionSchema = z.function({
+const analysisFunctionSchema = z.function({
   input: z.array(analysisFunctionParamsSchema)
 });
 
@@ -51,15 +60,14 @@ export type AnalysisFunction = z.infer<typeof analysisFunctionSchema>;
 
 const analysisFunctionFactorySchema = z.function({
   input: z.array(analysisConfigSchema),
-  // TODO: Output should be an "extract" function...
   output: z.object({
-    extract: analysisFunctionSchema,
+    extract: extractionFunctionSchema,
   }),
-});
+}).describe('Generates analysis functions');
 
-// type AnalysisFunctionFactory = z.infer<
-//   typeof analysisFunctionFactorySchema
-// >;
+export type AnalysisFunctionFactory<T extends object = object> = (
+  ...args: (AnalysisFunctionParams & { config: AnalysisConfig<T> })[]
+) => Promise<void> | void;
 
 export const configParamsSchema = z.object({
   analyses: z.array(analysisFunctionFactorySchema).default([]),
@@ -74,10 +82,11 @@ export const configParamsSchema = z.object({
     category: qualityReportCategorySchema,
     priority: qualityReportPriorityTypeSchema,
     paths: z.array(z.string()),
-  })).default([]),
-}).transform((config) => {
-  // TODO: Might be worth checking config.priority for conflicts between paths.
-  return config;
+  })).default([]).transform((priority) => {
+    // TODO: Might be worth checking config.priority for conflicts between paths.
+    return priority;
+  }),
 });
 
+// TODO: Probably needs some type stuff for the custom config params
 export type ConfigParams = z.infer<typeof configParamsSchema>;

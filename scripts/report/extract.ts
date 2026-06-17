@@ -2,65 +2,65 @@ import { readdirSync } from "fs";
 import { resolve } from "path";
 import { readFileContents } from "@/main/shared/file/contents";
 import { fileExists } from "@/main/shared/file/exists";
-import { QualityReport, QualityReportFile, qualityReportSchema } from "./schema";
+import { ConfigParams, QualityReport, QualityReportFile, qualityReportSchema } from "./schemas";
 import { normalise } from "./utilities/normalise";
 import { mergeReportFactory } from "./utilities";
 import { Task } from "tasuku";
-import { ConfigParams } from "./utilities/config";
+import { extractFileStructure, extractQualityReportData } from "./extractions";
 
-const extractQualityReportData = async (path: string): Promise<unknown> => {
-  try {
-    // Check whether the file exists.
-    // If not, return an empty object.
-    const reportExists = await fileExists(path);
-    if (!reportExists) return {};
-    // If so, read it and load the contents.
-    // JSON parse and return.
-    const contents = await readFileContents(path);
-    return contents;
-  } catch (e) {
-    console.error('Error extracting report:', e);
-    throw e;
-  }
-};
+// const extractQualityReportData = async (path: string): Promise<unknown> => {
+//   try {
+//     // Check whether the file exists.
+//     // If not, return an empty object.
+//     const reportExists = await fileExists(path);
+//     if (!reportExists) return {};
+//     // If so, read it and load the contents.
+//     // JSON parse and return.
+//     const contents = await readFileContents(path);
+//     return contents;
+//   } catch (e) {
+//     console.error('Error extracting report:', e);
+//     throw e;
+//   }
+// };
 
-const extractFileStructureFactory = (
-  basePath: string, reportFiles: QualityReport['files']
-) => {
-  const entries = readdirSync(basePath, { withFileTypes: true });
+// const extractFileStructureFactory = (
+//   basePath: string, reportFiles: QualityReport['files']
+// ) => {
+//   const entries = readdirSync(basePath, { withFileTypes: true });
 
-  const files = entries.reduce((acc, entry): QualityReport['files'] => {
-    const { name } = entry;
-    const parentPath = normalise(entry.parentPath);
-    const path = normalise(parentPath, name);
-    const type: QualityReportFile['structure']['type'] | 'unknown'
-      = entry.isDirectory() && path.startsWith('src')
-        ? 'directory'
-        : entry.isFile()
-          ? 'file'
-          : 'unknown'
-    ;
+//   const files = entries.reduce((acc, entry): QualityReport['files'] => {
+//     const { name } = entry;
+//     const parentPath = normalise(entry.parentPath);
+//     const path = normalise(parentPath, name);
+//     const type: QualityReportFile['structure']['type'] | 'unknown'
+//       = entry.isDirectory() && path.startsWith('src')
+//         ? 'directory'
+//         : entry.isFile()
+//           ? 'file'
+//           : 'unknown'
+//     ;
 
-    if (type === 'unknown') return acc;
+//     if (type === 'unknown') return acc;
 
-    const structure = { name, path, parentPath, type };
+//     const structure = { name, path, parentPath, type };
 
-    const children = type === 'directory'
-      ? extractFileStructureFactory(path, reportFiles) : {};
+//     const children = type === 'directory'
+//       ? extractFileStructureFactory(path, reportFiles) : {};
 
-    return {
-      ...acc,
-      ...children,
-      [path]: {
-        ...acc[path],
-        ...reportFiles[path],
-        structure,
-      },
-    };
-  }, {} as QualityReport['files']);
+//     return {
+//       ...acc,
+//       ...children,
+//       [path]: {
+//         ...acc[path],
+//         ...reportFiles[path],
+//         structure,
+//       },
+//     };
+//   }, {} as QualityReport['files']);
 
-  return files;
-}
+//   return files;
+// }
 
 export const extractQualityReport = async (
   basePath: string,
@@ -93,21 +93,23 @@ export const extractQualityReport = async (
     );
 
     // TODO: Need to feed filtered excluded or included files into here.
-    const files = extractFileStructureFactory(basePath, report.files);
+    const files = extractFileStructure(basePath, report.files);
 
     const { result } = await task(
       'Running config functions',
       async ({ task }) => {
         const { base, setAnalysis } = mergeReportFactory({ ...report, files });
         for (const configIdx in analyses) {
+          const analysisFactory = analyses[configIdx];
+          const { extract } = analysisFactory();
+          // const setAnalysis = setAnalysisFactory();
           await task(
             `Running config function ${configIdx}`,
             async ({ setWarning, task }) => {
-              const fn = analyses[configIdx];
 
               try {
                 // TODO: Include a function to easily find the included/excluded files.
-                fn({ setAnalysis, task });
+                extract({ setAnalysis, task });
               } catch (e) {
                 if (e instanceof Error  || typeof e === 'string') {
                   setWarning(e);

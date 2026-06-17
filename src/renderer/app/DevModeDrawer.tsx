@@ -12,25 +12,44 @@ import {
   Grid,
   Stack
 } from '@mui/material';
+import BuildCircleIcon from '@mui/icons-material/BuildCircle';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import BuildCircleIcon from '@mui/icons-material/BuildCircle';
+import { Layers, Start } from '@mui/icons-material';
 import { MetricChip, useTheme } from '@gergling/ui-components';
-import { ResponsiveIndicator } from '../shared/common/components/ResponsiveIndicator';
-import { Start } from '@mui/icons-material';
+import {
+  ResponsiveIndicator
+} from '../shared/common';
 import { trpcReact } from '../libs/react-query';
+
+type RunMode = 'dev' | 'preview' | 'prod';
+
+/**
+ * This is a vite environment variable showing whether the app is being run from
+ * `electron-vite dev`.
+ */
+const isDevVite = import.meta.env.DEV;
 
 const useEnvironment = () => {
   const { data: environment } = trpcReact.environments.get.useQuery();
   const { mutate: setIsProd } = trpcReact.environments.set.useMutation();
+  const {
+    data: devEnabled,
+  } = trpcReact.environments.devEnabled.useQuery();
 
   const isProd = useMemo(() => environment === 'prod', [environment]);
+  const mode = useMemo((): RunMode => {
+    if (isDevVite) return 'dev';
+    if (devEnabled) return 'preview';
+    return 'prod';
+  }, [isDevVite, isProd]);
   const toggleEnvironment = useCallback(
     () => setIsProd(isProd ? 'dev' : 'prod'), [isProd]
   );
 
   return {
     isProd,
+    mode,
     toggleEnvironment,
   };
 };
@@ -52,12 +71,16 @@ const usePersistent = (key: string) => {
 };
 
 export const DevModeOverlay = () => {
-  const { isProd, toggleEnvironment } = useEnvironment();
+  const { isProd, mode, toggleEnvironment } = useEnvironment();
   const { item: expanded, setItem: setExpanded } = usePersistent('devModeDrawerExpanded');
   const { item: isFixedPosition, setItem: setFixedPosition } = usePersistent('devModeDrawerFixedPosition');
 
   const { theme: { colors: { info, warning } } } = useTheme();
-  const color = useMemo(() => isProd ? warning.main : info.main, [isProd]);
+  const color = useMemo(() => {
+    if (mode === 'dev') return info.main;
+    if (mode === 'preview') return '#70f';
+    return warning.main;
+  }, [isProd]);
   const { pathname, search } = useLocation();
 
   const handleToggleEnv = () => {
@@ -80,6 +103,9 @@ export const DevModeOverlay = () => {
                 </Typography>
                 <Typography variant="overline" color="primary" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Start fontSize="small" /> {new Date().toLocaleTimeString()}
+                </Typography>
+                <Typography variant="overline" color="primary" sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Layers fontSize="small" /> {mode.toUpperCase()}
                 </Typography>
               </Stack>
             </Grid>

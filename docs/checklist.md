@@ -228,6 +228,11 @@ The status bar needs to show some indication of internet connection and how it's
 
 The dashboard should show some details about "news" and click through to a complete list of items. Such news should include things like "the internet is down". News updates should also appear in the status overview. News items have an icon and a category (e.g. Internet) with a title (e.g. "internet went down/up") and a date/time. The status overview should show the most recent news items.
 
+### Notes
+
+The main feature of this is to handle flaky internet but also having a note-taking option. Either this should mean adding a feature to the diary or creating a special interface. TBH, it doesn't matter which. The key is making sure it is stored
+locally and then updated when internet is available.
+
 ## Done
 
 It's good to have a list of your achievements.

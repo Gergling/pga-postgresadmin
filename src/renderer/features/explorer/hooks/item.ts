@@ -2,12 +2,11 @@ import { useReducer } from "react";
 import z from "zod";
 
 const unitTest = z.enum([
-  'error', 'eligible', 'exists', 'initiated', 'creating', 'none',
+  'error', 'eligible', 'exists', 'initiated', 'none',
 ]).default('none');
 type UnitTestState = z.infer<typeof unitTest>;
 type UnitTestAction = 
   | 'initiate'
-  | 'create'
   | 'complete'
   | 'fail'
 ;
@@ -15,8 +14,7 @@ const reduceUnitTest = (
   state: UnitTestState, action: UnitTestAction
 ): UnitTestState => {
   if (state === 'eligible' && action === 'initiate') return 'initiated';
-  if (state === 'initiated' && action === 'create') return 'creating';
-  if (state === 'creating') return action === 'complete' ? 'exists' : 'error';
+  if (state === 'initiated') return action === 'complete' ? 'exists' : 'error';
   return state;
 };
 

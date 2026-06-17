@@ -129,10 +129,6 @@ Parameters should be considered out of scope since the current use-cases are pre
 
 Work which is ready to start.
 
-### Project Zod Templates
-
-Explicit format output means commit message generation uses JSON formats. These need to be converted to Zod templates for portability and fed into the language models appropriately.
-
 ## Scoping
 
 Work which needs thought or experimentation.
@@ -235,3 +231,7 @@ The dashboard should show some details about "news" and click through to a compl
 ## Done
 
 It's good to have a list of your achievements.
+
+### Project Zod Templates
+
+Explicit format output means commit message generation uses JSON formats. These need to be converted to Zod templates for portability and fed into the language models appropriately.

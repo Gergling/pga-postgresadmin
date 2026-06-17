@@ -224,6 +224,14 @@ Initial functionality is just creating a local folder in the relevant folder (if
   - [ ] Projects list needs a create button which triggers a modal with an input for the project name.
   - [ ] Input should validate for folder-name-compatible characters. Could provide substitution. This is probably a simple snippet or library somewhere.
 
+### Internet Connection Status
+
+The status bar needs to show some indication of internet connection and how it's doing. This should include whether the router and/or local network/hotspot is reachable (ideally distinguishing between the two if possible) and whether the internet is reachable as well.
+
+### News
+
+The dashboard should show some details about "news" and click through to a complete list of items. Such news should include things like "the internet is down". News updates should also appear in the status overview. News items have an icon and a category (e.g. Internet) with a title (e.g. "internet went down/up") and a date/time. The status overview should show the most recent news items.
+
 ## Done
 
 It's good to have a list of your achievements.

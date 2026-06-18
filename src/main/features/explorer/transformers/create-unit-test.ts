@@ -77,19 +77,24 @@ const generateUnitTest = async (
 export const emitUnitTest = async ({ sourceFilePath, emit }: {
   sourceFilePath: string; emit: GenerateUnitTestUpdateEmitter;
 }) => {
-  const ext = path.extname(sourceFilePath);
-  const testFilePath = sourceFilePath.replace(new RegExp(`\\${ext}$`), `.test${ext}`);
-
-  const sourceFileContents = await readFileAsync(sourceFilePath, 'utf-8');
-  const prompt = [
-    `Here is the contents of the source file \`${sourceFilePath}\`:`,
-    '```ts',
-    sourceFileContents,
-    '```',
-    unitTestingDocContent,
-    `Generate tests for ${sourceFilePath} in ${testFilePath} according to the
-    testing guidelines. The code will be put straight into a .ts file.`
-  ].join('\n');
-
-  await generateUnitTest(sourceFilePath, testFilePath, prompt, emit);
+  try {
+    const ext = path.extname(sourceFilePath);
+    const testFilePath = sourceFilePath.replace(new RegExp(`\\${ext}$`), `.test${ext}`);
+  
+    const sourceFileContents = await readFileAsync(sourceFilePath, 'utf-8');
+    const prompt = [
+      `Here is the contents of the source file \`${sourceFilePath}\`:`,
+      '```ts',
+      sourceFileContents,
+      '```',
+      unitTestingDocContent,
+      `Generate tests for ${sourceFilePath} in ${testFilePath} according to the
+      testing guidelines. The code will be put straight into a .ts file.`
+    ].join('\n');
+  
+    await generateUnitTest(sourceFilePath, testFilePath, prompt, emit);
+  } catch (e) {
+    console.error('Error in emitUnitTest', e);
+    throw e;
+  }
 };

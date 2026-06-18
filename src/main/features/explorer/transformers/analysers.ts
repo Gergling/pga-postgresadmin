@@ -3,7 +3,7 @@ import { FileUnitTestOperation } from "@/shared/features/explorer";
 export const analyseSourceFileName = (name: string) => {
   const isTsSourceFile = name.endsWith('.ts');
   const isTsTestFile = name.endsWith('.test.ts');
-  const testFileName = isTsSourceFile
+  const testFileName = isTsSourceFile && !isTsTestFile
     ? name.replace('.ts', '.test.ts')
     : undefined
   ;

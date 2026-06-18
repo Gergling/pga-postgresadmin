@@ -1,8 +1,8 @@
 import { Dirent } from 'fs';
+import { join } from 'path';
 import { Optional, Swap } from '@/shared/types';
 import { DirentSummary } from '@/shared/features/explorer';
-import { join } from 'path';
-import { analyseSourceFileName } from './analysers';
+import { transformFileNodeItem } from './item';
 
 type DirentTransformation = Swap<
   DirentSummary, 'options', Optional<DirentSummary['options'], 'testable'>
@@ -20,29 +20,9 @@ export const transformDirent = (
 
     const { name } = entry;
     const absolutePath = join(targetPath, name);
-    const { testFileName, ...fileNameAnalysis } = analyseSourceFileName(name);
-    const isTsSourceFile = isFile && fileNameAnalysis.isTsSourceFile;
-    const isTsTestFile = isFile && fileNameAnalysis.isTsTestFile;
-
-    acc.set(absolutePath, {
-      name: entry.name,
-      absolutePath,
-      meta: {
-        isDirectory,
-        isFile,
-        isTsSourceFile,
-        isTsTestFile,
-        testFileName,
-      },
-      options: {
-        expand: isDirectory,
-      },
-      status: {
-        locks: [],
-      },
-    });
-
-    return acc;
+    return acc.set(absolutePath, transformFileNodeItem({
+      isDirectory, isFile, name
+    }, targetPath));
   },
   new Map<string, DirentTransformation>()
 );

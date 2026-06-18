@@ -30,3 +30,9 @@ export interface DirectorySnapshot {
   children: DirentSummary[];
   isLocked: boolean;
 }
+
+export type FileNodeData = {
+  children: DirentSummary[];
+  current: DirentSummary;
+  parent: DirentSummary;
+};

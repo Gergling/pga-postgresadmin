@@ -5,3 +5,4 @@ export const temporalSchema = z.object({
   raw: z.string(),
   zonedDateTime: z.instanceof(Temporal.ZonedDateTime),
 });
+export type TemporalSchema = z.infer<typeof temporalSchema>;

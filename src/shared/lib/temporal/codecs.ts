@@ -1,47 +1,38 @@
 import { Temporal } from "@js-temporal/polyfill";
 import z from "zod";
+import {
+  fallback,
+  transformStringToRfc9557,
+} from "@/shared/utilities";
 import { temporalSchema } from "./schema";
 
-const matchHumanReadableLocalString = (input: string) => {
-  // Match the DD, MM, YYYY, HH, mm, and ss patterns
+/**
+ * Returns a Regexp match on a string looking for a DD/MM/YYYY, HH:mm:ss date
+ * string.
+ * @param input A string.
+ * @returns RegExpMatchArray | null that should include the values if the match
+ * works.
+ */
+export const matchHumanReadableLocalString = (input: string) => {
+  // Match the DD/MM/YYYY, HH:mm:ss pattern.
   const regex = /^(\d{2})\/(\d{2})\/(\d{4}),\s*(\d{2}):(\d{2}):(\d{2})\s*(BST|GMT)$/;
   return input.match(regex);
-}
-
-const humanReadableLocalStringToZDT = (match: RegExpMatchArray) => {
-  // Destructure the regex matches into numeric segments
-  const [, day, month, year, hour, minute, second, tzAbbr] = match;
-
-  // Map local UK abbreviations to an IANA time zone identifier
-  const timeZone = tzAbbr === "BST" || tzAbbr === "GMT" ? "Europe/London" : "UTC";
-
-  return Temporal.ZonedDateTime.from({
-    year: parseInt(year, 10),
-    month: parseInt(month, 10),
-    day: parseInt(day, 10),
-    hour: parseInt(hour, 10),
-    minute: parseInt(minute, 10),
-    second: parseInt(second, 10),
-    timeZone: timeZone
-  });
-}
-
-const stringToZDT = (raw: string) => {
-  const isHumanReadableLocalString = matchHumanReadableLocalString(raw);
-  if (isHumanReadableLocalString) {
-    return humanReadableLocalStringToZDT(isHumanReadableLocalString);
-  }
-
-  const hasTimeZoneId = /\]$/.test(raw);
-
-  if (hasTimeZoneId) {
-    // Safely parse directly as ZonedDateTime
-    return Temporal.ZonedDateTime.from(raw);
-  }
-
-  // Fallback: Parse as a global Instant, then attach the UTC time zone
-  return Temporal.Instant.from(raw).toZonedDateTimeISO("UTC");
 };
+
+export const stringToZDT = (raw: string) => fallback([
+  () => {
+    const str = fallback([
+      () => {
+        if (/\]$/.test(raw)) return raw;
+        throw new Error('No timezone ID match');
+      },
+      () => transformStringToRfc9557(raw),
+    ]);
+    if (!str) throw new Error('No compatible string match');
+    return Temporal.ZonedDateTime.from(str);
+  },
+  () => Temporal.Instant.from(raw).toZonedDateTimeISO("UTC"),
+], `Failed to convert to ZonedDateTime: "${raw}"`);
 
 /**
  * Encodes Temporal.ZonedDateTime into a string.

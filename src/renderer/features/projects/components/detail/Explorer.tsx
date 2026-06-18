@@ -1,10 +1,10 @@
-import { ExplorerList } from "@/renderer/features/explorer";
-import { useProjectDetail } from "../../context";
 import { Block } from "@/renderer/shared/base";
+import { ExplorerWindow } from "@/renderer/features/explorer";
+import { useProjectDetail } from "../../context";
 
 export const ProjectDetailExplorer = () => {
   const { project: { path } } = useProjectDetail();
   return <Block>
-    <ExplorerList path={path} />
+    <ExplorerWindow path={path} />
   </Block>;
 };

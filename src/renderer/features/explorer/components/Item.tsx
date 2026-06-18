@@ -20,7 +20,7 @@ export const ExplorerItem = ({
 
   const { addHistory, history } = explorerHistoryStore();
   const {
-    data: unitTestCreationData
+    data: unitTestCreationData, error
   } = trpcReact.explorer.createUnitTest.useSubscription(
     unitTest === 'initiated' ? absolutePath : skipToken
   );
@@ -42,13 +42,13 @@ export const ExplorerItem = ({
   useEffect(() => {
     if (open) addHistory(absolutePath);
   }, [absolutePath, open]);
+  // useEffect(() => {
+  //   dispatch({ type: 'unit-test', payload: 'create' });
+  // }, [unitTest]);
   useEffect(() => {
-    dispatch({ type: 'unit-test', payload: 'create' });
-  }, [unitTest]);
-  useEffect(() => {
+    console.log('unit test creation', unitTestCreationData)
     if (unitTestCreationData) {
       const { payload: { status } } = unitTestCreationData;
-      console.log(unitTestCreationData)
       if (status === 'success') {
         dispatch({
           type: 'unit-test', payload: 'complete'
@@ -61,6 +61,11 @@ export const ExplorerItem = ({
       }
     }
   }, [unitTestCreationData]);
+  useEffect(() => {
+    if (error) {
+      console.error('error', error)
+    }
+  }, [error]);
 
   return <>
     <ListItem>

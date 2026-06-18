@@ -38,6 +38,9 @@ export const ListItem = styled.div<{
       bottom: 0,
     },
 
+    '&:first-child': {
+      paddingTop: width,
+    },
     // First child of the item is used as the guide for the decor.
     '& > :first-child': {
       '& > :first-child': {

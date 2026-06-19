@@ -1,8 +1,8 @@
+import React, { useState, useEffect } from 'react';
+import { Box, Grid, Stack } from '@mui/material';
+import { Check } from '@mui/icons-material';
 import { Button, TextField } from '@/renderer/shared/form';
 import { Slab } from '../../base';
-import { Box, Grid, Stack } from '@mui/material';
-import React, { useState, useEffect } from 'react';
-import { Check } from '@mui/icons-material';
 
 export type ChatMessageProps = {
   actions?: React.ReactNode;
@@ -18,6 +18,7 @@ export type ChatOnSubmitFunction = (props: {
 
 type ChatWindowProps = {
   actions?: React.ReactNode;
+  disableSubmission?: boolean;
   messages: ChatMessageProps[];
   onSubmit: ChatOnSubmitFunction;
   status?: string;
@@ -25,6 +26,7 @@ type ChatWindowProps = {
 };
 export const ChatWindow = ({
   actions,
+  disableSubmission,
   messages,
   onSubmit,
   status,
@@ -77,7 +79,10 @@ export const ChatWindow = ({
       />
 
       <Grid container spacing={2}>
-        <Button onClick={handleSubmitMessage}><Check /></Button>
+        <Button
+          onClick={handleSubmitMessage}
+          disabled={disableSubmission || input === ''}
+        ><Check /></Button>
         {actions}
       </Grid>
 

@@ -5,7 +5,8 @@ import z from "zod";
 import {
   transformToRfc9557,
   Rfc9557ObjectSchemaInput,
-  transformStringToRfc9557
+  transformStringToRfc9557,
+  transformStringToRfc9557Object
 } from './date';
 
 describe('date', () => {
@@ -95,11 +96,9 @@ describe('date', () => {
       expect(transformStringToRfc9557(rawString)).toBe(expected);
     });
 
-    it('should correctly format a human-readable local string (GMT) to an RFC 9557 string with UTC offset', () => {
-      // Note: transformStringToRfc9557's internal logic only checks for "BST"
-      // If "GMT" is present, it falls back to UTC offset and name.
+    it('should correctly format a human-readable local string (GMT) to an RFC 9557 string with Europe/London timezone', () => {
       const rawString = '05/01/2023, 09:30:05 GMT';
-      const expected = '2023-01-05T09:30:05+00:00[UTC]';
+      const expected = '2023-01-05T09:30:05+00:00[Europe/London]';
       expect(transformStringToRfc9557(rawString)).toBe(expected);
     });
 
@@ -151,6 +150,59 @@ describe('date', () => {
     it('should throw an error for an entirely invalid string format', () => {
       const rawString = 'invalid string';
       expect(() => transformStringToRfc9557(rawString)).toThrow(
+        'Format is not DD/MM/YYYY, HH:mm:ss.'
+      );
+    });
+  });
+
+  describe('transformStringToRfc9557Object', () => {
+    it('should correctly parse a human-readable local string (BST) to an RFC 9557 object', () => {
+      const rawString = '05/01/2023, 09:30:05 BST';
+      const expected = {
+        year: '2023',
+        month: '01',
+        day: '05',
+        hour: '09',
+        minute: '30',
+        second: '05',
+        offset: '+01:00',
+        tzName: '[Europe/London]',
+      };
+      expect(transformStringToRfc9557Object(rawString)).toEqual(expected);
+    });
+
+    it('should correctly parse a human-readable local string (GMT) to an RFC 9557 object with Europe/London timezone', () => {
+      const rawString = '05/01/2023, 09:30:05 GMT';
+      const expected = {
+        year: '2023',
+        month: '01',
+        day: '05',
+        hour: '09',
+        minute: '30',
+        second: '05',
+        offset: '+00:00',
+        tzName: '[Europe/London]',
+      };
+      expect(transformStringToRfc9557Object(rawString)).toEqual(expected);
+    });
+
+    it('should throw an error for missing TZ abbreviation', () => {
+      const rawString = '05/01/2023, 09:30:05';
+      expect(() => transformStringToRfc9557Object(rawString)).toThrow(
+        'Format is not DD/MM/YYYY, HH:mm:ss.'
+      );
+    });
+
+    it('should throw an error for unrecognized TZ abbreviation', () => {
+      const rawString = '05/01/2023, 09:30:05 XYZ';
+      expect(() => transformStringToRfc9557Object(rawString)).toThrow(
+        /Could not automatically resolve timezone abbreviation/
+      );
+    });
+
+    it('should throw an error for an invalid date separator', () => {
+      const rawString = '05-01-2023, 09:30:05 BST';
+      expect(() => transformStringToRfc9557Object(rawString)).toThrow(
         'Format is not DD/MM/YYYY, HH:mm:ss.'
       );
     });

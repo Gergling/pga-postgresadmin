@@ -41,7 +41,7 @@ describe('temporal/codecs', () => {
         expect(zonedDateTime.hour).toBe(9);
         expect(zonedDateTime.minute).toBe(30);
         expect(zonedDateTime.second).toBe(5);
-        expect(zonedDateTime.timeZoneId).toBe('UTC');
+        expect(zonedDateTime.timeZoneId).toBe('Europe/London');
         // Check the offset for GMT (UTC+0)
         expect(zonedDateTime.offset).toBe('+00:00');
       });

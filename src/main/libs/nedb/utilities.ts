@@ -1,3 +1,4 @@
+import { app } from 'electron';
 import Datastore from '@seald-io/nedb';
 import { dateSerialisationCodec, SerialisationEnvelope } from '@/shared/schema';
 import { Temporal } from '@js-temporal/polyfill';
@@ -5,8 +6,9 @@ import { Temporal } from '@js-temporal/polyfill';
 export const setupLocalNeDb = <T extends SerialisationEnvelope<unknown>>(
   collectionName: string,
 ) => {
+  const appDataPath = app.getPath('userData');
   const local = new Datastore<T>({
-    autoload: true, filename: `data/${collectionName}.db`,
+    autoload: true, filename: `${appDataPath}/${collectionName}.db`,
   });
 
   local.setAutocompactionInterval(1000 * 60 * 60 * 12);

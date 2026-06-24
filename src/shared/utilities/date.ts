@@ -1,7 +1,7 @@
 import z from "zod";
 import { padSchemaFactory } from "./number";
 
-function resolveAbbreviation(abbreviation: string, year: number): string {
+export function resolveAbbreviation(abbreviation: string, year: number): string {
   // Normalize common aliases standardizing to universal equivalents
   if (abbreviation === 'BST' || abbreviation === 'GMT') return 'Europe/London';
 

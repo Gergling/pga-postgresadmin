@@ -1,6 +1,9 @@
 import { Temporal } from "@js-temporal/polyfill";
 import z from "zod";
 
+/**
+ * @deprecated Use dateSerialisationSchema instead.
+ */
 export const zonedDateTimeSchema = z.string().transform((val, ctx) => {
   try {
     return Temporal.ZonedDateTime.from(val);

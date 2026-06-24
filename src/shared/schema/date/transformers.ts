@@ -1,5 +1,10 @@
 import { Temporal } from "@js-temporal/polyfill";
-import { TemporalInputFormatType, TemporalTransformError, TemporalTransformResponseBase } from "./base";
+import { resolveAbbreviation } from "@/shared/utilities";
+import {
+  TemporalInputFormatType,
+  TemporalTransformError,
+  TemporalTransformResponseBase
+} from "./base";
 
 type TemporalDecoder = (
   match: RegExpMatchArray
@@ -32,7 +37,8 @@ const decoders = [
     (match) => {
       const [, day, month, year, hour, minute, second] = match.map(Number);
       const [, , , , , , , abbreviation] = match;
-      return { day, month, year, hour, minute, second, abbreviation };
+      const timeZone = resolveAbbreviation(abbreviation, year);
+      return { day, month, year, hour, minute, second, timeZone };
     },
     'RFC date with timezone abbreviation',
   )

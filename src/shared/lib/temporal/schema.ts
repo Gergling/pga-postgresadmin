@@ -1,8 +1,11 @@
 import z from "zod";
 import { Temporal } from "@js-temporal/polyfill";
 
-export const temporalSchema = z.object({
+/**
+ * @deprecated Use temporalSchema instead.
+ */
+export const temporalLegacySchema = z.object({
   raw: z.string(),
   zonedDateTime: z.instanceof(Temporal.ZonedDateTime),
 });
-export type TemporalSchema = z.infer<typeof temporalSchema>;
+export type TemporalLegacySchema = z.infer<typeof temporalLegacySchema>;

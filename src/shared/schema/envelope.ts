@@ -8,7 +8,9 @@ const auditEnvelopeSchemaFactory = <T, U extends RichDate | SerialisationDate>(
   updated: dateSchema.describe('This is the date when this data was last updated.'),
 });
 
-const baseFactory = <T, U extends RichDate | SerialisationDate>(data: ZodType<T>, dateSchema: ZodType<U>) => z.object({
+const baseFactory = <T, U extends RichDate | SerialisationDate>(
+  data: ZodType<T>, dateSchema: ZodType<U>
+) => z.object({
   audit: z.array(auditEnvelopeSchemaFactory(data, dateSchema)).default([]),
   created: dateSchema.describe('This is the date when the data was wrapped.'),
   creationKey: z.string().optional().describe(
@@ -16,7 +18,13 @@ const baseFactory = <T, U extends RichDate | SerialisationDate>(data: ZodType<T>
   ),
   data,
   id: z.string().default(''),
+  sync: z.number().optional().describe(
+    'Last sync time in epochMilliseconds. Undefined means never synced.'
+  ),
 });
+export type Envelope<T, U extends RichDate | SerialisationDate> = z.infer<
+  ReturnType<typeof baseFactory<T, U>>
+>;
 
 type EnvelopeSchemaFactoryParams<T> = {
   data: ZodType<T>;

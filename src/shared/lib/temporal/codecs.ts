@@ -4,7 +4,7 @@ import {
   fallback,
   transformStringToRfc9557,
 } from "@/shared/utilities";
-import { temporalSchema } from "./schema";
+import { temporalLegacySchema } from "./schema";
 
 /**
  * Returns a Regexp match on a string looking for a DD/MM/YYYY, HH:mm:ss date
@@ -29,6 +29,7 @@ export const stringToZDT = (raw: string) => fallback([
       () => transformStringToRfc9557(raw),
     ]);
     if (!str) throw new Error('No compatible string match');
+    console.log('wat', str);
     return Temporal.ZonedDateTime.from(str);
   },
   () => Temporal.Instant.from(raw).toZonedDateTimeISO("UTC"),
@@ -36,10 +37,11 @@ export const stringToZDT = (raw: string) => fallback([
 
 /**
  * Encodes Temporal.ZonedDateTime into a string.
+ * @deprecated Use dateSerialisationCodec instead.
  */
 export const temporalCodec = z.codec(
   z.string(),
-  temporalSchema,
+  temporalLegacySchema,
   {
     decode: (raw) => ({ raw, zonedDateTime: stringToZDT(raw) }),
     encode: ({ zonedDateTime }) => zonedDateTime.toString(),

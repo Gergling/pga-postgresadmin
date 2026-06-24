@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { Temporal } from "@js-temporal/polyfill";
 
 // Relative imports for the module under test
-import { TemporalSchema } from './schema';
+import { TemporalLegacySchema } from './schema';
 import {
   temporalCodec,
   stringToZDT,
@@ -11,8 +11,24 @@ import {
 describe('temporal/codecs', () => {
   describe('temporalCodec', () => {
     describe('decode', () => {
-      // Temporal and the RFC date standard seem to have a problem and I don't know how to fix it here.
-      it.skip('should decode a human-readable local string (BST) to a ZonedDateTime in Europe/London', () => {
+      // TODO: There is a function in the underlying utilities that should make
+      // this test succeed if used correctly. It should be in one of the date.ts
+      // files. It needs a restructure because the fallback function currently
+      // expects a string response, but the new one simply outputs an object
+      // which can be directly put into a ZonedDateTime.
+      // It's possible that string->ZonedDateTimeLike is a superior pattern to
+      // the existing one, as it doesn't require a conversion into and out of a
+      // string format.
+      // For that matter, the underlying storage mechanism should probably
+      // support object-based storage to avoid these issues entirely. However,
+      // string transformation should still be supported from the zod Schema or
+      // whatever.
+      // 1. Do string to ZonedDateTimeLike if the input is a string.
+      // 2. Do object -> ZonedDateTime if the input is an object.
+      // 3. Figure out how to make the ZDT encode for serialisation. This can
+      // be the new temporalCodec. Meanwhile, the temporal schemas can be given
+      // appropriate transforms.
+      it('should decode a human-readable local string (BST) to a ZonedDateTime in Europe/London', () => {
         const rawString = '05/01/2023, 09:30:05 BST';
         const { raw, zonedDateTime } = temporalCodec.decode(rawString);
 
@@ -25,7 +41,6 @@ describe('temporal/codecs', () => {
         expect(zonedDateTime.minute).toBe(30);
         expect(zonedDateTime.second).toBe(5);
         expect(zonedDateTime.timeZoneId).toBe('Europe/London');
-        // Check the offset for BST (UTC+1)
         expect(zonedDateTime.offset).toBe('+00:00');
       });
 
@@ -150,13 +165,13 @@ describe('temporal/codecs', () => {
     describe('encode', () => {
       it('should encode a ZonedDateTime to its ISO string representation', () => {
         const zonedDateTime = Temporal.ZonedDateTime.from('2023-01-05T09:30:05+00:00[Europe/London]');
-        const encodedString = temporalCodec.encode({ raw: '', zonedDateTime } as TemporalSchema);
+        const encodedString = temporalCodec.encode({ raw: '', zonedDateTime } as TemporalLegacySchema);
         expect(encodedString).toBe('2023-01-05T09:30:05+00:00[Europe/London]');
       });
 
       it('should encode a ZonedDateTime in UTC to its ISO string representation', () => {
         const zonedDateTime = Temporal.ZonedDateTime.from('2023-01-05T10:00:00Z[UTC]');
-        const encodedString = temporalCodec.encode({ raw: '', zonedDateTime } as TemporalSchema);
+        const encodedString = temporalCodec.encode({ raw: '', zonedDateTime } as TemporalLegacySchema);
         expect(encodedString).toBe('2023-01-05T10:00:00+00:00[UTC]');
       });
 

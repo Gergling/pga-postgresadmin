@@ -1,5 +1,6 @@
 import z from "zod";
 import { padSchemaFactory } from "./number";
+import { Temporal } from "@js-temporal/polyfill";
 
 export function resolveAbbreviation(abbreviation: string, year: number): string {
   // Normalize common aliases standardizing to universal equivalents
@@ -92,3 +93,5 @@ export const transformStringToRfc9557 = (raw: string) => {
 
   return transformToRfc9557({ year, month, day, hour, minute, second, offset, tzName });
 };
+
+export const now = () => Temporal.Now.zonedDateTimeISO();

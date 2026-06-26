@@ -1,5 +1,5 @@
 import z, { ZodType } from "zod";
-import { RichDate, richDateSchema, SerialisationDate, serialisationDateSchema } from "./date";
+import { RichDate, richDateSchema, SerialisationDate, serialisationDateSchema } from "../date";
 
 const auditEnvelopeSchemaFactory = <T, U extends RichDate | SerialisationDate>(
   data: ZodType<T>, dateSchema: ZodType<U>

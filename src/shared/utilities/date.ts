@@ -94,4 +94,4 @@ export const transformStringToRfc9557 = (raw: string) => {
   return transformToRfc9557({ year, month, day, hour, minute, second, offset, tzName });
 };
 
-export const now = () => Temporal.Now.zonedDateTimeISO();
+export const now = () => Temporal.Now.instant();

@@ -1,6 +1,6 @@
 import { ZodType } from "zod";
 import { codec } from "@/shared/utilities";
-import { dateSerialisationCodec, RichDate, SerialisationDate } from "./date";
+import { dateSerialisationCodec, RichDate, SerialisationDate } from "../date";
 import { RichEnvelope, SerialisationEnvelope } from "./envelope";
 
 /**

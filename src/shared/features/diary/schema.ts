@@ -1,9 +1,10 @@
 import z from "zod";
 import {
-  envelopeSchemaFactory,
-  ipcCodecFactory,
-  transferEnvelopeSchemaFactory,
-  uiEnvelopeSchemaFactory
+  envelopeCodecFactory,
+  envelopeRichSchemaFactory,
+  envelopeSerialisationSchemaFactory,
+  richDateSchema,
+  serialisationDateSchema,
 } from "@/shared/schema";
 
 const status = z.enum([
@@ -22,19 +23,37 @@ export const diaryEntryCoreSchema = z.object({
   // like tasks created.
 });
 
-export const diaryEntrySchema = envelopeSchemaFactory(diaryEntryCoreSchema);
+/**
+ * @deprecated Best not use this; use diaryEntryRichSchema or diaryEntrySerialisationSchema depending on your needs.
+ */
+export const diaryEntrySchema = envelopeSerialisationSchemaFactory({ data: diaryEntryCoreSchema });
+/**
+ * @deprecated Best not use this; use DiaryEntryRich or DiaryEntrySerialisation depending on your needs.
+ */
 export type DiaryEntry = z.infer<typeof diaryEntrySchema>;
 
-// The transfer response.
-export const diaryEntryTransferSchema
-  = transferEnvelopeSchemaFactory(diaryEntryCoreSchema);
-export type DiaryEntryTransfer = z.infer<typeof diaryEntryTransferSchema>;
+// The serialisation response.
+export const diaryEntrySerialisationSchema = envelopeSerialisationSchemaFactory({
+  data: diaryEntryCoreSchema,
+});
+export type DiaryEntrySerialisation = z.infer<
+  typeof diaryEntrySerialisationSchema
+>;
 
-// The UI schema
+export const diaryEntryRichSchema
+  = envelopeRichSchemaFactory({ data: diaryEntryCoreSchema });
+export type DiaryEntryRich = z.infer<typeof diaryEntryRichSchema>;
+
+/**
+ * @deprecated Best not use this; use diaryEntryRich.
+ */
 export const diaryEntryUiSchema
-  = uiEnvelopeSchemaFactory(diaryEntryCoreSchema);
+  = envelopeRichSchemaFactory({ data: diaryEntryCoreSchema });
+/**
+ * @deprecated Best not use this; use DiaryEntryRich.
+ */
 export type DiaryEntryUi = z.infer<typeof diaryEntryUiSchema>;
 
-export const diaryIpcCodec = ipcCodecFactory(
-  diaryEntryTransferSchema, diaryEntryUiSchema
+export const diaryIpcCodec = envelopeCodecFactory(
+  diaryEntrySerialisationSchema, diaryEntryRichSchema
 );

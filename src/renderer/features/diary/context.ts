@@ -40,7 +40,7 @@ const store = create<{
 }), {
   name: 'diary-entry-input-text', // Key in LocalStorage
   // ONLY persist the entry text.
-  partialize: (state) => ({ inputEntryText: state.inputEntryText }), 
+  partialize: (state) => ({ inputEntryText: state.inputEntryText }),
 }));
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -90,7 +90,7 @@ const context = contextFactory(({ children }: PropsWithChildren) => {
   /**
    * Side Effects.
    */
-  
+
   /**
    * Diary entries start processing after an inactivity timeout period passes.
    */

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { DiaryEntryUi } from "@/shared/features/diary";
+import { DiaryEntryRich } from "@/shared/features/diary";
 import {
   ParentheticalContainer,
   ParentheticalGrid
@@ -17,8 +17,8 @@ import {
 import { useDiary } from "../context";
 
 export const DiaryEntryItem = ({
-  entry: { created: { zonedDateTime }, data: { status, text }, id }
-}: { entry: DiaryEntryUi; }) => {
+  entry: { created, data: { status, text }, id }
+}: { entry: DiaryEntryRich; }) => {
   const { commitDiaryEntry, rejectDiaryEntry } = useDiary();
 
   const isLocked = useMemo(
@@ -40,11 +40,11 @@ export const DiaryEntryItem = ({
             size: { md: 3 }
           }
         }}>
-          <RelativeTime time={zonedDateTime} />
+          <RelativeTime time={created} />
           <StyledStatus>{statusLabel}</StyledStatus>
         </ParentheticalGrid>
         <StyledDiaryEntryItem status={status}>
-          
+
           <StyledBody>{text}</StyledBody>
           <CyberPanel status={status || ''} />
 
@@ -54,7 +54,7 @@ export const DiaryEntryItem = ({
                 <StyledButton onClick={() => commitDiaryEntry(id)}>
                   Commit
                 </StyledButton>
-                
+
                 <StyledButton onClick={() => rejectDiaryEntry(id)}>
                   Reject
                 </StyledButton>

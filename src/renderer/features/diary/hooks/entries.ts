@@ -18,7 +18,7 @@ export const useDiaryPanels = (): PanelData => {
   const { recentDiaryEntries: diaryEntries } = useDiaryEntryList();
 
   const dates = useMemo(() => diaryEntries.map(
-    ({ created: { zonedDateTime } }) => zonedDateTime
+    ({ created }) => created
   ) ?? [], [diaryEntries]);
   // const dates: Temporal.ZonedDateTime[] = [];
   // Four possible sparklines available from this.

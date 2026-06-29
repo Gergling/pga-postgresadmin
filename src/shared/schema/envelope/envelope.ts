@@ -13,11 +13,8 @@ const baseFactory = <T, U extends RichDate | SerialisationDate>(
 ) => z.object({
   audit: z.array(auditEnvelopeSchemaFactory(data, dateSchema)).default([]),
   created: dateSchema.describe('This is the date when the data was wrapped.'),
-  creationKey: z.string().optional().describe(
-    'For creating a draft and being able to find it easily once its come back.'
-  ),
   data,
-  id: z.string().default(''),
+  id: z.string().default(() => crypto.randomUUID()),
   sync: z.number().optional().describe(
     'Last sync time in epochMilliseconds. Undefined means never synced.'
   ),

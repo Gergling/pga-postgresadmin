@@ -1,21 +1,25 @@
 import {
-  DiaryEntry,
-  diaryEntrySchema,
-  diaryEntryTransferSchema
+  DiaryEntrySerialisation,
+  diaryEntrySerialisationSchema
 } from "@/shared/features/diary";
-import { createProcrastinatedRepo } from "@/main/libs/firebase";
 import z from "zod";
+import { setupCollection } from "@/main/libs/database";
+import { createProcrastinatedRepo } from "@main/libs/firebase";
 
 export const persistentDiaryCodec = z.codec(
-  diaryEntrySchema,
-  diaryEntryTransferSchema,
+  diaryEntrySerialisationSchema,
+  diaryEntrySerialisationSchema,
   {
-    decode: (value) => diaryEntryTransferSchema.parse(value),
-    encode: (value) => diaryEntrySchema.parse({ ...value, creationKey: undefined }),
+    decode: (value) => diaryEntrySerialisationSchema.parse(value),
+    encode: (value) => diaryEntrySerialisationSchema.parse({ ...value, creationKey: undefined }),
   }
-)
+);
 
-export const diaryRepo = createProcrastinatedRepo<DiaryEntry>(
+export const diaryRepo = createProcrastinatedRepo<DiaryEntrySerialisation>(
   'diary',
-  diaryEntrySchema
+  diaryEntrySerialisationSchema
+);
+export const { local: diaryDb } = setupCollection<DiaryEntrySerialisation>(
+  'diary',
+  diaryEntrySerialisationSchema
 );

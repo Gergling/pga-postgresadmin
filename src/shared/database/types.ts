@@ -14,3 +14,5 @@ export type DatabaseResponseSelect<T> = DatabaseResponseFailure | (DatabaseRespo
 });
 
 export type DatabaseItem = { datname: string };
+
+export type DatabaseSyncAction = 'backup' | 'check' | 'none' | 'restore';

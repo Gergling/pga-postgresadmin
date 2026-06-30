@@ -1,0 +1,6 @@
+name: setup
+description: Run setup
+runs:
+  using: "composite"
+  steps:
+    - run: echo "This doesn't do anything"

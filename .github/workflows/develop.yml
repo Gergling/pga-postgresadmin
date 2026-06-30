@@ -1,0 +1,37 @@
+name: Automated Development
+on:
+  workflow_dispatch:
+
+jobs:
+  automate-development:
+    runs-on: ubuntu-latest
+    # This block is critical for giving the bot scoped access
+    permissions:
+      contents: write       # Allows creating new branches and pushing commits to them
+      pull-requests: write  # Allows using 'gh pr create' to submit the PR
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+
+name: Gemini Orchestration
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Daily build
+  pull_request:
+    types: [opened, synchronize]
+
+# This ensures only ONE run happens at a time across the entire repo
+concurrency:
+  group: "global-build-queue"
+  cancel-in-progress: false # Set to false so PRs wait their turn instead of being killed
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+      - uses: ./.github/actions/orchestrate
+        # with:

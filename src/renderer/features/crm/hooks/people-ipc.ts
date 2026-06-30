@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   CrmPersonTransfer,
   CrmSchema,
-  hydrateCrmPerson
+  // hydrateCrmPerson
 } from "@shared/features/crm";
 import { useIpc } from "@/renderer/shared/ipc";
 import {
@@ -32,7 +32,8 @@ export const useCrmPeopleIpc = (personId?: CrmSchema['id']['people']) => {
   } = useIpcCreateFactory(
     createPersonIpc,
     'people',
-    hydrateCrmPerson,
+    // hydrateCrmPerson,
+    (value) => value,
   );
 
   const {

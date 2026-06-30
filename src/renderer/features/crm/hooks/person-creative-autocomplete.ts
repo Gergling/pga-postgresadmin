@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useCrmPeopleIpc } from './people-ipc';
 import { AutocompleteProps } from '@mui/material';
-import { hydrateCrmPerson } from '../../../../shared/features/crm';
+// import { hydrateCrmPerson } from '../../../../shared/features/crm';
 import { CrmPersonOptionType } from '../types';
 import {
   autocompleteFilterOptionsFactory,
@@ -58,10 +58,10 @@ export const useCrmPersonCreativeAutocomplete = ({
 
     // When the person doesn't exist, we create it.
     if (!newValue.id) {
-      const payload = hydrateCrmPerson({ name: newValue.title });
-      return createPerson(payload, (createdData) => {
-        setPerson({ title: createdData.name, id: createdData.id });
-      });
+      // const payload = hydrateCrmPerson({ name: newValue.title });
+      // return createPerson(payload, (createdData) => {
+      //   setPerson({ title: createdData.name, id: createdData.id });
+      // });
     }
 
     if (newValue.inputValue) return setPerson({ id: newValue.id, title: newValue.inputValue });

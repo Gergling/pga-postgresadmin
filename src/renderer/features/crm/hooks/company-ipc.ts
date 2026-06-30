@@ -1,11 +1,11 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { CrmCompanyTransfer, CrmSchema, hydrateCrmCompany } from "../../../../shared/features/crm";
-import { useIpc } from "../../../shared/ipc";
+import { CrmSchema } from "@/shared/features/crm";
+import { useIpc } from "@/renderer/shared/ipc";
 import { getCollectionKeyFactory, useIpcCreateFactory, useQueryDataFactory } from "../../../libs/react-query";
 
 const getCollectionKey = getCollectionKeyFactory<CrmSchema>();
 
-export const useCrmCompanyIpc = (companyId?: CrmCompanyTransfer['id']) => {
+export const useCrmCompanyIpc = (companyId?: CrmCompany['id']) => {
   const { createCompany: createCompanyIpc, fetchRecentCompanies, fetchCompany, updateCompany } = useIpc();
   const setQueryData = useQueryDataFactory<CrmCompanyTransfer>('companies');
 

@@ -7,12 +7,12 @@ import {
   createAutocompleteOptions,
   getOptionLabel,
 } from '../../../shared/autocomplete';
-import { hydrateCrmCompany } from '../../../../shared/features/crm';
+// import { hydrateCrmCompany } from '../../../../shared/features/crm';
 import { CrmCompanyOptionType } from '../types';
 import { useCrmCompanyIpc } from './company-ipc';
 
 const renderInput = autocompleteRenderInputFactory(
-  { },
+  {},
   { placeholder: 'Search or create organisation...' }
 );
 
@@ -59,10 +59,10 @@ export const useCrmCompanyCreativeAutocomplete = ({
 
     // When the person doesn't exist, we create it.
     if (!newValue.id) {
-      const payload = hydrateCrmCompany({ name: newValue.title });
-      return createCompany(payload, (createdData) => {
-        setValue({ title: createdData.name, id: createdData.id });
-      });
+      // const payload = hydrateCrmCompany({ name: newValue.title });
+      // return createCompany(payload, (createdData) => {
+      //   setValue({ title: createdData.name, id: createdData.id });
+      // });
     }
 
     if (newValue.inputValue) return setValue({ id: newValue.id, title: newValue.inputValue });

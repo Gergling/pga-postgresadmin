@@ -84,20 +84,19 @@ export const ExplorerWindow = ({ path: basePath }: { path: string; }) => {
       <Grid size={'auto'}>
         {isLoading && <Skeleton variant={'rectangular'} />}
         <>{isError && error}</>
-        {children.length > 0 && <List>
+        <List>
           {parent && <Item
-              handleNavigate={handleExpandFactory(parent)}
-              item={parent}
-            />
-          }
-          {children.map(
+            handleNavigate={handleExpandFactory(parent)}
+            item={parent}
+          />}
+          {children.length > 0 && children.map(
             (item) => <Item
               handleNavigate={handleExpandFactory(item)}
               item={item}
               key={item.absolutePath}
             />
           )}
-        </List>}
+        </List>
       </Grid>
       <Grid size={'auto'}>
         Right panel.

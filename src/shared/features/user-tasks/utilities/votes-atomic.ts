@@ -18,6 +18,8 @@ export const getEchoVote = <
   T extends VotePropsName,
   U extends AtomicVoteValueMap[T]
 >(
+  // TODO: WHat are we doing about audits here?
+  // Presumably moving over to Zod for hydration.
   { audit }: UserTask,
   member: CouncilMemberNames,
   voteProp: T
@@ -76,7 +78,7 @@ export const atomiseVotes = (
     ],
     acc
   ),
-  []
+  [] as AtomicVote[]
 );
 
 export const getMeanAtomicVoteRank = (

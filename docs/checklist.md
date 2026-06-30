@@ -110,6 +110,9 @@ Parameters should be considered out of scope since the current use-cases are pre
 - If no system resources, remote is the preference.
 - If no internet OR system resources, should probably check with the user first. Would ideally looking into ensuring it doesn't eat the whole processor, but just waits until available or something.
 
+- A known context window is a preference over an unknown one.
+- A larger context window is preferred over a smaller one.
+
 **Pareto Progress**: 6%
 
 #### Tasks
@@ -232,6 +235,55 @@ The dashboard should show some details about "news" and click through to a compl
 
 The main feature of this is to handle flaky internet but also having a note-taking option. Either this should mean adding a feature to the diary or creating a special interface. TBH, it doesn't matter which. The key is making sure it is stored
 locally and then updated when internet is available.
+
+### System: Hard Drive Space
+
+Ideally performs a running, low-priority background analysis of the file system, keeping a database of paths with type of file and space usage. Envelope audit only requires the last update. Storage of data should be local only, so no sync is required.
+
+Extraction can be done in separate stages, with the traversal gathering the paths and types of files, and another process doing the space calculations.
+
+#### Schema
+
+* Path: string
+* parentPath: string
+* isDirectory: boolean
+* usage?: number
+* Action: `none` | `traverse` | `scan`;
+
+#### Extraction
+
+* Traversal (path):
+  1. List all files in `path`.
+  2. Compare files to existing records.
+  3. Check if it exists in the database:
+    * If not: Add it (including whether it's a directory).
+    * Otherwise: Update whether it's a directory.
+  4. If `isDirectory`:
+    * Set `action` to `traverse`.
+    * Otherwise: Set `action` to `scan`.
+* Scan (limit):
+  1. Find [limit] records of `isDirectory: false` with the action `scan`. If none are returned, skip.
+    1. Extract the space used from the file path's stats.
+    2. Update the record with the space used and set action to 'none'.
+  2. Aggregate: Find first record of `isDirectory: true` with the action `scan`. If none are returned, we're done.
+    1. Check records for `parentPath` matching this record's `path`:
+      * If found: check for `isDirectory: true`:
+        * If found: Run aggregate for this record's `path`.
+        * Otherwise: Sum the space used and apply to this record's directory path.
+      * Otherwise: `usage: 0`.
+    2. Set `action` to `none`.
+* Activity Check (timeout): Find a records with a created time in the last [timeout] or an audit element in the last [timeout]. This simply returns the records ordered by the oldest changes in the last [timeout].
+* Extraction (limit, timeout, backfill): Run "light" resource checks.
+  1. A `pass` triggers a scan ([limit]) and an Activity Check ([timeout]).
+  2. If the Activity Check returns anything: Run a traversal against the first record's `parentPath`.
+  3. Check `backfill`:
+    * If truthy: Get the oldest record's `parentPath` and run a traversal against it.
+    * Otherwise: Run traversal against the root.
+
+#### Scheduling
+
+* Minutely: Run Extraction (limit: 10, timeout: 5 minutes).
+* Hourly: Run Extraction (limit: 100, timeout: 1 day, backfill: true).
 
 ## Done
 

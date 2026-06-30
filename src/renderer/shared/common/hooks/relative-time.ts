@@ -11,7 +11,7 @@ export const useRelativeTimeString = (
   useEffect(() => {
     const intervalId = setInterval(() => {
       setRelativeTime(getRelativeTimeStringNow(targetDateTime));
-    }, 1000); 
+    }, 1000);
 
     return () => clearInterval(intervalId);
   }, [targetDateTime]);

@@ -1,7 +1,7 @@
 import { createHashRouter, redirect } from "react-router-dom";
 import { Placeholder } from "../features/svg-viewer/components";
 import {
-  JobSearchView,
+  // JobSearchView,
   RootView,
   SvgViewerView,
   View404
@@ -31,13 +31,13 @@ const config: UiNavigationConfigItem = {
     },
     HOME_ROUTES,
     TASKS_ROUTES,
-    {
-      icon: getNavigationIcon(Placeholder),
-      label: 'Job Search',
-      element: JobSearchView,
-      path: 'jobsearch',
-      children: JOB_SEARCH_VIEW_CONFIG,
-    },
+    // {
+    //   icon: getNavigationIcon(Placeholder),
+    //   label: 'Job Search',
+    //   element: JobSearchView,
+    //   path: 'jobsearch',
+    //   children: JOB_SEARCH_VIEW_CONFIG,
+    // },
     PROJECT_ROUTES,
     EXPLORER_ROUTES,
     META_ROUTES,

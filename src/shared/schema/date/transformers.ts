@@ -40,8 +40,19 @@ const decoders = [
       const timeZone = resolveAbbreviation(abbreviation, year);
       return { day, month, year, hour, minute, second, timeZone };
     },
-    'RFC date with timezone abbreviation',
-  )
+    'Custom localised timestamp or Human-readable date-time format',
+  ),
+  f(
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?(Z|([+-]\d{2}:\d{2}))$/i,
+    (match) => {
+      const [, year, month, day, hour, minute, second, millisecond] = match;
+      const offset = match[9] ?? '+00:00';
+      return Temporal.ZonedDateTime.from(
+        `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}[${offset}]`
+      );
+    },
+    'RFC 3339 date with timezone abbreviation',
+  ),
 ];
 
 export const transformStringToZonedDateTime = (

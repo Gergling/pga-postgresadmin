@@ -1,56 +1,52 @@
-import zod from 'zod';
-import { temporalCodec, temporalSchema } from '@/shared/lib/temporal';
+import z from 'zod';
+import {
+  dateSerialisationCodec,
+  richDateSchema,
+  serialisationDateSchema
+} from '@/shared/schema';
 
-export const projectGitSchema = zod.object({
-  lastCheck: zod.string(),
-  latestCommitDate: zod.string(),
-  totalStagedFiles: zod.number(),
+export const projectGitSchema = z.object({
+  lastCheck: serialisationDateSchema,
+  latestCommitDate: serialisationDateSchema,
+  totalStagedFiles: z.number(),
 });
 
-const projectGitPropSchema = zod.union([
+const projectGitPropSchema = z.union([
   projectGitSchema,
-  zod.literal(false),
+  z.literal(false),
 ]).optional();
 
-export const projectSchema = zod.object({
-  name: zod.string(),
-  path: zod.string(),
+export const projectSchema = z.object({
+  name: z.string(),
+  path: z.string(),
   // Undefined means it isn't yet known whether the project has a git repo.
   // False means it explicitly doesn't.
   // Otherwise we expect to know all the git information we can get hold of.
   git: projectGitPropSchema,
 });
 
-/**
- * @deprecated Use projectSchema instead.
- * @alias projectSchema
- */
-export const PROJECT_SCHEMA = projectSchema;
+export type ProjectSchema = z.infer<typeof projectSchema>;
 
-export type ProjectSchema = zod.infer<typeof projectSchema>;
-
-const projectRendererGitSchema = zod.object({
-  ...projectGitSchema.shape,
-  lastCheck: temporalSchema,
-  latestCommitDate: temporalSchema,
+const projectRendererGitSchema = projectGitSchema.extend({
+  lastCheck: richDateSchema,
+  latestCommitDate: richDateSchema,
 });
 
-export type ProjectRendererGit = zod.infer<typeof projectRendererGitSchema>;
+export type ProjectRendererGit = z.infer<typeof projectRendererGitSchema>;
 
-const projectRendererGitPropSchema = zod.union([
+const projectRendererGitPropSchema = z.union([
   projectRendererGitSchema,
-  zod.literal('none'),
-  zod.literal('unknown'),
+  z.literal('none'),
+  z.literal('unknown'),
 ]);
 
-export const projectRendererSchema = zod.object({
-  ...projectSchema.shape,
+export const projectRendererSchema = projectSchema.extend({
   git: projectRendererGitPropSchema,
 });
 
-export type ProjectRenderer = zod.infer<typeof projectRendererSchema>;
+export type ProjectRenderer = z.infer<typeof projectRendererSchema>;
 
-const projectGitCodec = zod.codec(
+const projectGitCodec = z.codec(
   projectGitPropSchema,
   projectRendererGitPropSchema,
   {
@@ -59,23 +55,25 @@ const projectGitCodec = zod.codec(
       if (value === undefined) return 'unknown';
       return {
         ...value,
-        lastCheck: temporalCodec.decode(value.lastCheck),
-        latestCommitDate: temporalCodec.decode(value.latestCommitDate),
+        lastCheck: dateSerialisationCodec.decode(value.lastCheck),
+        latestCommitDate: dateSerialisationCodec.decode(value.latestCommitDate),
       };
     },
     encode: (value) => {
       if (value === 'none') return false;
       if (value === 'unknown') return undefined;
+      const lastCheck = serialisationDateSchema.parse(value.lastCheck);
+      const latestCommitDate = serialisationDateSchema.parse(value.latestCommitDate);
       return {
         ...value,
-        lastCheck: temporalCodec.encode(value.lastCheck),
-        latestCommitDate: temporalCodec.encode(value.latestCommitDate),
+        lastCheck,
+        latestCommitDate,
       };
     },
   }
 );
 
-export const projectCodec = zod.codec(
+export const projectCodec = z.codec(
   projectSchema,
   projectRendererSchema,
   {
@@ -87,7 +85,7 @@ export const projectCodec = zod.codec(
       };
     },
     encode: (value) => {
-      const git = projectGitCodec.encode(value.git);
+      const git = projectGitPropSchema.parse(value.git);
       return {
         ...value,
         git,

@@ -69,7 +69,7 @@ export async function readFileNode(targetPath: string): Promise<FileNodeData> {
         const { result: children } = await task(
           'Reading metadata for children', () => listContents(targetPath)
         );
-    
+
         return {
           children,
           current,

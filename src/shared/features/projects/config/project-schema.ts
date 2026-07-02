@@ -4,6 +4,7 @@ import {
   richDateSchema,
   serialisationDateSchema
 } from '@/shared/schema';
+import { codec } from '@/shared/utilities';
 
 export const projectGitSchema = z.object({
   lastCheck: serialisationDateSchema,
@@ -73,9 +74,7 @@ const projectGitCodec = z.codec(
   }
 );
 
-export const projectCodec = z.codec(
-  projectSchema,
-  projectRendererSchema,
+export const projectCodec = codec<ProjectRenderer, ProjectSchema>(
   {
     decode: (props) => {
       const git = projectGitCodec.decode(props.git);

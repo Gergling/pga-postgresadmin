@@ -46,7 +46,7 @@ const getGroupNameFactory = (
 ) => ({ git }: ProjectRenderer) => {
   if (typeof git !== 'object') return NOT_SOURCE_CONTROLLED;
   return getRecencyGroup(
-    git.latestCommitDate.zonedDateTime.epochMilliseconds, thresholds
+    git.latestCommitDate.epochMilliseconds, thresholds
   );
 };
 
@@ -73,7 +73,7 @@ export const ProjectsList = () => {
     return RECENCY_GROUPS
       .map((groupName) => map.get(groupName))
       .filter((group): group is ProjectGroup => group !== undefined
-    );
+      );
   }, [projects]);
 
   return <>
@@ -83,7 +83,7 @@ export const ProjectsList = () => {
         <Stack key={name}>
           <Typography variant="h6">{name}</Typography>
           <Grid container>
-            {projects?.map(project => <ProjectCard key={project.name} {...project}/>)}
+            {projects?.map(project => <ProjectCard key={project.name} {...project} />)}
           </Grid>
         </Stack>
       ))}

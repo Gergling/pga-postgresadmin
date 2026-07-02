@@ -9,6 +9,7 @@ import { PROJECTS_CHILD_TABS } from "../../constants";
 import { sigilFactory } from "../../../svg-viewer/components/Sigiliser";
 import { Outlet } from "react-router-dom";
 import { useProjectDetail } from "../../context";
+import { ErrorBoundary } from "@/renderer/shared/common";
 
 const getTabs = () => PROJECTS_CHILD_TABS.map(({ label, path, icon }, value) => ({
   icon: icon || sigilFactory(label?.slice(0, 6) || 'Workflower'),
@@ -30,6 +31,8 @@ export const ProjectDetail = () => {
   return <>
     <ProjectHeading {...project} />
     <NavigationTabs tabs={tabs} />
-    <Outlet />
+    <ErrorBoundary fallback={<>Project Detail Navigation Error</>}>
+      <Outlet />
+    </ErrorBoundary>
   </>;
 };

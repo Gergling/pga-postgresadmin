@@ -36,7 +36,7 @@ const CommitMessagePresetButton = ({ project: { git }, onClick }: {
 }) => {
   if (typeof git !== 'object') return null;
   return <Button onClick={onClick} disabled={git.totalStagedFiles === 0}>
-    <Badge badgeContent={git.totalStagedFiles} max={9} 
+    <Badge badgeContent={git.totalStagedFiles} max={9}
       sx={{
         "& .MuiBadge-badge": {
           ...badgeStyle,
@@ -83,7 +83,7 @@ export const ProjectDetailChat = () => {
   // Refresh project local data when switching tabs within a project.
   useEffect(() => {
     projectRefreshLocal();
-  }, [pathname])
+  }, [pathname]);
 
   return <>
     <ChatWindow

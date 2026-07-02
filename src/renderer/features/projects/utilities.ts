@@ -18,8 +18,8 @@ export const getProjectStatus = ({ git, path }: ProjectRenderer): {
   if (git === 'none') return { git: 'No', local };
   return {
     git: `${git.totalStagedFiles || 'No'} staged files`,
-    gitLatestCommitDate: getRelativeTimeStringNow(git.latestCommitDate.zonedDateTime),
-    gitLastCheck: getRelativeTimeStringNow(git.lastCheck.zonedDateTime),
+    gitLatestCommitDate: getRelativeTimeStringNow(git.latestCommitDate),
+    gitLastCheck: getRelativeTimeStringNow(git.lastCheck),
     local
   };
 };

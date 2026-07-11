@@ -24,7 +24,6 @@ const codeFactory = hashFactory(2);
  */
 export const getCode = (n: number) => {
   const length = 4;
-  console.log('code factory', codeFactory())
   const r = codeFactory() * (n + 1) * cipher.length * length;
   return Array.from({ length }, (_, i) => {
     const remainder = Math.floor(r * (i + n)) % cipher.length;

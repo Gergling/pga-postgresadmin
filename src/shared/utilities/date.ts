@@ -95,3 +95,6 @@ export const transformStringToRfc9557 = (raw: string) => {
 };
 
 export const now = () => Temporal.Now.instant();
+export const nowUTCMs = () => Temporal.Now.instant().toZonedDateTimeISO('UTC').epochMilliseconds;
+
+export const getIsoDateTimeString = (date: Date = new Date()) => date.toISOString();

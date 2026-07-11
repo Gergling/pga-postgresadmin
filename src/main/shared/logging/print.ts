@@ -165,7 +165,7 @@ const printSummary = () => {
     ANSI_COLOUR_MAP.purple, UNICODE_ICON_MAP.chevronRight,
     ANSI_COLOUR_MAP.cyan, 'Summarising', ANSI_COLOUR_MAP.reset
   ].join(' '));
-  stdio('\n');
+  stdio('\n\n');
 
   operations.forEach((operation) => {
     printStartLine(operation);

@@ -7,11 +7,19 @@ import {
   updateOperation
 } from "./state";
 
+type LogOptions = {
+  parentCode?: string;
+  showSummaryChildren?: boolean;
+};
+
+type LogChild<T extends unknown | void> = (props: LogApi) => Promise<T>;
+
 export type LogParent = <T extends unknown | void>(
   title: string,
   callback?: LogChild<T>,
   options?: LogOptions,
 ) => Promise<T>;
+
 export type LogApi = {
   log: LogParent;
   operation: LogOperationState;
@@ -21,15 +29,14 @@ export type LogApi = {
     message?: string
   ) => void;
 };
-type LogChild<T extends unknown | void> = (props: LogApi) => Promise<T>;
-type LogOptions = {
-  parentCode?: string;
-};
+
 
 export const log: LogParent = async <T>(
   title: string, callback?: LogChild<T>, options?: LogOptions
 ): Promise<T> => {
-  const code = startOperation(options?.parentCode, title);
+  const code = startOperation(options?.parentCode, title, {
+    showSummaryChildren: options?.showSummaryChildren ?? false,
+  });
 
   if (!callback) {
     updateOperation(code, { status: 'success' });

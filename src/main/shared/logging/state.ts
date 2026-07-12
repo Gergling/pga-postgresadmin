@@ -1,20 +1,28 @@
 import { getIsoDateTimeString } from "@/shared/utilities";
 import { INDENT, TaskStatus } from "./config";
-import { getCode } from "./utilities";
+import { getCode, shouldPropagateStatus } from "./utilities";
 
 export type LogOperationState = {
+  // Metadata
   children: string[];
   code: string;
   lineage: string[];
   parent: string;
 
-  title: string;
-  status: TaskStatus;
+  // State
   message?: string | Error;
+  status: TaskStatus;
+  title: string;
 
+  // Timeframe
   start: string;
   updated?: string;
   end?: string;
+
+  // Summary metadata
+  summary: {
+    showChildren: boolean;
+  };
 };
 
 type LogOperationMap = Map<string, LogOperationState>;
@@ -50,7 +58,11 @@ const createCode = () => {
   return code;
 };
 
-export const startOperation = (parentCode: string = ROOT_CODE, title: string) => {
+export const startOperation = (
+  parentCode: string = ROOT_CODE, title: string, options: {
+    showSummaryChildren: boolean;
+  }
+) => {
   const code = createCode();
   const existing = state.operations.get(code);
   // TODO: If this comes up, we'll have to review the blocking probability of
@@ -66,6 +78,11 @@ export const startOperation = (parentCode: string = ROOT_CODE, title: string) =>
     code,
     lineage,
     parent: parentCode,
+    summary: {
+      showChildren: options.showSummaryChildren
+        ?? parentOperation?.summary.showChildren
+        ?? false,
+    },
     start: getIsoDateTimeString(),
     status: 'awaiting',
     title,
@@ -91,6 +108,21 @@ export const getOperation = (code: string) => {
   return operation;
 }
 
+const propagateStatusToAncestors = (code: string, status: TaskStatus) => {
+  const operation = getOperation(code);
+  if (['awaiting', 'success'].includes(status)) return;
+
+  if (!shouldPropagateStatus(operation.status, status)) return;
+
+  const parentOperation = state.operations.get(operation.parent);
+  if (!parentOperation) return;
+
+  state.operations.set(parentOperation.code, {
+    ...parentOperation, status
+  });
+  propagateStatusToAncestors(parentOperation.code, status);
+}
+
 export const updateOperation = (code: string, options: UpdateOperationOptionParams) => {
   const operation = getOperation(code);
 
@@ -113,6 +145,7 @@ export const updateOperation = (code: string, options: UpdateOperationOptionPara
   }
 
   state.operations.set(code, updatedOperation);
+  propagateStatusToAncestors(code, updatedOperation.status);
 
   state.latest = code;
 
@@ -146,8 +179,23 @@ export const isLatestOperation = (code: string) => state.latest === code;
 export const indentString = () => INDENT.repeat(state.indentation);
 
 export const getOperationSummary = (code: string = ROOT_CODE): LogOperationState[] => {
-  const children = [...state.operations.values()].filter((op) => op.parent === code);
-  const initial = code === ROOT_CODE ? [] : [getOperation(code)];
+  const isRoot = code === ROOT_CODE;
+  const children = [...state.operations.values()].filter(
+    (op) => {
+      const isChild = op.parent === code;
+
+      // We do not care about anything that isn't a direct child.
+      if (!isChild) return false;
+
+      // Otherwise, we always want top-level operations to show.
+      if (isRoot) return true;
+
+      // Otherwise, we only want to show operations that have a message,
+      // or are not successful. This can include information
+      return op.summary.showChildren || op.status !== 'success'
+    }
+  );
+  const initial = isRoot ? [] : [getOperation(code)];
   return children.reduce(
     (results, { code }) => [...results, ...getOperationSummary(code)], initial
   );

@@ -1,6 +1,8 @@
 // Inter cogitationes eius nihil sumus.
 
 import { hashFactory } from "@/shared/utilities";
+import { TASK_STATUS_PROPAGATION_ORDER } from "./constants";
+import { TaskStatus } from "./config";
 
 export const getStdIoFormat = (
   input: unknown
@@ -29,4 +31,13 @@ export const getCode = (n: number) => {
     const remainder = Math.floor(r * (i + n)) % cipher.length;
     return cipher[remainder];
   }).join('');
+};
+
+export const shouldPropagateStatus = (
+  oldStatus: TaskStatus,
+  newStatus: TaskStatus
+) => {
+  const oldIndex = TASK_STATUS_PROPAGATION_ORDER.indexOf(oldStatus);
+  const newIndex = TASK_STATUS_PROPAGATION_ORDER.indexOf(newStatus);
+  return newIndex < oldIndex;
 };

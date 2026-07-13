@@ -60,7 +60,7 @@ const createCode = () => {
 
 export const startOperation = (
   parentCode: string = ROOT_CODE, title: string, options: {
-    showSummaryChildren: boolean;
+    showSummaryChildren?: boolean;
   }
 ) => {
   const code = createCode();
@@ -180,6 +180,7 @@ export const indentString = () => INDENT.repeat(state.indentation);
 
 export const getOperationSummary = (code: string = ROOT_CODE): LogOperationState[] => {
   const isRoot = code === ROOT_CODE;
+  const node = isRoot ? undefined : getOperation(code);
   const children = [...state.operations.values()].filter(
     (op) => {
       const isChild = op.parent === code;
@@ -192,10 +193,10 @@ export const getOperationSummary = (code: string = ROOT_CODE): LogOperationState
 
       // Otherwise, we only want to show operations that have a message,
       // or are not successful. This can include information
-      return op.summary.showChildren || op.status !== 'success'
+      return node?.summary.showChildren || op.status !== 'success'
     }
   );
-  const initial = isRoot ? [] : [getOperation(code)];
+  const initial = node ? [node] : [];
   return children.reduce(
     (results, { code }) => [...results, ...getOperationSummary(code)], initial
   );

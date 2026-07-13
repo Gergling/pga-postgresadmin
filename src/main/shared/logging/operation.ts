@@ -35,7 +35,7 @@ export const log: LogParent = async <T>(
   title: string, callback?: LogChild<T>, options?: LogOptions
 ): Promise<T> => {
   const code = startOperation(options?.parentCode, title, {
-    showSummaryChildren: options?.showSummaryChildren ?? false,
+    showSummaryChildren: options?.showSummaryChildren,
   });
 
   if (!callback) {

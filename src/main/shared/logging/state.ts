@@ -10,7 +10,7 @@ export type LogOperationState = {
   parent: string;
 
   // State
-  message?: string | Error;
+  message?: string | Error | string[];
   status: TaskStatus;
   title: string;
 

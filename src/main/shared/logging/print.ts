@@ -69,10 +69,27 @@ const printSubLine = (operation: LogOperationState) => {
 
   const colour = status.colour;
 
-  const startLine = [
+  const prefix = [
     timestamp, getIndentation(operation) + '  ', UNICODE_ICON_MAP.arrowRight,
-    colour, operation.message, ANSI_COLOUR_MAP.reset
-  ].join(' ') + '\n';
+    colour
+  ].join(' ');
+  const postfix = ANSI_COLOUR_MAP.reset + '\n';
+
+  if (Array.isArray(operation.message)) {
+    operation.message.forEach((msg) => {
+      const startLine = [
+        prefix, msg, postfix
+      ].join(' ');
+
+      stdio(startLine);
+    });
+
+    return;
+  }
+
+  const startLine = [
+    prefix, operation.message, postfix
+  ].join(' ');
 
   stdio(startLine);
 };

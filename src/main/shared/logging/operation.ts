@@ -23,10 +23,10 @@ export type LogParent = <T extends unknown | void>(
 export type LogApi = {
   log: LogParent;
   operation: LogOperationState;
-  setMessage: (message: string) => void;
+  setMessage: (message: string | string[]) => void;
   setStatus: (
     status: Exclude<TaskStatus, 'error' | 'success'>,
-    message?: string
+    message?: string | string[]
   ) => void;
 };
 
@@ -50,7 +50,9 @@ export const log: LogParent = async <T>(
     title: string, callback: LogChild<U>, options?: LogOptions
   ) => log<U>(title, callback, { parentCode: code, ...options });
   const operation = getOperation(code);
-  const setMessage = (message: string) => updateOperation(code, { message });
+  const setMessage: LogApi['setMessage'] = (message) => updateOperation(
+    code, { message }
+  );
   const setStatus: LogApi['setStatus'] = (status, message) => {
     if (message) return updateOperation(code, { status, message });
     return updateOperation(code, { status });

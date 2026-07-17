@@ -12,3 +12,8 @@ export const normalizeAndRelativizePath = (
   const relativePath = path.relative(rootDir, posixPath);
   return relativePath.replace(/\\/g, '/');
 };
+
+export const getPathData = (absolutePath: string) => ({
+  name: path.basename(absolutePath),
+  parentPath: path.dirname(absolutePath),
+});

@@ -8,6 +8,7 @@ import {
 } from "./state";
 
 type LogOptions = {
+  debug?: boolean;
   parentCode?: string;
   showSummaryChildren?: boolean;
 };
@@ -35,6 +36,7 @@ export const log: LogParent = async <T>(
   title: string, callback?: LogChild<T>, options?: LogOptions
 ): Promise<T> => {
   const code = startOperation(options?.parentCode, title, {
+    debug: options?.debug,
     showSummaryChildren: options?.showSummaryChildren,
   });
 

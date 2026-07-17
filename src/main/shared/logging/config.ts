@@ -21,13 +21,14 @@ export const ANSI_COLOUR_MAP = {
 type AnsiColourMap = typeof ANSI_COLOUR_MAP;
 
 export const UNICODE_ICON_MAP = {
+  arrowRight: '➟',
+  bug: '🐛',
+  chevronRight: '⪢',
   check: '✅',
   cross: '❌',
   hazard: '⚠️',
-  information: 'ℹ️',
   hourglass: '⏳',
-  arrowRight: '➟',
-  chevronRight: '⪢',
+  information: 'ℹ️',
 } as const;
 
 type UnicodeIconMap = typeof UNICODE_ICON_MAP;
@@ -55,6 +56,7 @@ const createConfig = <T extends ConfigTemplate>(
 export const LOG_STATUS_CONFIG = createConfig({
   success: { icon: 'check', colour: 'green' },
   error: { icon: 'cross', colour: 'red' },
+  debug: { icon: 'bug', colour: 'purple' },
   warning: { icon: 'hazard', colour: 'yellow' },
   information: { icon: 'information', colour: 'cyan' },
   awaiting: { icon: 'hourglass', colour: 'reset' },

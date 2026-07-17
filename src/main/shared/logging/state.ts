@@ -21,6 +21,7 @@ export type LogOperationState = {
 
   // Summary metadata
   summary: {
+    debug: boolean;
     showChildren: boolean;
   };
 };
@@ -60,6 +61,7 @@ const createCode = () => {
 
 export const startOperation = (
   parentCode: string = ROOT_CODE, title: string, options: {
+    debug?: boolean;
     showSummaryChildren?: boolean;
   }
 ) => {
@@ -68,7 +70,7 @@ export const startOperation = (
   // TODO: If this comes up, we'll have to review the blocking probability of
   // the code generation.
   if (existing) {
-    throw new Error(`Operation ${code} already exists`);
+    throw new Error(`Operation ${code} already exists. ${state.operations.size} operations, ${state.increment} increment.`);
   }
   const parentOperation = state.operations.get(parentCode);
   const lineage = parentOperation ? [...parentOperation.lineage, parentCode] : [];
@@ -79,6 +81,7 @@ export const startOperation = (
     lineage,
     parent: parentCode,
     summary: {
+      debug: options.debug ?? parentOperation?.summary.debug ?? false,
       showChildren: options.showSummaryChildren
         ?? parentOperation?.summary.showChildren
         ?? false,

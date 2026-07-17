@@ -17,8 +17,6 @@ const cipher = Array.from({ length: 10 }, (_, i) => i).join('') + Array.from(
   { length: 26 }, (_, i) => String.fromCharCode(97 + i)
 ).join('');
 
-const codeFactory = hashFactory(2);
-
 /**
  * Generates an arbitrary 4-letter code based on a large number.
  * @param n The number.
@@ -26,10 +24,10 @@ const codeFactory = hashFactory(2);
  */
 export const getCode = (n: number) => {
   const length = 4;
-  const r = codeFactory() * (n + 1) * cipher.length * length;
-  return Array.from({ length }, (_, i) => {
-    const remainder = Math.floor(r * (i + n)) % cipher.length;
-    return cipher[remainder];
+  const codeFactory = hashFactory(n);
+  return Array.from({ length }, () => {
+    const index = Math.floor(codeFactory() * cipher.length);
+    return cipher[index];
   }).join('');
 };
 

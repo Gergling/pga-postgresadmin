@@ -6,6 +6,8 @@ export interface LockingProcess {
 
 export type FileUnitTestOperation = 'none' | 'create' | 'update';
 
+export type FileExistanceStatus = 'absent' | 'exists' | 'locked';
+
 export interface DirentSummary {
   absolutePath: string;
   meta: {

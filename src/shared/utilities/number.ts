@@ -14,3 +14,18 @@ export const padSchemaFactory = (padding: number) => z.union([
 
   return val.toString().padStart(padding, '0');
 });
+
+const formatPercentageOptionsSchema = z.object({
+  decimalPlaces: z.number(),
+}).partial().default({ decimalPlaces: 2 });
+
+type FormatPercentageOptions = z.infer<typeof formatPercentageOptionsSchema>;
+
+export const formatPercentage = (
+  fraction: number, options?: FormatPercentageOptions
+) => {
+  const {
+    decimalPlaces,
+  } = formatPercentageOptionsSchema.parse(options);
+  return `${(fraction * 100).toFixed(decimalPlaces)}%`
+};

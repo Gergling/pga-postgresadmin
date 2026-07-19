@@ -24,10 +24,10 @@ const cipher = Array.from({ length: 10 }, (_, i) => i).join('') + Array.from(
  */
 export const getCode = (n: number) => {
   const length = 4;
-  const codeFactory = hashFactory(n);
-  return Array.from({ length }, () => {
-    const index = Math.floor(codeFactory() * cipher.length);
-    return cipher[index];
+  return Array.from({ length }, (_, idx) => {
+    const denominator = Math.pow(cipher.length, idx);
+    const remainder = Math.floor(n / denominator) % cipher.length;
+    return cipher[remainder];
   }).join('');
 };
 

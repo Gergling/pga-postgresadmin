@@ -1,3 +1,5 @@
+import { MathsStatisticsSpread } from "@/shared/types";
+
 export const interpolate = (
   input: number,
   inputMinimum: number,
@@ -40,6 +42,14 @@ export const median = (series: number[], sort = true) => {
   const median = length % 2 === 0
     ? (sorted[middle] + sorted[middle - 1]) / 2
     : sorted[Math.floor(middle)]
-  ;
+    ;
   return median;
+};
+
+export const mathsStatisticsSpread = (series: number[]): MathsStatisticsSpread => {
+  const min = Math.min(...series);
+  const max = Math.max(...series);
+  const range = Math.abs(max - min);
+  const dispersion = range === 0 ? 0 : range / Math.max(Math.abs(min), Math.abs(max));
+  return { max, min, range, dispersion };
 };

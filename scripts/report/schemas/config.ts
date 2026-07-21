@@ -45,12 +45,12 @@ const analysisFunctionParamsSchema = extractionFunctionParamsSchema.extend({
   // ),
 });
 
-export type AnalysisFunctionParams<
-  T extends object = object
-> = AnalysisConfig<T> & TaskInnerAPI;
-// export type AnalysisFunctionParams<T extends object = object> = z.infer<
-//   typeof analysisFunctionParamsSchema
-// > & TaskInnerAPI;
+// export type AnalysisFunctionParams<
+//   T extends object = object
+// > = AnalysisConfig<T> & TaskInnerAPI;
+export type AnalysisFunctionParams<T extends object = object> = z.infer<
+  typeof analysisFunctionParamsSchema
+> & TaskInnerAPI;
 
 const analysisFunctionSchema = z.function({
   input: z.array(analysisFunctionParamsSchema)

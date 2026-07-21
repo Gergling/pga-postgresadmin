@@ -16,13 +16,21 @@ export const commitStagedCode = async () => {
   const prompt = getPromptToGenerateCommitMessage(stagedFiles);
   const suggestedCommitMessage = await analyseLanguage(prompt);
 
+  if (suggestedCommitMessage.status !== 'success') {
+    console.error(suggestedCommitMessage);
+    throw new Error(`
+      Unable to parse language model response.
+      Status: ${suggestedCommitMessage.status}
+    `);
+  }
+
   console.log("\nSuggested commit message:");
   console.log("----------------------------------------");
   console.log(suggestedCommitMessage);
   console.log("----------------------------------------");
   console.log("\nEdit each line. Press Enter to accept. Delete all text to remove.\n");
 
-  const suggestedLines = suggestedCommitMessage.split("\n");
+  const suggestedLines = suggestedCommitMessage.text.split("\n");
 
   const rl = readline.createInterface({
     input: process.stdin,
@@ -44,7 +52,7 @@ export const commitStagedCode = async () => {
 
   const commitMessage = updatedCommitMessage.trim().length === 0
     ? updatedCommitMessage
-    : suggestedCommitMessage
+    : suggestedCommitMessage.text
   ;
 
   // TODO: Skip for --dry-run.

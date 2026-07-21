@@ -30,10 +30,15 @@ export const analysisFactory = <
   return (config: AnalysisConfig<T>): AnalysisFunction => {
     // Pass in the config.
     // Pass in the task/setAnalysis.
-    const extract: ExtractionFunction = ({ task, ...props }: ExtractionFunctionParams) => {
-      task(`Extracting ${config.name}`, async (taskProps) => extractor({
-        config, ...taskProps, ...props,
-      }));
+    const extract: ExtractionFunction = ({
+      task, ...props
+    }: ExtractionFunctionParams) => {
+      task(`Extracting ${config.name}`, async (taskProps) => {
+        const params: AnalysisFunctionParams & { config: AnalysisConfig<T> } = {
+          config, ...taskProps, ...props,
+        };
+        extractor(params);
+      });
     };
 
     return {

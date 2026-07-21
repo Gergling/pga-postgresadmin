@@ -1,5 +1,7 @@
 import { exec } from 'node:child_process';
 import util from 'node:util';
+import { errorSchema } from '@/shared/schema/error';
+import { LogApi } from '@/main/shared';
 
 const executeCommand = util.promisify(exec);
 
@@ -24,23 +26,27 @@ export const fetchStagedFileList = async (cwd: string): Promise<string[]> => {
     throw error;
   }
 }
-export const fetchStagedFileContents = async (cwd: string): Promise<string[]> => {
-  try {
-    const { stderr, stdout } = await executeCommand(
-      "git diff --cached --unified=0",
-      { cwd, encoding: "utf8" }
-    );
-    if (stderr) {
-      console.error('Error at cwd:', cwd);
-      console.error(stderr);
-      throw new Error(stderr);
+export const fetchStagedFileContents = async (
+  cwd: string, { log }: LogApi
+): Promise<string[]> => log(
+  `Fetching staged file contents: ${cwd}`,
+  async ({ setMessage }) => {
+    try {
+      const { stderr, stdout } = await executeCommand(
+        "git diff --cached --unified=0",
+        { cwd, encoding: "utf8" }
+      );
+      if (stderr) {
+        setMessage(`Error fetching staged file contents: ${stderr}`);
+        throw new Error(stderr);
+      }
+      return stdout.split("\n");
+    } catch (error) {
+      setMessage(errorSchema.parse(error));
+      throw error;
     }
-    return stdout.split("\n");
-  } catch (error) {
-    console.error(cwd);
-    throw error;
   }
-}
+);
 
 /**
  * Runs a git commit -m

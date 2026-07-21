@@ -9,6 +9,7 @@ import {
   fetchProjectStagedCommitMessage
 } from "./crud";
 import { extractLocalProject, fetchProjectList } from "./extractors";
+import { log } from "@/main/shared";
 
 const projectsIpc = createCrudConfig({
   create: {
@@ -42,8 +43,9 @@ export const projectsRouter = tRPC.router({
       ({ input: project }) => observable<
         GenerateCommitMessageUpdateProps, GenerateCommitMessageUpdateProps
       >((emit) => {
-        fetchProjectStagedCommitMessage({ emit, project })
+        log(`RPC(fetchStagedCommitMessage: ${project.name})`, (
+          logApi
+        ) => fetchProjectStagedCommitMessage({ emit, logApi, project }));
       })
     ),
 });
-

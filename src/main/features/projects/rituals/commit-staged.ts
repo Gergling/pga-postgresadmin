@@ -4,10 +4,14 @@ import {
   CONVENTIONAL_COMMIT_MESSAGE_SCHEMA, Project
 } from "@/shared/features/projects";
 import { GenerateCommitMessageUpdateEmitter } from "../types";
+import { LogApi } from "@/main/shared";
 
 export const generateCommitMessage = async (
-  project: Project, prompt: string, emit: GenerateCommitMessageUpdateEmitter
+  project: Project, prompt: string, emit: GenerateCommitMessageUpdateEmitter,
+  logApi: LogApi
 ): Promise<void> => {
+  // TODO: Might want to prioritise models/gemini-2.5-pro or
+  // skip models/gemini-2.5-flash
   const { state } = await task(
     'Generate commit message', async ({ setError, task }) => {
       try {

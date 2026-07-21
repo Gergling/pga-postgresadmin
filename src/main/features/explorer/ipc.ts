@@ -1,5 +1,6 @@
 import z from 'zod';
 import { observable } from '@trpc/server/observable';
+import { log } from '@/main/shared';
 import { tRPC } from '@/main/config';
 import {
   findLockingProcesses,
@@ -10,10 +11,10 @@ import { emitUnitTest, GenerateUnitTestUpdateProps } from './transformers';
 
 export const explorerRouter = tRPC.router({
   list: tRPC.procedure.input(z.string()).query(
-    ({ input }) => listContents(input),
+    ({ input }) => log(`RPC(list: ${input})`, (logApi) => listContents(input, logApi)),
   ),
   node: tRPC.procedure.input(z.string()).query(
-    ({ input }) => readFileNode(input),
+    ({ input }) => log(`RPC(node: ${input})`, (logApi) => readFileNode(input, logApi)),
   ),
   locks: tRPC.procedure.input(z.string()).query(
     ({ input }) => findLockingProcesses(input),

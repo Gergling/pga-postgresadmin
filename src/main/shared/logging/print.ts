@@ -87,6 +87,16 @@ const printSubLine = (operation: LogOperationState) => {
     return;
   }
 
+  if (typeof operation.message === 'object' && !(operation.message instanceof Error)) {
+    const startLine = [
+      prefix, JSON.stringify(operation.message, null, 2), postfix
+    ].join(' ');
+
+    stdio(startLine);
+
+    return;
+  }
+
   const startLine = [
     prefix, operation.message, postfix
   ].join(' ');

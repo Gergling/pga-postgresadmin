@@ -16,9 +16,18 @@ export const ANSI_COLOUR_MAP = {
   boldPurple: '\\e[1;35m',
   boldCyan: '\\e[1;36m',
   boldWhite: '\\e[1;37m',
+  hiBlack: '\\e[0;90m',
+  hiRed: '\\e[0;91m',
+  hiGreen: '\\e[0;92m',
+  hiYellow: '\\e[0;93m',
+  hiBlue: '\\e[0;94m',
+  hiPurple: '\\e[0;95m',
+  hiCyan: '\\e[0;96m',
+  hiWhite: '\\e[0;97m',
 } as const;
 
 type AnsiColourMap = typeof ANSI_COLOUR_MAP;
+export type AnsiColourCode = keyof AnsiColourMap;
 
 export const UNICODE_ICON_MAP = {
   arrowRight: '➟',

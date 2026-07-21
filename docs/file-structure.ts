@@ -86,7 +86,7 @@ const FILE_STRUCTURE_RULES = createFileStructureRules([
         ],
       },
       'preload.ts',
-      'app-start.ts',
+      'main.ts',
     ],
   },
   'docs',

@@ -5,6 +5,9 @@ export default createQualityReportConfig({
   analyses: [
     // TODO: Make a factory such as typeCheck('type-check'),
     typeCheck({
+      custom: {
+        configFilePath: './tsconfig.json',
+      },
       name: 'type-check',
       priority: [
         {

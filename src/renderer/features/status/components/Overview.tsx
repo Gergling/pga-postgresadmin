@@ -6,6 +6,7 @@ import { ProgressBar } from "@/renderer/shared/progress-bar";
 import { Slab } from "@/renderer/shared/base";
 import { COLORS } from "@/renderer/shared/theme";
 import { trpcReact } from "@/renderer/libs/react-query";
+import { useFocus } from "@/renderer/shared/events";
 
 // TODO: Colour-coding:
 // Below 85% memory is dark green or blue.
@@ -55,6 +56,9 @@ const StatusItem = (props: StatusItemProps) => {
   </Grid>;
 };
 
+// <SparkLineChart data={values} height={100} color={COLORS.goldGlow} />
+// TODO: Could display system resource availability as sparklines when variable.
+
 export const StatusOverview = () => {
   const {
     data, error, status
@@ -68,6 +72,47 @@ export const StatusOverview = () => {
       { type: 'memory', value: resources.memoryFreePercentage },
     ];
   }, [data]);
+
+  // Update status
+  useFocus({
+    handleFocus: () => {
+      // Attention should be set to Peripheral.
+    },
+    handleBlur: () => {
+      // System check refetch interval can be increased to minutes.
+      // Could include "alertness" system here, but only if it's worth doing.
+      // Spike (instant check) when getting back focus or switching into this
+      // view from another view.
+      // Attention Levels:
+      // Focus: Because it is actively being watched.
+      // Peripheral: Because checks may need to be performed (e.g. in the
+      // window behind).
+      // Mute: No check is required. Possibly the application is minimised or
+      // offline or something.
+      // "Focus" level interval can be set to `focusInterval` for this operation.
+      // The interval will gradually increase to that from a (pre-configured)
+      // `minimumInterval`.
+      // "Default" attention
+
+      // For this specific component, we can consider a blur event to mute all
+      // system checks.
+      // Focus or pathname changes (switching into the view from another view)
+      // doesn't apply because this is always on-screen.
+      // Peripheral is the "default" for onFocus, but has a small refetch (e.g.
+      // 5 seconds).
+      // HOWEVER a spike followed by a Focus should be triggered if the internet
+      // changes status recently (e.g. in the last minute or so). This could
+      // mean 60 checks a minute if the internet is being tricky.
+      // Also: This would constitute a "news" story, which would update the
+      // dashboard.
+    },
+  });
+
+  // // Refresh project local data when switching tabs within a project.
+  // useEffect(() => {
+  //   projectRefreshLocal();
+  // }, [pathname])
+
 
   if (error) console.error(error);
 

@@ -9,14 +9,17 @@ export const generalErrorSchema = z.object({
       path: z.string(),
       type: z.literal('file'),
     }),
-    z.object({ type: z.literal('unknown') })
+    z.object({
+      type: z.literal('unknown'),
+      typeof: z.string(),
+    })
   ]),
   text: z.string(),
 }).default({
   cause: 'unknown',
   operation: '',
   raw: {},
-  scope: { type: 'unknown' },
+  scope: { type: 'unknown', typeof: '' },
   text: ''
 });
 

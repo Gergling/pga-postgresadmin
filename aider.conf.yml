@@ -1,0 +1,7 @@
+# Example .aider.conf.yml
+model: gemini/gemini-flash-2.5-lite
+# Set coding conventions
+suggest-shell-commands: true
+auto-commits: false
+# Map tokens for larger repo understanding
+map-tokens: 2048

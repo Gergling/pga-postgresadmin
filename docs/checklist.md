@@ -231,7 +231,7 @@ The status bar needs to show some indication of internet connection and how it's
 
 The dashboard should show some details about "news" and click through to a complete list of items. Such news should include things like "the internet is down". News updates should also appear in the status overview. News items have an icon and a category (e.g. Internet) with a title (e.g. "internet went down/up") and a date/time. The status overview should show the most recent news items.
 
-### Notes
+### Notes Caching
 
 The main feature of this is to handle flaky internet but also having a note-taking option. Either this should mean adding a feature to the diary or creating a special interface. TBH, it doesn't matter which. The key is making sure it is stored
 locally and then updated when internet is available.
@@ -284,6 +284,18 @@ Extraction can be done in separate stages, with the traversal gathering the path
 
 * Minutely: Run Extraction (limit: 10, timeout: 5 minutes).
 * Hourly: Run Extraction (limit: 100, timeout: 1 day, backfill: true).
+
+### Scheduling Orchestrator
+
+This is essentially a generic task manager for handling background processes. Ideally it would provide some "basic" scheduling functions such as onTimeout or onStartup. The main patterns are as follows:
+
+* Checking the resource is available, e.g. if there's no internet, there's no point in running the weather or email check. If it can't run such things because of such conditions, it should output a message which can appear on the application status bar. A local database log can be kept for various such pieces of information. Should also extend to things like memory, disk space, and CPU. These can be considered anywhere between agnostic and heavy for the process.
+* A priority system so that certain tasks get done *eventually*. So the minute-by-minute weather check or space analyser is low priority, while the hourly space analyser is high priority and the 15-minute weather check is high priority.
+* A run condition can be something like the time of day, or time since the last run. To begin with, it can be a simple function which just returns a boolean value and an explanation for *why* it was run.
+* If the process had to be postponed due to resource availability, there should be clear instructions (another function) on what to do next, e.g. try again in 5 minutes.
+* Processes can be assumed asynchronous and will be tried and caught if errors occur. If the orchestrator catches an error, it should be flagged critically.
+
+Ideally, a few different options would be put together first. One example would be the weather, another can be the explorer disk space checker, and we can also include the email checker.
 
 ## Done
 

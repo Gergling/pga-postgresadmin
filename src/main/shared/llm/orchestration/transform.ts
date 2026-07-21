@@ -1,13 +1,13 @@
-import { log } from "@main/shared/logging";
 import {
   LanguageModelTransformFunctionParams,
 } from "../types";
+import { errorSchema } from "@shared/schema/error";
 
 const jsonParse = (response: string) => {
   try {
     return JSON.parse(response);
   } catch (e) {
-    log('JSON parsing response failed', 'error');
+    console.error(errorSchema.parse(e));
     throw e;
   }
 }

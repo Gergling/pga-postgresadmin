@@ -11,7 +11,7 @@ export const transformError = (e: unknown): GeneralError => {
     cause: 'unknown',
     operation: 'unknown',
     raw: e,
-    scope: { type: 'unknown' },
+    scope: { type: 'unknown', typeof: typeof e },
     text: `An uncategorised error occurred: ${e}`,
   };
 };

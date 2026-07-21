@@ -26,8 +26,12 @@ export type SystemCheckResponse = {
     range: MathsStatisticsSpread;
   };
   compute: {
+    band: SystemComputeColor;
+    /**
+     * @deprecated Calculate in the renderer.
+     */
     mean: SystemComputeColor;
     // values: SystemComputeColor[];
     // range: SystemComputeColor[];
-  }
+  };
 };

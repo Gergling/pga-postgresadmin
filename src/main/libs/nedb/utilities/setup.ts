@@ -1,7 +1,7 @@
 import { SerialisationEnvelope } from '@/shared/schema';
 import { instantiateNeDbWrapper } from './instantiator';
 
-export const setupBasicNeDb = <T>(
+export const setupBasicNeDb = <T extends object>(
   collectionName: string
 ) => instantiateNeDbWrapper<T>(collectionName);
 

@@ -1,8 +1,9 @@
 import { app } from "electron";
+import { log } from "@/main/shared";
 
 const appDataPath = app.getPath('userData');
 
-console.log('Electron appDataPath:', appDataPath);
+log(`Electron appDataPath: ${appDataPath}`);
 
 export const getNeDbFileName = (collectionName: string) => {
   return `${appDataPath}/Data/${collectionName}.db`;

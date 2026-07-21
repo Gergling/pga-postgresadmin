@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Accordion } from "../../../shared/accordion";
 import { Parenthesis } from "../../../shared/brackets";
 import { JobSearchInteractionList } from "./InteractionList";
-import { JobSearchApplicationList } from "./ApplicationList";
+// import { JobSearchApplicationList } from "./ApplicationList";
 import { InteractionDetail } from "./InteractionDetail";
 import { useSearchParams } from "react-router-dom";
 import { JobSearchDbSchema } from "../../../../shared/features/job-search";
@@ -61,9 +61,9 @@ export const JobSearchDashboard = () => {
     [searchParams]
   );
 
-  const handleApplicationEditMode = (id?: JobSearchDbSchema['id']['applications']) => {
-    setSearchParams([[APPLICATION_SEARCH_PARAMETER, id || '']]);
-  };
+  // const handleApplicationEditMode = (id?: JobSearchDbSchema['id']['applications']) => {
+  //   setSearchParams([[APPLICATION_SEARCH_PARAMETER, id || '']]);
+  // };
   const toggleInteractionCreator = useCallback(() => {
     // Toggle the value.
     const value = interactionCreator ? '' : NEW_INTERACTION_SEARCH_PARAMETER_VALUE;
@@ -110,22 +110,22 @@ export const JobSearchDashboard = () => {
     >
       <JobSearchUpdate />
     </Accordion>
-    <Box sx={{ 
-      display: 'flex', 
+    <Box sx={{
+      display: 'flex',
       // The gap only exists when we aren't in "Surgical/Full" mode
-      gap: isEditing ? 0 : '24px', 
+      gap: isEditing ? 0 : '24px',
       width: '100%',
       transition: 'gap 0.5s ease',
       color: 'white',
     }}>
-      
+
       {/* LEFT COLUMN: Remains mounted, transforms width */}
       <Column
         layout
         key="primary-column"
-        style={{ 
+        style={{
           // If editing, take 100%. If not, take flex-basis 50%
-          flex: isEditing ? '1 0 100%' : '1 0 calc(50% - 12px)' 
+          flex: isEditing ? '1 0 100%' : '1 0 calc(50% - 12px)'
         }}
         transition={{ duration: 0.5, ease: "easeInOut" }}
       >
@@ -152,7 +152,7 @@ export const JobSearchDashboard = () => {
               exit={{ opacity: 0 }} // Step 1: Fade out content
             >
               {/* <Button onClick={() => openInteractionEditor('fake interaction id')}>Open an interaction</Button> */}
-              <JobSearchInteractionList edit={handleInteractionEditMode}/>
+              <JobSearchInteractionList edit={handleInteractionEditMode} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -165,10 +165,10 @@ export const JobSearchDashboard = () => {
             key="secondary-column"
             initial={{ opacity: 0, width: 'calc(50% - 12px)' }}
             animate={{ opacity: 1, width: 'calc(50% - 12px)' }}
-            exit={{ 
-              opacity: 0, 
+            exit={{
+              opacity: 0,
               width: 0, // Step 1: Shrink width to 0 to prevent "The Drop"
-              transition: { duration: 0.4 } 
+              transition: { duration: 0.4 }
             }}
             style={{ flexShrink: 0 }}
             transition={{ duration: 0.5, ease: "easeInOut" }}

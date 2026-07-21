@@ -6,6 +6,8 @@ import {
 } from "@shared/features/job-search";
 import { JobSearchUpdateForm } from "../types";
 
+// TODO: Zod codecs. Basically renderer to transfer.
+
 // Can we be bothered with the form's initial state?
 export const jobSearchApplicationToForm = (
   data?: JobSearchApplicationTransfer

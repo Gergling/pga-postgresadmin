@@ -80,7 +80,7 @@ export const DevModeOverlay = () => {
     if (mode === 'dev') return info.main;
     if (mode === 'preview') return '#70f';
     return warning.main;
-  }, [isProd]);
+  }, [mode]);
   const { pathname, search } = useLocation();
 
   const handleToggleEnv = () => {

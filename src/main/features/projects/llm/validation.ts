@@ -1,5 +1,5 @@
 import { LlmResponseSchema } from "@/main/llm/shared";
-import { CommitMessage, CONVENTIONAL_COMMIT_SCOPE, CONVENTIONAL_COMMIT_TYPES } from "@shared/features/projects";
+import { CommitMessage, CONVENTIONAL_COMMIT_SCOPE, CONVENTIONAL_COMMIT_TYPES } from "@/shared/features/projects";
 
 
 export const commitMessageSuggestionResponseSchema: LlmResponseSchema<

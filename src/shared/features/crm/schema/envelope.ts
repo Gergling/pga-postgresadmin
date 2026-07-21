@@ -1,4 +1,4 @@
-import { envelopeSerialisationSchemaFactory } from "@shared/schema";
+import { envelopeSerialisationSchemaFactory } from "@/shared/schema";
 import {
   crmCompanyCoreSchema,
   crmEmploymentCoreSchema,

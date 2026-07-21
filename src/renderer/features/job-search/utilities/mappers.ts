@@ -1,9 +1,9 @@
-import { toTransferDate } from '@shared/utilities/transfer';
+import { toTransferDate } from '@/shared/utilities/transfer';
 import {
   JobSearchApplicationCreation,
   JobSearchApplicationTransfer,
   JobSearchInteractionCreation,
-} from "@shared/features/job-search";
+} from "@/shared/features/job-search";
 import { JobSearchUpdateForm } from "../types";
 
 // TODO: Zod codecs. Basically renderer to transfer.
@@ -58,7 +58,7 @@ export function jobSearchUpdateFormToCreation(
 
   if (!update.interaction.timeperiod.start) {
     // Return an application.
-    
+
     return;
   }
 

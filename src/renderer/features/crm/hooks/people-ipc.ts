@@ -3,7 +3,7 @@ import {
   CrmPersonTransfer,
   CrmSchema,
   // hydrateCrmPerson
-} from "@shared/features/crm";
+} from "@/shared/features/crm";
 import { useIpc } from "@/renderer/shared/ipc";
 import {
   getCollectionKeyFactory,

@@ -1,5 +1,5 @@
 import { Mandatory } from "../../../../shared/types";
-import { CrmPersonTransfer } from "@shared/features/crm";
+import { CrmPersonTransfer } from "@/shared/features/crm";
 import { CrmPersonOptionType } from "../types";
 import { creativeAutocompleteSelectorValidatorFactory } from "../../../shared/autocomplete";
 

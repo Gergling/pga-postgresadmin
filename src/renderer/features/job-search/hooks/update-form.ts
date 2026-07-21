@@ -1,6 +1,6 @@
 import { useField, useForm } from "@tanstack/react-form";
 import z from "zod";
-import { JobSearchApplicationTransfer } from "@shared/features/job-search";
+import { JobSearchApplicationTransfer } from "@/shared/features/job-search";
 import { useFlags } from "@/renderer/shared/common/hooks/flags";
 import {
   crmCompanySelectorValidator,
@@ -63,19 +63,19 @@ export const useJobSearchUpdateForm = (
       // New manual application (e.g. from job listing) -> create application
       // New manual interaction (e.g. from agent) -> create interaction
       // New manual interaction about application (e.g. from agent) ->
-        // create interaction
+      // create interaction
       // Both could output full objects of what is created as standard, rather
       // than just the object and its summary.
       // Have a relationship transfer type
       // In this case, we do one of the following:
-        // We return the application(s) and the newly-created interaction
-        // We return the application
-        // We return the interaction
+      // We return the application(s) and the newly-created interaction
+      // We return the application
+      // We return the interaction
       // So the tedious refactoring will look as follows:
-        // createApplication returns the application and (optional) interaction
-        // createInteraction returns the interaction and array of applications
-        // So the template type would extend object and the relationship type(s)
-          // would extend object[]
+      // createApplication returns the application and (optional) interaction
+      // createInteraction returns the interaction and array of applications
+      // So the template type would extend object and the relationship type(s)
+      // would extend object[]
 
       create(value, (data) => {
         // Whatever needs to happen for the state change, happens here.
@@ -130,7 +130,7 @@ export const useJobSearchUpdateForm = (
   //   sourceValue: TextFieldProps;
   // };
   // useJobSearchInteractionSource();
-  
+
   // const sourceProps = useField({
   //   form, name: 'interaction.source',
   // });

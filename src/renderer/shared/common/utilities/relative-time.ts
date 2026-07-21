@@ -1,5 +1,5 @@
 import { Temporal } from "@js-temporal/polyfill";
-import { getRelativeTimeString } from "@shared/lib/temporal";
+import { getRelativeTimeString } from "@/shared/lib/temporal";
 
 /**
  * @deprecated Use shared/ equivalent.

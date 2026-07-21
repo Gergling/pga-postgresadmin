@@ -1,6 +1,6 @@
 import os from 'node:os';
-import { summariseCpuUsage } from "@shared/features/system";
-import { median } from '@shared/utilities';
+import { summariseCpuUsage } from "@/shared/features/system";
+import { median } from '@/shared/utilities';
 
 /**
  * This construct sits as a singleton keeping 20 seconds of CPU usage data in

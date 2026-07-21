@@ -1,7 +1,7 @@
 import {
   LanguageModelTransformFunctionParams,
 } from "../types";
-import { errorSchema } from "@shared/schema/error";
+import { errorSchema } from "@/shared/schema/error";
 
 const jsonParse = (response: string) => {
   try {

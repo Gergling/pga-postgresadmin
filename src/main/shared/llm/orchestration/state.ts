@@ -3,7 +3,7 @@ import {
   LanguageModelResponseStatus,
   LanguageModelResponseStatusRetryable,
 } from "@/main/shared/llm";
-import { hashFactory } from "@shared/utilities";
+import { hashFactory } from "@/shared/utilities";
 
 const analyseLanguageStateSchema = z.object({
   log: z.array(z.object({
@@ -78,17 +78,17 @@ const getLogReport = ({ log }: AnalyseLanguageState) => log.reduce(
       total,
     };
   }, {
-    last: {
-      parsingIncompatibility: false,
-    },
-    some: {
-      parsingIncompatibility: false,
-      serverRetry: false,
-    },
-    total: {
-      serverRetry: 0,
-    },
-  }
+  last: {
+    parsingIncompatibility: false,
+  },
+  some: {
+    parsingIncompatibility: false,
+    serverRetry: false,
+  },
+  total: {
+    serverRetry: 0,
+  },
+}
 );
 
 export class LanguageAnalysisState {

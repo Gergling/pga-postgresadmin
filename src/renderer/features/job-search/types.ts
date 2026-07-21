@@ -7,8 +7,8 @@ import {
   JobSearchDbSchema,
   JobSearchInteractionTransfer,
   JobSearchInteractionType
-} from "@shared/features/job-search";
-import { WithId } from "@shared/lib/typesaurus";
+} from "@/shared/features/job-search";
+import { WithId } from "@/shared/lib/typesaurus";
 
 export type JobSearchOptionType<
   CollectionName extends JobSearchDbSchema['collectionName']
@@ -38,12 +38,12 @@ type Replace<
   Existing extends object,
   Extension extends object
 > = {
-  [K in keyof (Existing & Extension)]: K extends keyof Extension
+    [K in keyof (Existing & Extension)]: K extends keyof Extension
     ? Extension[K]
-    : K extends keyof Existing 
-      ? Existing[K]
-      : never;
-};
+    : K extends keyof Existing
+    ? Existing[K]
+    : never;
+  };
 
 /**
  * Form types:

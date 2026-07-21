@@ -1,12 +1,12 @@
 import {
   FetchItemFunction,
   FetchListFunction,
-} from "@shared/lib/typesaurus";
+} from "@/shared/lib/typesaurus";
 import {
   JobSearchApplicationTransfer,
   JobSearchDbSchema,
   JobSearchInteractionTransfer
-} from "@shared/features/job-search";
+} from "@/shared/features/job-search";
 import { jobSearchDb } from "../schema";
 import { toApplicationTransfer, toInteractionTransfer } from "../utilities";
 

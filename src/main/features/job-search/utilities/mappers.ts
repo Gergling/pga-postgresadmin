@@ -1,4 +1,4 @@
-import { SummariseFunction } from "@shared/lib/typesaurus";
+import { SummariseFunction } from "@/shared/lib/typesaurus";
 import {
   JobSearchApplicationRecord,
   JobSearchApplicationSchemaSalary,
@@ -7,7 +7,7 @@ import {
   JobSearchInteractionRecord,
   JobSearchInteractionSummary,
   JobSearchInteractionTransfer
-} from "@shared/features/job-search";
+} from "@/shared/features/job-search";
 import { summarise } from "@/main/shared/crud";
 import { APPLICATION_SUMMARY_FIELDS } from "../constants";
 

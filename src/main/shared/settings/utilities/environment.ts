@@ -1,5 +1,5 @@
 import settings from 'electron-settings';
-import { SETTINGS_KEY_ENVIRONMENT } from '@shared/lib/settings';
+import { SETTINGS_KEY_ENVIRONMENT } from '@/shared/lib/settings';
 import { ENVIRONMENTS } from '../constants';
 import { EnvironmentProps, GetEnvironment } from '../types';
 

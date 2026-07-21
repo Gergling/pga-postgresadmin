@@ -1,5 +1,5 @@
-import { OptionalId } from "@shared/lib/typesaurus";
-import { hydratorFactory } from "@shared/utilities/initialiser";
+import { OptionalId } from "@/shared/lib/typesaurus";
+import { hydratorFactory } from "@/shared/utilities/initialiser";
 import { JobSearchApplicationTransfer } from "../types";
 
 const initial: OptionalId<JobSearchApplicationTransfer> = {

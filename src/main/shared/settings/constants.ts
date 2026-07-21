@@ -1,4 +1,4 @@
-import { SETTINGS_KEY_ENVIRONMENT } from "@shared/lib/settings";
+import { SETTINGS_KEY_ENVIRONMENT } from "@/shared/lib/settings";
 import { EnvironmentProps } from "./types";
 
 /**

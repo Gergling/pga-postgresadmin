@@ -1,11 +1,11 @@
 import { transaction } from "typesaurus";
-import { Optional } from "@shared/types";
-import { TransferUpdate, UpdateFunction } from "@shared/lib/typesaurus";
+import { Optional } from "@/shared/types";
+import { TransferUpdate, UpdateFunction } from "@/shared/lib/typesaurus";
 import { CrudModel, RecordAudit } from "@/main/shared/crud";
 import {
   JobSearchApplicationRecord,
   JobSearchApplicationTransfer,
-} from "@shared/features/job-search";
+} from "@/shared/features/job-search";
 import { APPLICATION_SUMMARY_FIELDS } from "../constants";
 import { jobSearchDb } from "../schema";
 import { summariseApplication } from "../utilities";

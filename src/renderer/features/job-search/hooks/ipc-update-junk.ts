@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { JobSearchApplicationTransfer, JobSearchInteractionTransfer, JobSearchUpdateTransfer } from "@shared/features/job-search";
+import { JobSearchApplicationTransfer, JobSearchInteractionTransfer, JobSearchUpdateTransfer } from "@/shared/features/job-search";
 import { useIpc } from "@/renderer/shared/ipc";
 import { useIpcCreateFactory, useQueryDataFactory } from "@/renderer/libs/react-query";
 import { jobSearchUpdateFormToCreation } from "../utilities";

@@ -1,4 +1,4 @@
-import { Schema } from "@shared/lib/typesaurus";
+import { Schema } from "@/shared/lib/typesaurus";
 import {
   CrmCompanySchema,
   CrmEmploymentSchema,

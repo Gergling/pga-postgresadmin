@@ -1,6 +1,6 @@
-import { Optional } from "@shared/types";
+import { Optional } from "@/shared/types";
 import { emitRitualTelemetry } from "./ipc";
-import { RitualTelemetrySubscriptionParams } from "@shared/features/ai";
+import { RitualTelemetrySubscriptionParams } from "@/shared/features/ai";
 
 export type HandleRitualTelemetryProps<Returns extends Promise<unknown>> = Optional<
   Omit<RitualTelemetrySubscriptionParams, 'status'>, 'retried' | 'timestamp'

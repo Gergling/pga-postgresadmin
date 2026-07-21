@@ -1,6 +1,6 @@
 import { LogApi } from "@/main/shared";
 import { explorerFileRecords } from "../schema";
-import { ExplorerFileRecord } from "@shared/features/explorer";
+import { ExplorerFileRecord } from "@/shared/features/explorer";
 
 const db = explorerFileRecords.db;
 

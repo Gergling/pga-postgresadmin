@@ -1,4 +1,4 @@
-import { SerialisationEnvelope } from '@shared/schema';
+import { SerialisationEnvelope } from '@/shared/schema';
 import { EventEmitter } from 'events';
 
 const eventType = 'after-write';

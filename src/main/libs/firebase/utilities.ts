@@ -1,5 +1,5 @@
 import firebaseAdmin from 'firebase-admin';
-import { FirebaseDatabaseStatus } from '@shared/lib/firebase';
+import { FirebaseDatabaseStatus } from '@/shared/lib/firebase';
 
 export const getDatabaseStatus = (
   db: firebaseAdmin.firestore.Firestore | null

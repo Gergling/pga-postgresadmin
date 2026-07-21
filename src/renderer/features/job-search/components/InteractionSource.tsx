@@ -1,7 +1,7 @@
 import { QuestionMark } from "@mui/icons-material";
 import { TextField } from "@mui/material";
 import { createElement, useMemo } from "react";
-import { JOB_SEARCH_INTERACTION_TYPES } from "@shared/features/job-search";
+import { JOB_SEARCH_INTERACTION_TYPES } from "@/shared/features/job-search";
 import { JobSearchUpdateForm } from "../types";
 import {
   Dropdown,
@@ -19,11 +19,11 @@ type JobSearchInteractionSourceProps = {
 
 const options = JOB_SEARCH_INTERACTION_TYPES.map(
   ({ icon, label, name }): DropdownOption<Source['type']> => {
-  return {
-    label: <>{icon} {label}</>,
-    value: name,
-  };
-});
+    return {
+      label: <>{icon} {label}</>,
+      value: name,
+    };
+  });
 
 export const JobSearchInteractionSource = ({
   setValue,

@@ -4,7 +4,7 @@ import { getCollectionKeyFactory, useQueryDataFactory } from "../../../libs/reac
 import {
   JobSearchApplicationTransfer,
   JobSearchDbSchema
-} from "@shared/features/job-search";
+} from "@/shared/features/job-search";
 // import { useJobSearchApplicationsIpcCreate } from "./application-ipc-create";
 
 // TODO: Employments absolutely needs to update the cache for the other two collections

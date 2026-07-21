@@ -1,5 +1,5 @@
 import { Temporal } from "@js-temporal/polyfill";
-import { reduceInitialObject } from "@shared/utilities/object";
+import { reduceInitialObject } from "@/shared/utilities/object";
 import { TEMPORAL_UNIT_PROPS_EXTENDED } from "./config";
 import { TemporalUnitPropExtended, TemporalUnitPropSingularisedMap } from "./types";
 
@@ -29,19 +29,19 @@ export const TEMPORAL_UNIT_PROPS_SINGULARISED: TemporalUnitPropSingularisedMap
 export const TEMPORAL_ZONED_DATE_TIME_KEY_DENOMINATIONS: (
   keyof Temporal.ZonedDateTime
 )[] = [
-  'year',
-  'month',
-  'weekOfYear',
-  'dayOfYear',
-  'day', // of month
-  'dayOfWeek',
-  'hour',
-  'minute',
-  'second',
-  'millisecond',
-  'microsecond',
-  'nanosecond',
-];
+    'year',
+    'month',
+    'weekOfYear',
+    'dayOfYear',
+    'day', // of month
+    'dayOfWeek',
+    'hour',
+    'minute',
+    'second',
+    'millisecond',
+    'microsecond',
+    'nanosecond',
+  ];
 
 /**
  * Shortened Temporal.ZonedDateTimeKey to take up less space.

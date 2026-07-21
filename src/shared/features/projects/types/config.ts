@@ -1,5 +1,5 @@
 import z from "zod";
-import { getObjectKeys } from "@shared/utilities/object";
+import { getObjectKeys } from "@/shared/utilities/object";
 
 // Features, generally found in `**/features/[scope]/**` files.
 export const CONVENTIONAL_COMMIT_SCOPE_FEATURES = {

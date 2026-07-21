@@ -24,12 +24,6 @@
     "strictNullChecks": true,
     "traceResolution": true,
     "paths": {
-      /**
-       * @deprecated Use @/shared/* instead.
-       */
-      "@shared/*": [
-        "./src/shared/*"
-      ],
       "@/main/*": [
         "./src/main/*"
       ],

@@ -1,18 +1,24 @@
 import { PropsWithChildren, useCallback, useEffect, useMemo } from "react";
 import { create } from "zustand";
+import { matchRoutes as matchRoutesBase } from "react-router-dom";
 import { useQueries, UseQueryOptions } from "@tanstack/react-query";
 import { contextFactory } from "@gergling/ui-components";
 import { Optional } from "../../../shared/types";
 import {
   BreadcrumbHistoryRequestItemFunction,
-  BreadcrumbNavigationHistoryItem
+  BreadcrumbNavigationHistoryItem,
+  UiNavigationItem
 } from "./types";
 import {
   getFallbackHistoryItem,
   getLoadingHistoryItem,
   getNavigationHistoryKey,
+  reduceFlatBreadcrumbMappingFactory,
+  reduceRoutes,
   requestHistoryItemFactory
 } from "./utilities";
+
+const reduceFlatBreadcrumbMapping = reduceFlatBreadcrumbMappingFactory();
 
 const store = create<{
   addCallback: (requestItem: BreadcrumbHistoryRequestItemFunction) => void;
@@ -46,7 +52,7 @@ export const {
   Provider: NavigationRegisterProvider,
   useContextHook: useNavigationRegister,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-} = contextFactory((_: PropsWithChildren) => {
+} = contextFactory(({ tree }: PropsWithChildren & { tree: UiNavigationItem }) => {
   // Store setup.
   const {
     addCallback, removeCallback,
@@ -54,6 +60,20 @@ export const {
     map,
     requestCallbacks,
   } = store();
+
+  const { breadcrumbsMap, routes } = useMemo(() => {
+    const breadcrumbsMap = reduceFlatBreadcrumbMapping({}, tree);
+    const routes = reduceRoutes([], tree);
+    return { breadcrumbsMap, routes };
+  }, [tree]);
+
+  // const breadcrumbsMap = useMemo(
+  //   () => reduceFlatBreadcrumbMapping({}, tree), [tree]
+  // );
+  // const routes = useMemo(() => reduceRoutes([], tree), [tree]);
+  const matchRoutes = useCallback(
+    (path: string) => matchRoutesBase(routes, path), [routes]
+  );
 
   // A simple array of all the mapped items.
   const items = useMemo(() => Object.values(map), [map]);
@@ -71,7 +91,7 @@ export const {
   // Each time we want a path, we ask for the path using a sync function.
   // It either returns what's there or a placeholder for one that's loading.
   const request = useCallback(
-    requestHistoryItemFactory(requestCallbacks),
+    requestHistoryItemFactory(requestCallbacks, matchRoutes),
     [requestCallbacks]
   );
 
@@ -83,7 +103,7 @@ export const {
     })),
     combine: (results) => results.map((result, index) => ({
       ...result,
-      path: requestPaths[index], 
+      path: requestPaths[index],
     })),
   });
 
@@ -106,8 +126,10 @@ export const {
   }, [error, queries, register]);
 
   return {
+    breadcrumbsMap,
     loading, register,
     items, map,
+    matchRoutes,
     request, subscribe,
   };
 }, 'navigation-register');

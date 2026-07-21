@@ -1,25 +1,41 @@
 // TODO: This might be tricky to untangle. In theory, the imports can just be fed in as props and then we make up some callbacks or equivalent.
 import { useEffect, useMemo } from "react";
 import { matchRoutes as matchRoutesBase, useLocation } from "react-router-dom";
-import { NAVIGATION_TREE } from "../constants";
+// import { NAVIGATION_TREE } from "../constants";
 import { BreadcrumbActiveNavigation } from "../types";
 import { reduceActiveNavigationFactory, reduceFlatBreadcrumbMappingFactory, reduceRoutes } from "../utilities";
 import { useNavigationHistory } from "./history";
 import { useNavigationRegister } from "../context";
+// import { NAVIGATION_TREE } from "@/renderer/views/routes";
+import { contextFactory } from "@gergling/ui-components";
 
 const reduceFlatBreadcrumbMapping = reduceFlatBreadcrumbMappingFactory();
-const breadcrumbsMap = reduceFlatBreadcrumbMapping({}, NAVIGATION_TREE);
-const routes = reduceRoutes([], NAVIGATION_TREE);
+// const breadcrumbsMap = reduceFlatBreadcrumbMapping({}, NAVIGATION_TREE);
+// const routes = reduceRoutes([], NAVIGATION_TREE);
 
 const initialActiveNavigation: BreadcrumbActiveNavigation = {
   breadcrumbs: [],
   current: undefined,
 };
 
-export const matchRoutes = (path: string) => matchRoutesBase(routes, path);
+// export const matchRoutes = (path: string) => matchRoutesBase(routes, path);
+
+// export const {
+//   Provider: NavigationProvider,
+//   useContextHook: useNavigation,
+//   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+// } = contextFactory((_: PropsWithChildren) => {
+// });
 
 export const useNavigation = () => {
   const { pathname } = useLocation();
+  const { breadcrumbsMap, matchRoutes } = useNavigationRegister();
+  // const { breadcrumbsMap, routes } = useMemo(() => {
+  //   const breadcrumbsMap = reduceFlatBreadcrumbMapping({}, tree);
+  //   const routes = reduceRoutes([], tree);
+  //   return { breadcrumbsMap, routes };
+  // }, [tree]);
+  // const matchRoutes = (path: string) => matchRoutesBase(routes, path);
   const {
     breadcrumbs,
     current,
@@ -59,6 +75,5 @@ export const useNavigation = () => {
     matchCurrentRoute,
     pathname,
     recent,
-    routes,
   };
 };

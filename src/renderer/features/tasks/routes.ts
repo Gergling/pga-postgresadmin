@@ -1,44 +1,14 @@
-import { ImportantTasks, Placeholder, ProposedTasks, QuickWins } from "../svg-viewer/components";
-import { TaskViewConfigName, UiNavigationConfigItem } from "../../shared/navigation/types";
+import { Placeholder } from "../svg-viewer/components";
+import { UiNavigationConfigItem } from "../../shared/navigation/types";
 import { getNavigationIcon } from "../../shared/navigation/components/getNavigationIcon";
-import { lazyImport } from "@/renderer/shared/navigation";
+// import { lazyImport } from "@/renderer/shared/navigation";
 import { redirect } from "react-router-dom";
-
-export const TASK_VIEW_CONFIG: UiNavigationConfigItem<TaskViewConfigName>[] = [
-  {
-    label: 'Proposed Tasks',
-    path: 'proposed',
-    icon: getNavigationIcon(ProposedTasks),
-  },
-  {
-    label: 'Quick Tasks',
-    path: 'quick',
-    icon: getNavigationIcon(QuickWins),
-  },
-  {
-    label: 'Important Tasks',
-    path: 'important',
-    icon: getNavigationIcon(ImportantTasks),
-  },
-  // {
-  //   label: 'Deep Work', // High mass proposal
-  //   path: '/deep',
-  //   icon: <Engineering />
-  // },
-  {
-    label: 'Abstained',
-    path: 'abstained',
-    icon: getNavigationIcon(Placeholder),
-  },
-  {
-    label: 'Awaiting Votes',
-    path: 'awaiting',
-    icon: getNavigationIcon(Placeholder),
-  },
-];
+import { TasksRoot } from "./components";
+import { TASK_VIEW_CONFIG } from "./views";
 
 export const TASKS_ROUTES: UiNavigationConfigItem = {
-  lazy: lazyImport(() => import('./components/Root')),
+  // lazy: lazyImport(() => import('./components/Root')),
+  element: TasksRoot,
   icon: getNavigationIcon(Placeholder),
   label: 'Tasks',
   path: 'tasks',

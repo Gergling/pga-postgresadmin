@@ -1,8 +1,9 @@
 import { useEffect, useMemo } from "react";
 import { useIpc } from "../../../shared/ipc";
-import { TASK_VIEW_CONFIG, UiNavigationConfigItem, useNavigationRegister } from "../../../shared/navigation";
+import { UiNavigationConfigItem, useNavigationRegister } from "../../../shared/navigation";
 import { TaskView } from "../types";
 import { createUiUserTask, getTaskHistoryItem } from "../utilities";
+import { TASK_VIEW_CONFIG } from "../views";
 
 const reduceTaskView = (
   acc: TaskView[],
@@ -10,7 +11,7 @@ const reduceTaskView = (
 ): TaskView[] => {
   const { icon, label, path } = item;
   if (!icon || !label || !path) return acc;
-  return [ ...acc, { icon, label, path }];
+  return [...acc, { icon, label, path }];
 };
 
 export const useTaskNavigation = () => {

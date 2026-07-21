@@ -1,10 +1,10 @@
 import { RouterProvider } from "react-router-dom";
 import { NavigationRegisterProvider } from "../shared/navigation/context";
-import { NAVIGATION_ROUTER } from "./routes";
+import { NAVIGATION_ROUTER, NAVIGATION_TREE } from "./routes";
 
 export const NavigationProvider = () => {
   return (
-    <NavigationRegisterProvider>
+    <NavigationRegisterProvider tree={NAVIGATION_TREE}>
       <RouterProvider
         router={NAVIGATION_ROUTER}
       />

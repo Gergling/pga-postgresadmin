@@ -1,8 +1,8 @@
 import { QuestionMark } from "@mui/icons-material";
 import { BreadcrumbHistoryRequestItemFunction, BreadcrumbNavigationHistoryItem } from "../types";
 import { NavigationLoadingHistoryIcon } from "../components";
-import { matchRoutes } from "../hooks";
 import { NAVIGATION_HISTORY_KEY_BASE } from "../constants/all";
+import { RouteMatch } from "react-router-dom";
 
 export const getFallbackHistoryItem = (path: string): BreadcrumbNavigationHistoryItem => ({
   icon: QuestionMark,
@@ -23,7 +23,8 @@ export const getNavigationHistoryKey = (
 ) => [NAVIGATION_HISTORY_KEY_BASE, path];
 
 export const requestHistoryItemFactory = (
-  requestCallbacks: BreadcrumbHistoryRequestItemFunction[]
+  requestCallbacks: BreadcrumbHistoryRequestItemFunction[],
+  matchRoutes: (path: string) => RouteMatch[] | null
 ) => async (path: string): Promise<BreadcrumbNavigationHistoryItem> => {
   // If it doesn't match any nodes, fallback.
   const matches = matchRoutes(path);

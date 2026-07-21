@@ -2,12 +2,17 @@ import { useEffect, useMemo, useState } from 'react';
 import { DataGridProps, GridColDef } from '@mui/x-data-grid';
 import { UserTask } from '../../../../shared/features/user-tasks';
 import { useIpc } from '../../../shared/ipc/hook';
-import { TaskViewConfigName } from '../../../shared/navigation';
+import {
+  TaskViewConfigName
+} from '../../../shared/navigation';
 import { getTaskListFactory, getTaskViewColumns } from '../utilities';
 import { useNavigation } from '../../../shared/navigation/hooks/hook';
-import { BreadcrumbActiveNavigationItem, UiNavigationConfigItem } from '../../../shared/navigation/types';
+import {
+  BreadcrumbActiveNavigationItem,
+  UiNavigationConfigItem
+} from '../../../shared/navigation/types';
 import { UiUserTask } from '../types';
-import { TASK_VIEW_CONFIG } from '../../../shared/navigation/constants';
+import { TASK_VIEW_CONFIG } from '../views';
 
 const dataGridProps: DataGridProps<UiUserTask> = {
   checkboxSelection: true,
@@ -63,7 +68,7 @@ type UseUserTaskResponse = {
 
 const reduceTaskViewNames = (acc: string[], { path }: UiNavigationConfigItem) => {
   if (!path) return acc;
-  return [ ...acc, path];
+  return [...acc, path];
 };
 
 export const useUserTasks = (): UseUserTaskResponse => {

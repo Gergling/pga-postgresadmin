@@ -1,8 +1,9 @@
 import { Outlet } from "react-router-dom";
-import { JOB_SEARCH_VIEW_CONFIG, NavigationTabs } from "../../../shared/navigation";
+import { NavigationTabs } from "../../../shared/navigation";
 import { useMemo } from "react";
 import { sigilFactory } from "../../svg-viewer/components/Sigiliser";
 import { ErrorBoundary } from "../../../shared/common/components/ErrorBoundary";
+import { JOB_SEARCH_VIEW_CONFIG } from "../routes";
 
 // Storage:
 // Minimum AND Ideal rate, so two sets of data stored. Each has:

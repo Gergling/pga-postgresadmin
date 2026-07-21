@@ -1,10 +1,10 @@
-import { UiNavigationConfigItem } from "../types";
+import { UiNavigationConfigItem } from "@/renderer/shared/navigation";
 import {
   InteractionDetail,
   Interactions,
   JobSearchDashboard
-} from "../../../features/job-search";
-import { runeFactory } from "../../../features/svg-viewer/components";
+} from ".";
+import { runeFactory } from "../svg-viewer/components";
 
 export const JOB_SEARCH_VIEW_CONFIG: UiNavigationConfigItem[] = [
   {

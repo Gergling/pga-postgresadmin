@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { UserTask } from "../../../shared/features/user-tasks";
 import { useIpc } from "../../shared/ipc";
 import {
-  TASK_VIEW_CONFIG,
+  // TASK_VIEW_CONFIG,
   UiNavigationConfigItem,
   useNavigation,
   useNavigationRegister
@@ -17,6 +17,7 @@ import { createUiUserTask, getViewTasks } from "./utilities";
 import { useTaskQueryCache } from "./hooks/cache";
 import { getTaskPath } from "./utilities/route";
 import { TabsProps } from "@mui/material";
+import { TASK_VIEW_CONFIG } from "./views";
 
 const reduceTaskView = (
   acc: TaskView[],
@@ -24,7 +25,7 @@ const reduceTaskView = (
 ): TaskView[] => {
   const { icon, label, path } = item;
   if (!icon || !label || !path) return acc;
-  return [ ...acc, { icon, label, path }];
+  return [...acc, { icon, label, path }];
 };
 
 export const {

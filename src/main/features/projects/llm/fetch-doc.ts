@@ -1,8 +1,8 @@
 import util from 'node:util';
 import { existsSync, readFile as readFileNodeFs } from 'node:fs';
 import path from 'node:path';
-import { PROJECT_ROOT } from '@main/shared/file';
-import { log } from '@main/shared/logging';
+import { PROJECT_ROOT } from '@/main/shared/file';
+import { log } from '@/main/shared/logging';
 
 const readFile = util.promisify(readFileNodeFs);
 

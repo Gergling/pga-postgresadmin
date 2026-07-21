@@ -5,11 +5,11 @@ import {
   toInteractionTransfer,
   toApplicationTransfer
 } from './mappers';
-import { summarise } from '@main/shared/crud';
+import { summarise } from '@/main/shared/crud';
 import { APPLICATION_SUMMARY_FIELDS } from '../constants';
 import { JobSearchApplicationRecord, JobSearchInteractionRecord } from '@shared/features/job-search';
 
-vi.mock('@main/shared/crud', () => ({
+vi.mock('@/main/shared/crud', () => ({
   summarise: vi.fn(<T>(data: T) => data),
 }));
 

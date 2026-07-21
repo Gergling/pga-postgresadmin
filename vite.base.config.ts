@@ -16,7 +16,7 @@ export const builtins = [
 const dependencies = Object
   .keys('dependencies' in pkg ? (pkg.dependencies as Record<string, unknown>) : {})
   .filter(dep => dep !== 'electron-settings')
-;
+  ;
 
 export const external = [
   ...builtins,
@@ -68,7 +68,7 @@ export function getBuildDefine(env: ConfigEnv<'build'>) {
       [VITE_NAME]: JSON.stringify(name),
     };
     return { ...acc, ...def };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }, {} as Record<string, any>);
 
   return define;
@@ -119,7 +119,7 @@ export const getTsconfigAlias = () => {
 
   // 2. Convert TS paths to Vite aliases
   const alias = Object.keys(paths).reduce((acc, key) => {
-    // Remove trailing "/*" from alias key (e.g., "@main/*" -> "@main")
+    // Remove trailing "/*" from alias key (e.g., "@/main/*" -> "@main")
     const name = key.replace(/\/\*$/, '');
     // Remove trailing "/*" from the first path entry and resolve it
     const target = paths[key][0].replace(/\/\*$/, '');

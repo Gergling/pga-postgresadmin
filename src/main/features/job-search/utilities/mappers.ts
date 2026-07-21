@@ -8,7 +8,7 @@ import {
   JobSearchInteractionSummary,
   JobSearchInteractionTransfer
 } from "@shared/features/job-search";
-import { summarise } from "@main/shared/crud";
+import { summarise } from "@/main/shared/crud";
 import { APPLICATION_SUMMARY_FIELDS } from "../constants";
 
 const salaryFromRecord = (
@@ -35,7 +35,7 @@ export const summariseApplication: SummariseFunction<
 export const summariseInteraction: SummariseFunction<
   JobSearchInteractionRecord,
   JobSearchInteractionSummary
-> = ({ timeperiod, ...data}) => summarise<JobSearchInteractionSummary>({
+> = ({ timeperiod, ...data }) => summarise<JobSearchInteractionSummary>({
   ...data, time: timeperiod.start
 }, ['person', 'time']);
 

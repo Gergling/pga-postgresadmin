@@ -5,7 +5,7 @@ import { EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED } from '@/ipc';
 import { registerVessel } from '@/main/shared/vessel';
 import { setupRitualTelemetryHandler } from '@/main/features/ai';
 import { router } from './router';
-import { isFirebaseDevEnabled } from '@main/libs/firebase';
+import { isFirebaseDevEnabled } from '@/main/libs/firebase';
 
 export const createWindow = (): void => {
   // Create the browser window.

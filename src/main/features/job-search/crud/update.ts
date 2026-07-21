@@ -1,7 +1,7 @@
 import { transaction } from "typesaurus";
 import { Optional } from "@shared/types";
 import { TransferUpdate, UpdateFunction } from "@shared/lib/typesaurus";
-import { CrudModel, RecordAudit } from "@main/shared/crud";
+import { CrudModel, RecordAudit } from "@/main/shared/crud";
 import {
   JobSearchApplicationRecord,
   JobSearchApplicationTransfer,
@@ -107,7 +107,7 @@ export const updateApplication: UpdateFunction<
 
   // PREPARE THE DATA
   // Convert the (partial) application transfer type to a (partial) record.
-    // This will involve generating the audit object as well, which is basically just the partial schema.
+  // This will involve generating the audit object as well, which is basically just the partial schema.
   // Convert the (partial) application record type to a (partial) model (toModel<Partial<JobSearchApplicationRecord>>).
   // Convert the (partial) application record type to a (partial) summary.
 
@@ -154,7 +154,7 @@ export const updateApplication: UpdateFunction<
         .applicationInteractions.query(
           ($) => $.field('application', 'id').eq(id)
         );
-      
+
       const interactionIds = applicationInteractionDocs.map(({
         data: { interaction },
         ref: { id }

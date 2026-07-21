@@ -1,4 +1,4 @@
-import { LlmResponseSchema } from "@main/llm/shared";
+import { LlmResponseSchema } from "@/main/llm/shared";
 import { CommitMessage, CONVENTIONAL_COMMIT_SCOPE, CONVENTIONAL_COMMIT_TYPES } from "@shared/features/projects";
 
 

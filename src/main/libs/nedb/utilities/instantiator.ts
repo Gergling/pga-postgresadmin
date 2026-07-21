@@ -11,7 +11,7 @@ import {
 } from '../utilities';
 import { dumpNeDb } from '../dump';
 import z from 'zod';
-import { log } from '@main/shared';
+import { log } from '@/main/shared';
 
 type Listener<T> = (data: T | T[]) => unknown;
 

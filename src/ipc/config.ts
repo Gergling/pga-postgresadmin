@@ -15,7 +15,7 @@ import {
 import { EnvironmentProps } from '../main/shared/settings';
 import { CrmIpc, CrmIpcAwaited } from '../main/features/crm';
 import { JobSearchIpc, JobSearchIpcAwaited } from '../main/features/job-search';
-import { ProjectsIpc, ProjectsIpcAwaited } from '@main/features/projects/ipc';
+import { ProjectsIpc, ProjectsIpcAwaited } from '@/main/features/projects/ipc';
 
 // Minimalist configuration type for the renderer side.
 // IpcInvocationConfigBase really just makes these functions return promises.
@@ -97,7 +97,7 @@ export const ipcHandlerConfig: IpcHandlerConfig<
 
   // This is somewhat temporary and primarily for testing emails.
   triageEmailTasks: ({ triage: { triageEmailTasks } }) => triageEmailTasks(),
-  
+
   // Everything below this comment is in use.
   triageTasks: async ({
     args: [params],
@@ -207,4 +207,4 @@ export type EventSubscriptionChannel =
   | DockerPullPostgresChannel
   | WindowEvents
   | RitualTelemetryEvents
-;
+  ;

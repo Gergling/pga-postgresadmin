@@ -1,4 +1,4 @@
-import { RecordAudit } from "@main/shared/crud";
+import { RecordAudit } from "@/main/shared/crud";
 import { DbSchema } from "../../../lib/typesaurus";
 import {
   CrmPersonSummary
@@ -44,10 +44,10 @@ export type JobSearchInteractionRecord =
     person?: CrmPersonSummary;
   };
 
-export type JobSearchApplicationInteractionRecord = 
+export type JobSearchApplicationInteractionRecord =
   & JobSearchApplicationInteractionPersistent
   & JobSearchApplicationInteractionSummary
-;
+  ;
 
 export type JobSearchDbSchema = DbSchema<JobSearchSchema, {
   applications: JobSearchApplicationRecord;

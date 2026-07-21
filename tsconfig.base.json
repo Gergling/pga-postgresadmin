@@ -25,12 +25,6 @@
     "traceResolution": true,
     "paths": {
       /**
-       * @deprecated Use @/main/* instead.
-       */
-      "@main/*": [
-        "./src/main/*"
-      ],
-      /**
        * @deprecated Use @/shared/* instead.
        */
       "@shared/*": [

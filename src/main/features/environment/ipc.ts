@@ -9,7 +9,7 @@ import {
   initializeFirebase,
   isFirebaseDevEnabled
 } from "@/main/libs/firebase";
-import { tRPC } from '@main/config';
+import { tRPC } from '@/main/config';
 
 export const environmentRouter = tRPC.router({
   devEnabled: tRPC.procedure.query(() => isFirebaseDevEnabled),

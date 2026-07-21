@@ -1,7 +1,7 @@
 import {
   languageModelSourceLevelConfig,
   LanguageModelSourceLevelProps
-} from "@main/shared";
+} from "@/main/shared";
 import { catchGeminiError, fetchGoogleGenAIInstance } from "./utilities";
 
 export const googleLanguageModelConfig = languageModelSourceLevelConfig({

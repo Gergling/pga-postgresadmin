@@ -1,11 +1,14 @@
 import path from 'path';
-import { ExplorerFileRecordProps, ExplorerFileRecordQuery, explorerFileRecordSchema } from "./schema";
+import { Optional } from '@/shared/types';
+import {
+  ExplorerFileRecordProps,
+  ExplorerFileRecordQuery,
+  explorerFileRecordSchema
+} from "./schema";
 
-type ConstructorInputParams = Omit<
+type ConstructorInputParams = Optional<
   ExplorerFileRecordProps, 'action' | 'health' | 'updated'
-> & {
-  absolutePath: string;
-};
+>;
 type ConstructorInputWithAbsolutePath = Omit<ConstructorInputParams, 'name' | 'parentPath'> & {
   absolutePath: string;
 };
@@ -14,8 +17,8 @@ export class ExplorerFileRecord {
   data: ExplorerFileRecordProps;
 
   constructor(data: ConstructorInputWithAbsolutePath);
-  constructor(data: ExplorerFileRecordProps);
-  constructor(data: ConstructorInputWithAbsolutePath | ExplorerFileRecordProps) {
+  constructor(data: ConstructorInputParams);
+  constructor(data: ConstructorInputWithAbsolutePath | ConstructorInputParams) {
     if ('absolutePath' in data) {
       const { absolutePath, ...rest } = data;
       this.data = explorerFileRecordSchema.parse({
@@ -26,6 +29,13 @@ export class ExplorerFileRecord {
       return this;
     }
     this.data = explorerFileRecordSchema.parse(data);
+
+    // TODO: This is the perfect place to check for misformatted paths.
+    //   return result.parentPath !== record.data.parentPath
+    // || result.name !== record.data.name;
+    // Should also check whether the absolute path matches this.path.
+    // Doesn't need to throw an error, we can just store it against the state.
+
   }
 
   get depth(): number {

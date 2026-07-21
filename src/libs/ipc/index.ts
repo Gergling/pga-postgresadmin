@@ -61,11 +61,11 @@ export const handleIpc = <
   additionalParameters?: Params
 ) => Object.entries(config).forEach(([ channelName, func ]) => {
   console.info(`Setting up IPC channel handler for ${channelName}.`);
-  ipcMain.handle(channelName, (event, ...args) => func({
-    event,
-    args,
-    ...additionalParameters
-  }));
+  // ipcMain.handle(channelName, (event, ...args) => func({
+  //   event,
+  //   args,
+  //   ...additionalParameters
+  // }));
 });
 
 // This is casting the type. In theory we just pass in the type and we're good.

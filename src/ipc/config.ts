@@ -11,7 +11,7 @@ import {
 import {
   TriageTasksParameters, TriageTasksResponse
 } from '../main/features/tasks/types';
-import { ManageEnvironment } from '../main/environment/types';
+// import { ManageEnvironment } from '../main/features/environment/types';
 import { EnvironmentProps } from '../main/shared/settings';
 import { CrmIpc, CrmIpcAwaited } from '../main/features/crm';
 import { JobSearchIpc, JobSearchIpcAwaited } from '../main/features/job-search';
@@ -38,16 +38,16 @@ export type IpcInvocationConfig = IpcInvocationConfigBase<{
   readTaskForId: (taskId: string) => UserTask;
   updateTask: (taskId: string, newData: Partial<UserTask>) => UserTask;
 
-  getEnvironment: () => EnvironmentProps;
-  setEnvironment: (env: EnvironmentProps) => MutationResponse<EnvironmentProps>;
+  // getEnvironment: () => EnvironmentProps;
+  // setEnvironment: (env: EnvironmentProps) => MutationResponse<EnvironmentProps>;
 
-  createDraftDiaryEntry: DiaryIpcCreateEntry;
-  fetchRecentDiaryEntries: () => DiaryEntry[];
-  updateDiaryEntry: (
-    id: string,
-    newData: Partial<DiaryEntry>,
-    immediateConvergence?: boolean
-  ) => Mandatory<DiaryEntry, 'id'>;
+  // createDraftDiaryEntry: DiaryIpcCreateEntry;
+  // fetchRecentDiaryEntries: () => DiaryEntry[];
+  // updateDiaryEntry: (
+  //   id: string,
+  //   newData: Partial<DiaryEntry>,
+  //   immediateConvergence?: boolean
+  // ) => Mandatory<DiaryEntry, 'id'>;
 
   fetchProjectsList: ProjectsIpcAwaited['read']['list'];
   fetchProjectStagedCommitMessage: ProjectsIpcAwaited['read']['commitMessage'];
@@ -72,7 +72,7 @@ export type IpcInvocationConfig = IpcInvocationConfigBase<{
 export type IpcAdditionalParameters = {
   crm: CrmIpc
   diary: DiaryIpc;
-  environment: ManageEnvironment;
+  // environment: ManageEnvironment;
   jobSearch: JobSearchIpc;
   projects: ProjectsIpc;
   tasks: TasksIpc;
@@ -113,23 +113,23 @@ export const ipcHandlerConfig: IpcHandlerConfig<
     tasks: { update: { set } },
   }) => set(taskId, newData),
 
-  getEnvironment: ({ environment: { get } }) => get(),
-  setEnvironment: ({
-    args: [env],
-    environment: { set },
-  }) => set(env),
+  // getEnvironment: ({ environment: { get } }) => get(),
+  // setEnvironment: ({
+  //   args: [env],
+  //   environment: { set },
+  // }) => set(env),
 
-  createDraftDiaryEntry: ({
-    args: [entry],
-    diary: { create: { entry: createDraftDiaryEntry } },
-  }) => createDraftDiaryEntry(entry),
-  fetchRecentDiaryEntries: ({
-    diary: { read: { recent } },
-  }) => recent(),
-  updateDiaryEntry: ({
-    args: [id, newData, immediateConvergence],
-    diary: { update: { set } },
-  }) => set(id, newData, immediateConvergence),
+  // createDraftDiaryEntry: ({
+  //   args: [entry],
+  //   diary: { create: { entry: createDraftDiaryEntry } },
+  // }) => createDraftDiaryEntry(entry),
+  // fetchRecentDiaryEntries: ({
+  //   diary: { read: { recent } },
+  // }) => recent(),
+  // updateDiaryEntry: ({
+  //   args: [id, newData, immediateConvergence],
+  //   diary: { update: { set } },
+  // }) => set(id, newData, immediateConvergence),
 
   fetchProjectsList: ({
     projects: { read: { list } },
@@ -195,6 +195,9 @@ export const ipcHandlerConfig: IpcHandlerConfig<
   }) => updatePerson(person),
 });
 
+/**
+ * @deprecated Use tRPC.provision.subscription instead.
+ */
 export const EVENT_SUBSCRIPTION_WINDOW_EVENT_FOCUSED = 'window-focused';
 export const EVENT_SUBSCRIPTION_RITUAL_TELEMETRY = 'ritual-telemetry';
 

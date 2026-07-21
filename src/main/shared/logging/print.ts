@@ -88,11 +88,14 @@ const printSubLine = (operation: LogOperationState) => {
   }
 
   if (typeof operation.message === 'object' && !(operation.message instanceof Error)) {
-    const startLine = [
-      prefix, JSON.stringify(operation.message, null, 2), postfix
-    ].join(' ');
+    const message = JSON.stringify(operation.message, null, 2).split('\n');
+    message.forEach((msg) => {
+      const startLine = [
+        prefix, msg, postfix
+      ].join(' ');
 
-    stdio(startLine);
+      stdio(startLine);
+    });
 
     return;
   }

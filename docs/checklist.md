@@ -20,22 +20,6 @@ Completion will be achieved when the legacy IPC code is no longer used.
 - New TRPC implementation can be traced from `./src/trpc`.
 - Legacy IPC implementation can be traced from `./src/ipc`.
 
-### Renderer Navigation Refactor
-
-Renderer routing configuration is at the wrong level. It's in shared which should be below features, but references features.
-
-Ultimately routing config should be moved to the `app` and `views` levels, with feature-specific routes configured within their respective features.
-
-- `shared`: Includes navigation config utility functions and types.
-- `feature`: Feature-specific routing config, using utilities and types from `shared`.
-- `views`: Root-level routing config, using utilities and types from `shared` and importing `feature` routing configs. Also has the `NavigationProvider`.
-- `app`: Imports the `NavigationProvider` in `views` for the provider list.
-
-#### Tasks
-
-- [X] Move Root routing config to the top level.
-- [ ] Move everything out of `./src/renderer/shared/navigation/constants` into their respective feature folders.
-
 ### Production Mode
 
 Using the application will be easier if there is a "production mode" to run it in. That way I can run the production version while modifying (and potentially breaking) the dev version. That means I can use the project and task functionality (such as they are) on this very project.
@@ -304,3 +288,19 @@ It's good to have a list of your achievements.
 ### Project Zod Templates
 
 Explicit format output means commit message generation uses JSON formats. These need to be converted to Zod templates for portability and fed into the language models appropriately.
+
+### Renderer Navigation Refactor
+
+Renderer routing configuration is at the wrong level. It's in shared which should be below features, but references features.
+
+Ultimately routing config should be moved to the `app` and `views` levels, with feature-specific routes configured within their respective features.
+
+- `shared`: Includes navigation config utility functions and types.
+- `feature`: Feature-specific routing config, using utilities and types from `shared`.
+- `views`: Root-level routing config, using utilities and types from `shared` and importing `feature` routing configs. Also has the `NavigationProvider`.
+- `app`: Imports the `NavigationProvider` in `views` for the provider list.
+
+#### Tasks
+
+- [X] Move Root routing config to the top level.
+- [X] Move everything out of `./src/renderer/shared/navigation/constants` into their respective feature folders.

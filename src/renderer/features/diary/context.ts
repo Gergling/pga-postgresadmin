@@ -12,7 +12,6 @@ import { useInactivityDebounce } from '../../shared/events';
 import {
   useDiaryEntryCreator,
   useDiaryEntryList,
-  useDiaryIpc
 } from './hooks';
 import { getConvergenceSummary } from './utilities';
 
@@ -44,13 +43,14 @@ const store = create<{
 }));
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const context = contextFactory(({ children }: PropsWithChildren) => {
+const context = contextFactory((_: PropsWithChildren) => {
   const drawer = store();
-  const {
-    commitDiaryEntry,
-    rejectDiaryEntry,
-    triageTasks,
-  } = useDiaryIpc(drawer.isListFetchingEnabled);
+  // Left for reference to fix properly later.
+  // const {
+  //   commitDiaryEntry,
+  //   rejectDiaryEntry,
+  //   triageTasks,
+  // } = useDiaryIpc(drawer.isListFetchingEnabled);
 
   /**
    * IPC: Extraction and Loading.
@@ -78,11 +78,11 @@ const context = contextFactory(({ children }: PropsWithChildren) => {
   /**
    * Handlers.
    */
-  const handleConvergence = useCallback(() => {
-    triageTasks({ source: 'diary', type: 'committed' })
-      .then(console.log)
-      .catch(console.error);
-  }, [triageTasks]);
+  // const handleConvergence = useCallback(() => {
+  //   triageTasks({ source: 'diary', type: 'committed' })
+  //     .then(console.log)
+  //     .catch(console.error);
+  // }, [triageTasks]);
   const handleCreateDiaryEntry = useCallback(() => {
     create(() => fetchRecentDiaryEntries());
   }, [create, fetchRecentDiaryEntries]);
@@ -94,18 +94,18 @@ const context = contextFactory(({ children }: PropsWithChildren) => {
   /**
    * Diary entries start processing after an inactivity timeout period passes.
    */
-  useInactivityDebounce(() => {
-    if (!canInitiateConvergence) return;
-    handleConvergence();
-  }, 60000);
+  // useInactivityDebounce(() => {
+  //   if (!canInitiateConvergence) return;
+  //   handleConvergence();
+  // }, 60000);
 
   /**
    * Diary entries start processing once there is a lot of information.
    */
-  useEffect(() => {
-    if (!shouldInitiateConvergence) return;
-    handleConvergence();
-  }, [handleConvergence, shouldInitiateConvergence]);
+  // useEffect(() => {
+  //   if (!shouldInitiateConvergence) return;
+  //   handleConvergence();
+  // }, [handleConvergence, shouldInitiateConvergence]);
 
   /**
    * Return.
@@ -116,9 +116,9 @@ const context = contextFactory(({ children }: PropsWithChildren) => {
     ...summary,
     drawer,
     recentDiaryEntries,
-    commitDiaryEntry,
+    // commitDiaryEntry,
     handleCreateDiaryEntry,
-    rejectDiaryEntry,
+    // rejectDiaryEntry,
   };
 }, 'diary');
 

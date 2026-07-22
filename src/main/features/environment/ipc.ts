@@ -10,6 +10,7 @@ import {
   isFirebaseDevEnabled
 } from "@/main/libs/firebase";
 import { tRPC } from '@/main/config';
+import { RUN_MODE } from '@/main/shared/environment';
 
 export const environmentRouter = tRPC.router({
   devEnabled: tRPC.procedure.query(() => isFirebaseDevEnabled),
@@ -17,6 +18,7 @@ export const environmentRouter = tRPC.router({
     const value = await loadElectronSettings('env');
     return EnvironmentPropsSchema.parse(value);
   }),
+  mode: tRPC.procedure.query(() => RUN_MODE),
   set: tRPC.procedure.input(EnvironmentPropsSchema).mutation(
     async ({ input: env }) => {
       await task(

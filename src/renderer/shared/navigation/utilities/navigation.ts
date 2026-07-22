@@ -4,16 +4,16 @@
 import { UiNavigationConfigItem, UiNavigationItem } from "../types";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const lazyImport = <T extends Record<string, any>>(
-  factory: () => Promise<T>,
-  name: keyof T = 'default'
-): UiNavigationConfigItem['lazy'] => {
-  return async () => {
-    const module = await factory();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return { Component: module[name] };
-  };
-};
+// export const lazyImport = <T extends Record<string, any>>(
+//   factory: () => Promise<T>,
+//   name: keyof T = 'default'
+// ): UiNavigationConfigItem['lazy'] => {
+//   return async () => {
+//     const module = await factory();
+//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//     return { Component: module[name] };
+//   };
+// };
 
 export const getNavigationItem = (
   { children, index, label, omitBreadcrumb, ...item }: UiNavigationConfigItem

@@ -1,7 +1,8 @@
 import { app } from "electron";
 import { ANSI_COLOUR_MAP, log } from "../logging";
+import { RunMode } from "@/shared/features/environment";
 
-const getRunMode = () => {
+const getRunMode = (): RunMode => {
   if (process.env.ELECTRON_RENDERER_URL) return 'dev';
   if (app.isPackaged) return 'prod';
   return 'preview';

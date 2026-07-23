@@ -17,12 +17,11 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { Layers, Start } from '@mui/icons-material';
 import { MetricChip, useTheme } from '@gergling/ui-components';
+import { RunMode } from '@/shared/features/environment';
 import {
   ResponsiveIndicator
 } from '../shared/common';
 import { trpcReact } from '../libs/react-query';
-
-type RunMode = 'dev' | 'preview' | 'prod';
 
 /**
  * This is a vite environment variable showing whether the app is being run from

@@ -115,6 +115,11 @@ export class NeDbWrapper<T extends object> {
   compact() {
     return this.db.compactDatafileAsync();
   }
+
+  // TODO: Have a function that queues up a backup.
+  // TODO: Have a function that logs a read. This can be used later to choose
+  // restoration-triggering strategies.
+  // Review conflict-detection. We don't want to be caught off-guard.
 };
 
 export const instantiateNeDbWrapper = <T extends object>(

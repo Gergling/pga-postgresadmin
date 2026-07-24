@@ -1,6 +1,6 @@
 import Datastore from '@seald-io/nedb';
 import { EventEmitter } from 'events';
-import z, { ZodObject, ZodType } from "zod";
+import z, { ZodObject, ZodRawShape, ZodType } from "zod";
 import task from 'tasuku';
 import { Temporal } from '@js-temporal/polyfill';
 import {
@@ -21,12 +21,17 @@ const register = metaCollectionRegister();
 
 const syncEvents = ['afterCreate', 'afterUpdate'] as const;
 
-export const setupCollection = <T extends SerialisationEnvelope<unknown>>(
+export const setupCollection = <T extends SerialisationEnvelope<ZodRawShape>>(
   collectionName: string,
   schema: ZodObject, // More specifically, this should infer back to T.
 ) => {
   const meta = register.factory(collectionName);
   const local = setupLocalNeDb<T>(collectionName);
+  // TODO: Use the local instance as the entry. If it's supposed to sync,
+  // include as much in a setSync function. This can apply to a property which
+  // can be used to detect the remote repo based on whether it is falsey and
+  // act accordingly.
+
   // TODO: Sync actions might be worth multi-threading to avoid unexpected
   // delays if the hard drive is being fucky.
   // IF WE ARE DOING THAT we will want to avoid race conditions by only updating

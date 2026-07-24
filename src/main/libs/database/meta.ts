@@ -2,6 +2,7 @@ import { DatabaseSyncAction } from "@/shared/database";
 import { MetaCollection, SerialisationEnvelope } from "@/shared/schema";
 import { setupBasicNeDb } from "../nedb";
 import { SyncableCollection } from "./types";
+import { ZodRawShape } from "zod";
 
 const setupMetaCollection = () => setupBasicNeDb<MetaCollection>('meta');
 
@@ -68,7 +69,7 @@ export const metaCollectionRegister = () => {
   const status = () => getDatabaseSyncStatus(metaCollectionDb);
 
   const setSyncableCollection = <
-    T extends SerialisationEnvelope<unknown>
+    T extends SerialisationEnvelope<ZodRawShape>
   >(syncableCollection: SyncableCollection<T>) => {
     const { emit, local, name, remote } = syncableCollection;
     syncableCollections.push(syncableCollection);

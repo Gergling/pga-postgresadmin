@@ -1,4 +1,5 @@
 import { dateSerialisationCodec, SerialisationEnvelope } from "@/shared/schema";
+import { ZodRawShape } from "zod";
 
 /**
  * Determines if the envelope needs to be synced.
@@ -6,7 +7,7 @@ import { dateSerialisationCodec, SerialisationEnvelope } from "@/shared/schema";
  * @param sync The current sync time in epoch milliseconds.
  * @returns True if the envelope needs to be synced, false otherwise.
  */
-export const shouldSync = <T>({
+export const shouldSync = <T extends ZodRawShape>({
   audit: [latest], sync
 }: SerialisationEnvelope<T>): boolean => {
   // If there is no latest audit, the record is new.

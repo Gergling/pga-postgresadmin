@@ -2,6 +2,13 @@
 
 import { log, LogApi } from "@/main/shared";
 
+const register: {
+  collections: Map<string, DatabaseCollection<any>>;
+  // syncing: Map<string, { syncState: 'idle' | 'syncing'; }>;
+} = {
+  collections: new Map(),
+};
+
 const logApiPromise = log(
   'Initialising databases', async (logApi) => logApi
 );
@@ -18,7 +25,7 @@ class DatabaseCollection<T> {
   // sync: z.number().optional().describe(
   //   'Last sync time in epochMilliseconds. Undefined means never synced.'
   // ),
-  readonly logApiPromise: Promise<LogApi>;
+  private logApiPromise: Promise<LogApi>;
 
   constructor(collectionName: string, options?: {
     auditable: boolean;
@@ -68,3 +75,42 @@ class DatabaseRecord<T> {
     return this.log('Querying', (logApi) => this.db.findAsync(params));
   }
 }
+
+export const registerCollection = <T>(
+  collectionName: string, options?: {
+    auditable?: boolean;
+    remote?: boolean;
+  }
+) => { };
+
+type CollectionParams<T extends Record<string, unknown> = Record<string, unknown>> = {
+  /**
+   * The collection name we are assigning the relationship to.
+   */
+  collection: string;
+  /**
+   * The property name we are assigning the relationship to.
+   */
+  property: string;
+  /**
+   * Relationship properties.
+   */
+  props?: T;
+};
+export const registerRelationship = <CollectionA, CollectionB>(
+  collectionA: {
+    /**
+     * The collection name we are assigning the relationship to.
+     */
+    collection: string;
+    /**
+     * The property name we are assigning the relationship to.
+     */
+    property: string;
+  },
+  collectionB: { collection: string; property: string; } | string,
+) => {
+  // TODO: Create relationship function.
+  // TODO: Remove relationship function.
+  // TODO: Update relationship function.
+};

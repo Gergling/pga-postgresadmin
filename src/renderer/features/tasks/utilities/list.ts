@@ -1,5 +1,5 @@
+import { TaskCore } from "@/shared/features/user-tasks";
 import { BreadcrumbActiveNavigationItem, TaskViewConfigName } from "../../../shared/navigation";
-import { UserTask } from "../../../../shared/features/user-tasks";
 import { TaskComparisonFunction, TaskReducerFunction, TaskViewResponse, UiUserTask } from "../types";
 import { getTaskViewColumns } from "./columns";
 import {
@@ -48,13 +48,13 @@ export const getTaskListFactory = (
   const fncs = mapping[view];
   if (!fncs) throw new Error(`Invalid view: ${view}`);
   const { comparison, reducer } = fncs;
-  return (tasks: UserTask[]): UiUserTask[] => tasks
+  return (tasks: TaskCore[]): UiUserTask[] => tasks
     .reduce(reducer, [])
     .sort(comparison);
 };
 
 export const getViewTasks = (
-  incomplete: UserTask[],
+  incomplete: TaskCore[],
   view: BreadcrumbActiveNavigationItem | undefined,
   taskViewNames: string[],
 ): TaskViewResponse => {

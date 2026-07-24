@@ -1,9 +1,10 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useIpc } from "../../../shared/ipc";
 import { UiNavigationConfigItem, useNavigationRegister } from "../../../shared/navigation";
 import { TaskView } from "../types";
 import { createUiUserTask, getTaskHistoryItem } from "../utilities";
 import { TASK_VIEW_CONFIG } from "../views";
+import { useTaskIpc } from "./ipc";
 
 const reduceTaskView = (
   acc: TaskView[],
@@ -18,7 +19,9 @@ export const useTaskNavigation = () => {
   const taskViews = useMemo(() => TASK_VIEW_CONFIG.reduce(reduceTaskView, []), []);
   const viewNames = useMemo(() => taskViews.map(({ path }) => path), [taskViews]);
   const { subscribe } = useNavigationRegister();
-  const { readTaskForId } = useIpc();
+  const [taskId, setTaskId] = useState<string | undefined>();
+  const { data: task } = useTaskIpc(taskId);
+  // const { readTaskForId } = useIpc();
 
   useEffect(() => {
     // This is to make sure we have a displayable history of icons and labels
@@ -27,9 +30,14 @@ export const useTaskNavigation = () => {
     return subscribe(async ({ params: { taskId }, pathname }) => {
       if (!taskId) throw new Error('No task ID found');
       const pathViewName = viewNames.find((name) => pathname.includes(name));
-      const task = await readTaskForId(taskId);
 
-      return getTaskHistoryItem(createUiUserTask(task), pathViewName);
+      // const task = await readTaskForId(taskId);
+      // We have a taskId.
+      // All we need is a task.
+      setTaskId(taskId);
+      if (!task) throw new Error('No task found');
+
+      return getTaskHistoryItem(task, pathViewName);
     });
-  }, [readTaskForId, subscribe, viewNames]);
+  }, [task, subscribe, viewNames]);
 };

@@ -1,9 +1,9 @@
-import { TASK_FSM, WorkflowEvent, WorkflowState } from "../../../../shared/features/user-tasks";
+import { TASK_FSM, WorkflowEvent, TaskWorkflowState } from "../../../../shared/features/user-tasks";
 
 export const reduceFsm = (
-  status: WorkflowState,
+  status: TaskWorkflowState,
   event: WorkflowEvent
-): WorkflowState => {
+): TaskWorkflowState => {
   const next = TASK_FSM[status];
   if (!next) return status;
   return next[event] || status;

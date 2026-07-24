@@ -1,15 +1,26 @@
 import { useTheme } from "@gergling/ui-components";
-import { Check, DeleteForever, Forward, Pause, PlayArrow } from "@mui/icons-material";
+import {
+  Check,
+  DeleteForever,
+  Forward,
+  Pause,
+  PlayArrow
+} from "@mui/icons-material";
 import { useMemo } from "react";
-import { TASK_FSM, WorkflowEvent, WorkflowEventConfig, WorkflowState } from "../../../../shared/features/user-tasks";
+import {
+  TASK_FSM,
+  TaskWorkflowState,
+  WorkflowEventConfig
+} from "@/shared/features/user-tasks";
+import { WorkflowEvent } from "@/shared/features/user-tasks/types/base";
 
 // const purple = '#9c27b0';
 
 // hsl(0, 75%, 33%) might be my brand of red
 // #990000
 
-export const useFsm = (status: WorkflowState) => {
-  const { theme: { colors, darken }} = useTheme();
+export const useFsm = (status: TaskWorkflowState) => {
+  const { theme: { colors, darken } } = useTheme();
   const config: WorkflowEventConfig = useMemo(() => ({
     approve: { label: 'Approve', icon: Forward, color: colors.success.main },
     dismiss: { label: 'Dismiss', icon: DeleteForever, color: darken(colors.error.main, 0.1) },
@@ -20,7 +31,7 @@ export const useFsm = (status: WorkflowState) => {
   const { events } = useMemo(() => {
     const next = TASK_FSM[status];
     if (!next) return { events: [] };
-  
+
     const events = Object.entries(next).reduce((events, [event, state]) => {
       const name = event as WorkflowEvent;
       const item = config[name];
@@ -32,7 +43,7 @@ export const useFsm = (status: WorkflowState) => {
         }
       ];
     }, []);
-  
+
     return { events };
   }, [status, config]);
 

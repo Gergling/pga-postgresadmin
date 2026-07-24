@@ -1,8 +1,8 @@
 import { Runetator, RunetatorProps } from "../../svg-viewer/components";
-import { UiUserTask } from "../types";
+import { TaskRich } from "@/shared/features/user-tasks";
 
 type TaskRuneProps = {
-  task: UiUserTask<true>;
+  task: TaskRich;
   rune?: Partial<RunetatorProps>;
 };
 

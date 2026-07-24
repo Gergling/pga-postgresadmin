@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { contextFactory } from "@gergling/ui-components";
 import { GridRowParams } from "@mui/x-data-grid";
 import { useQuery } from "@tanstack/react-query";
-import { UserTask } from "../../../shared/features/user-tasks";
+import { skipToken } from '@tanstack/react-query';
 import { useIpc } from "../../shared/ipc";
 import {
   // TASK_VIEW_CONFIG,
@@ -18,6 +18,9 @@ import { useTaskQueryCache } from "./hooks/cache";
 import { getTaskPath } from "./utilities/route";
 import { TabsProps } from "@mui/material";
 import { TASK_VIEW_CONFIG } from "./views";
+import { trpcReact } from "@/renderer/libs/react-query";
+import { useTaskIpc, useTaskIpcIncomplete } from "./hooks";
+import { TaskRich } from "@/shared/features/user-tasks";
 
 const reduceTaskView = (
   acc: TaskView[],
@@ -36,7 +39,7 @@ export const {
   const navigate = useNavigate();
   const taskViews = useMemo(() => TASK_VIEW_CONFIG.reduce(reduceTaskView, []), []);
   const viewNames = useMemo(() => taskViews.map(({ path }) => path), [taskViews]);
-  const { readIncompleteTasks, readTaskForId } = useIpc();
+  // const { readIncompleteTasks, readTaskForId } = useIpc();
   const { breadcrumbs, current: currentView } = useNavigation();
   const { register } = useNavigationRegister();
 
@@ -48,12 +51,19 @@ export const {
     isError: taskLoadingIsError,
     error: taskLoadingError,
     isSuccess: taskIsSuccess,
-  } = useQuery({
-    queryKey: ['tasks', taskId],
-    queryFn: () => taskId ? readTaskForId(taskId) : undefined,
-    enabled: !!taskId,
-    select: (data) => data ? createUiUserTask(data) : undefined,
-  });
+  } = useTaskIpc(taskId);
+  // const {
+  //   data: currentTask,
+  //   isLoading: taskIsLoading,
+  //   isError: taskLoadingIsError,
+  //   error: taskLoadingError,
+  //   isSuccess: taskIsSuccess,
+  // } = useQuery({
+  //   queryKey: ['tasks', taskId],
+  //   queryFn: () => taskId ? readTaskForId(taskId) : undefined,
+  //   enabled: !!taskId,
+  //   select: (data) => data ? createUiUserTask(data) : undefined,
+  // });
   const isListView = useMemo(() => !taskId, [taskId]);
 
   const activeTab = useMemo((): { name: string | undefined; colour: TabsProps['textColor'] } => {
@@ -68,42 +78,48 @@ export const {
     };
   }, [breadcrumbs, isListView, currentView, taskViews]);
 
-  const selectTasks = useCallback(
-    (data: UserTask[]) => getViewTasks(data || [], currentView, viewNames),
-    [currentView, register, viewNames]
-  );
+  // const selectTasks = useCallback(
+  //   (data: TaskRich[]) => getViewTasks(data || [], currentView, viewNames),
+  //   [currentView, register, viewNames]
+  // );
   const handleDetailViewNavigation = useCallback(
     ({ row: { id } }: GridRowParams<UiUserTask>) => navigate(getTaskPath(id, activeTab.name)),
     [activeTab.name, navigate]
   );
 
-  const {
-    data,
-    isLoading: loading,
-  } = useQuery({
-    queryKey: ['tasks'],
-    queryFn: readIncompleteTasks,
-    select: selectTasks
-  });
+  // const { data: incompleteTasks, isLoading: loading } = trpcReact.tasks.readIncomplete.useQuery();
+  // const viewTasks = useMemo(
+  //   () => getViewTasks(incompleteTasks || [], currentView, viewNames),
+  //   [incompleteTasks, currentView, viewNames]
+  // );
+  // const {
+  //   data,
+  //   isLoading: loading,
+  // } = useQuery({
+  //   queryKey: ['tasks'],
+  //   queryFn: readIncompleteTasks,
+  //   select: selectTasks
+  // });
+  const { viewTasks, loading } = useTaskIpcIncomplete(currentView, viewNames);
 
   const {
     columns,
     data: rows,
     message,
     success: successListView,
-  } = useMemo(() => data || {
+  } = useMemo(() => viewTasks || {
     columns: [],
     data: [],
     message: '',
     success: false,
-  }, [data]);
+  }, [viewTasks]);
 
   // TODO: Should be able to do this once from a/the task mutation hook.
-  useTaskQueryCache(taskIsSuccess, currentTask);
+  // useTaskQueryCache(taskIsSuccess, currentTask);
 
   return {
     activeTab,
-    currentTask,
+    // currentTask,
     currentView,
     grid: {
       ...TASK_GRID_PROPS,

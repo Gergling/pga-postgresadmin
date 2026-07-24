@@ -1,4 +1,4 @@
-import { ZodType } from "zod";
+import { ZodRawShape, ZodType } from "zod";
 import { codec } from "@/shared/utilities";
 import { dateSerialisationCodec, RichDate, SerialisationDate } from "../date";
 import { RichEnvelope, SerialisationEnvelope } from "./envelope";
@@ -9,11 +9,11 @@ import { RichEnvelope, SerialisationEnvelope } from "./envelope";
  * @param richSchema The rich schema for this data.
  * @returns a Codec.
  */
-export const envelopeCodecFactory = <T>(
+export const envelopeCodecFactory = <T extends ZodRawShape>(
   serialisationSchema: ZodType<SerialisationEnvelope<T>>,
   richSchema: ZodType<RichEnvelope<T>>,
 ) => codec<RichEnvelope<T>, SerialisationEnvelope<T>>({
-  encode: ({ audit, created, ...value }) => {
+  encode: ({ audit, created, ...value }): SerialisationEnvelope<T> => {
     const encodedAudit = audit.map(({ updated, ...item }) => ({
       ...item, updated: dateSerialisationCodec.encode(updated)
     }));
@@ -22,7 +22,7 @@ export const envelopeCodecFactory = <T>(
       ...value, audit: encodedAudit, created: encodedCreated
     });
   },
-  decode: ({ audit, created, ...value }) => {
+  decode: ({ audit, created, ...value }): RichEnvelope<T> => {
     const decodedAudit = audit.map(({ updated, ...item }) => ({
       ...item, updated: dateSerialisationCodec.decode(updated)
     }));

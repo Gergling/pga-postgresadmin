@@ -4,15 +4,9 @@ import { TasksIpc, UserTask } from '../shared/features/user-tasks/types';
 import {
   DockerPullPostgresChannel
 } from '../shared/docker-postgres/types';
-import { Mandatory, MutationResponse } from '../shared/types';
-import {
-  DiaryEntry, DiaryIpc, DiaryIpcCreateEntry
-} from '../shared/features/diary/types';
 import {
   TriageTasksParameters, TriageTasksResponse
 } from '../main/features/tasks/types';
-// import { ManageEnvironment } from '../main/features/environment/types';
-import { EnvironmentProps } from '../main/shared/settings';
 import { CrmIpc, CrmIpcAwaited } from '../main/features/crm';
 import { JobSearchIpc, JobSearchIpcAwaited } from '../main/features/job-search';
 import { ProjectsIpc, ProjectsIpcAwaited } from '@/main/features/projects/ipc';
@@ -22,178 +16,178 @@ import { ProjectsIpc, ProjectsIpcAwaited } from '@/main/features/projects/ipc';
 // Many of these functions aren't in use anymore, but I've kept them because
 // they worked and handled things I wasn't necessarily good at, so I've got
 // examples of how to make them work again in the future.
-export type IpcInvocationConfig = IpcInvocationConfigBase<{
-  // For testing that IPC is working.
-  testIPC: (message: string) => string;
+// export type IpcInvocationConfig = IpcInvocationConfigBase<{
+//   // For testing that IPC is working.
+//   testIPC: (message: string) => string;
 
-  // From a previous project just for playing with a docker-based database.
-  // Is no longer in use but most of the code is still present.
+//   // From a previous project just for playing with a docker-based database.
+//   // Is no longer in use but most of the code is still present.
 
 
-  // Everything below this comment is in use.
-  triageEmailTasks: () => TriageTasksResponse;
-  triageTasks: (params: TriageTasksParameters) => TriageTasksResponse;
+//   // Everything below this comment is in use.
+//   triageEmailTasks: () => TriageTasksResponse;
+//   triageTasks: (params: TriageTasksParameters) => TriageTasksResponse;
 
-  readIncompleteTasks: () => UserTask[];
-  readTaskForId: (taskId: string) => UserTask;
-  updateTask: (taskId: string, newData: Partial<UserTask>) => UserTask;
+//   readIncompleteTasks: () => UserTask[];
+//   readTaskForId: (taskId: string) => UserTask;
+//   updateTask: (taskId: string, newData: Partial<UserTask>) => UserTask;
 
-  // getEnvironment: () => EnvironmentProps;
-  // setEnvironment: (env: EnvironmentProps) => MutationResponse<EnvironmentProps>;
+//   // getEnvironment: () => EnvironmentProps;
+//   // setEnvironment: (env: EnvironmentProps) => MutationResponse<EnvironmentProps>;
 
-  // createDraftDiaryEntry: DiaryIpcCreateEntry;
-  // fetchRecentDiaryEntries: () => DiaryEntry[];
-  // updateDiaryEntry: (
-  //   id: string,
-  //   newData: Partial<DiaryEntry>,
-  //   immediateConvergence?: boolean
-  // ) => Mandatory<DiaryEntry, 'id'>;
+//   // createDraftDiaryEntry: DiaryIpcCreateEntry;
+//   // fetchRecentDiaryEntries: () => DiaryEntry[];
+//   // updateDiaryEntry: (
+//   //   id: string,
+//   //   newData: Partial<DiaryEntry>,
+//   //   immediateConvergence?: boolean
+//   // ) => Mandatory<DiaryEntry, 'id'>;
 
-  fetchProjectsList: ProjectsIpcAwaited['read']['list'];
-  fetchProjectStagedCommitMessage: ProjectsIpcAwaited['read']['commitMessage'];
-  commitProjectStagedFiles: ProjectsIpcAwaited['create']['commit'];
+//   fetchProjectsList: ProjectsIpcAwaited['read']['list'];
+//   fetchProjectStagedCommitMessage: ProjectsIpcAwaited['read']['commitMessage'];
+//   commitProjectStagedFiles: ProjectsIpcAwaited['create']['commit'];
 
-  // CRM and job search.
-  createCompany: CrmIpcAwaited['create']['company'];
-  createInteraction: JobSearchIpcAwaited['create']['interaction'];
-  createPerson: CrmIpcAwaited['create']['person'];
-  fetchActiveApplications: JobSearchIpcAwaited['read']['activeApplications'];
-  fetchApplication: JobSearchIpcAwaited['read']['application'];
-  fetchCompany: CrmIpcAwaited['read']['company'];
-  fetchInteraction: JobSearchIpcAwaited['read']['interaction'];
-  fetchPerson: CrmIpcAwaited['read']['person'];
-  fetchRecentCompanies: CrmIpcAwaited['read']['recentCompanies'];
-  fetchRecentPeople: CrmIpcAwaited['read']['recentPeople'];
-  updateApplication: JobSearchIpcAwaited['update']['application'];
-  updateCompany: CrmIpcAwaited['update']['company'];
-  updatePerson: CrmIpcAwaited['update']['person'];
-}>;
+//   // CRM and job search.
+//   createCompany: CrmIpcAwaited['create']['company'];
+//   createInteraction: JobSearchIpcAwaited['create']['interaction'];
+//   createPerson: CrmIpcAwaited['create']['person'];
+//   fetchActiveApplications: JobSearchIpcAwaited['read']['activeApplications'];
+//   fetchApplication: JobSearchIpcAwaited['read']['application'];
+//   fetchCompany: CrmIpcAwaited['read']['company'];
+//   fetchInteraction: JobSearchIpcAwaited['read']['interaction'];
+//   fetchPerson: CrmIpcAwaited['read']['person'];
+//   fetchRecentCompanies: CrmIpcAwaited['read']['recentCompanies'];
+//   fetchRecentPeople: CrmIpcAwaited['read']['recentPeople'];
+//   updateApplication: JobSearchIpcAwaited['update']['application'];
+//   updateCompany: CrmIpcAwaited['update']['company'];
+//   updatePerson: CrmIpcAwaited['update']['person'];
+// }>;
 
-export type IpcAdditionalParameters = {
-  crm: CrmIpc
-  diary: DiaryIpc;
-  // environment: ManageEnvironment;
-  jobSearch: JobSearchIpc;
-  projects: ProjectsIpc;
-  tasks: TasksIpc;
-  triage: {
-    triageEmailTasks: () => Promise<TriageTasksResponse>;
-    triageTasks: (params: TriageTasksParameters) => Promise<TriageTasksResponse>;
-  };
-};
+// export type IpcAdditionalParameters = {
+//   // crm: CrmIpc
+//   // diary: DiaryIpc;
+//   // environment: ManageEnvironment;
+//   jobSearch: JobSearchIpc;
+//   projects: ProjectsIpc;
+//   tasks: TasksIpc;
+//   triage: {
+//     triageEmailTasks: () => Promise<TriageTasksResponse>;
+//     triageTasks: (params: TriageTasksParameters) => Promise<TriageTasksResponse>;
+//   };
+// };
 
 // The handler configuration will run functions from the backend.
 // This example includes a (custom) database handler object, which
 // simply allows access to static functions.
 // See type comments above for which functions are actually in use.
-export const ipcHandlerConfig: IpcHandlerConfig<
-  IpcInvocationConfig,
-  IpcAdditionalParameters
-> = createIpcHandlerConfig({
-  testIPC: async ({ args: [message] }) => {
-    console.log('IPC test received:', message);
-    return `Received: ${message}`;
-  },
+// export const ipcHandlerConfig: IpcHandlerConfig<
+//   IpcInvocationConfig,
+//   IpcAdditionalParameters
+// > = createIpcHandlerConfig({
+//   testIPC: async ({ args: [message] }) => {
+//     console.log('IPC test received:', message);
+//     return `Received: ${message}`;
+//   },
 
-  // This is somewhat temporary and primarily for testing emails.
-  triageEmailTasks: ({ triage: { triageEmailTasks } }) => triageEmailTasks(),
+//   // This is somewhat temporary and primarily for testing emails.
+//   triageEmailTasks: ({ triage: { triageEmailTasks } }) => triageEmailTasks(),
 
-  // Everything below this comment is in use.
-  triageTasks: async ({
-    args: [params],
-    triage: { triageTasks }
-  }) => triageTasks(params),
-  readIncompleteTasks: ({ tasks: { read: { incomplete } } }) => incomplete(),
-  readTaskForId: ({
-    args: [taskId],
-    tasks: { read: { forId } },
-  }) => forId(taskId),
-  updateTask: ({
-    args: [taskId, newData],
-    tasks: { update: { set } },
-  }) => set(taskId, newData),
+//   // Everything below this comment is in use.
+//   triageTasks: async ({
+//     args: [params],
+//     triage: { triageTasks }
+//   }) => triageTasks(params),
+//   readIncompleteTasks: ({ tasks: { read: { incomplete } } }) => incomplete(),
+//   readTaskForId: ({
+//     args: [taskId],
+//     tasks: { read: { forId } },
+//   }) => forId(taskId),
+//   updateTask: ({
+//     args: [taskId, newData],
+//     tasks: { update: { set } },
+//   }) => set(taskId, newData),
 
-  // getEnvironment: ({ environment: { get } }) => get(),
-  // setEnvironment: ({
-  //   args: [env],
-  //   environment: { set },
-  // }) => set(env),
+//   // getEnvironment: ({ environment: { get } }) => get(),
+//   // setEnvironment: ({
+//   //   args: [env],
+//   //   environment: { set },
+//   // }) => set(env),
 
-  // createDraftDiaryEntry: ({
-  //   args: [entry],
-  //   diary: { create: { entry: createDraftDiaryEntry } },
-  // }) => createDraftDiaryEntry(entry),
-  // fetchRecentDiaryEntries: ({
-  //   diary: { read: { recent } },
-  // }) => recent(),
-  // updateDiaryEntry: ({
-  //   args: [id, newData, immediateConvergence],
-  //   diary: { update: { set } },
-  // }) => set(id, newData, immediateConvergence),
+//   // createDraftDiaryEntry: ({
+//   //   args: [entry],
+//   //   diary: { create: { entry: createDraftDiaryEntry } },
+//   // }) => createDraftDiaryEntry(entry),
+//   // fetchRecentDiaryEntries: ({
+//   //   diary: { read: { recent } },
+//   // }) => recent(),
+//   // updateDiaryEntry: ({
+//   //   args: [id, newData, immediateConvergence],
+//   //   diary: { update: { set } },
+//   // }) => set(id, newData, immediateConvergence),
 
-  fetchProjectsList: ({
-    projects: { read: { list } },
-  }) => list(),
-  fetchProjectStagedCommitMessage: ({
-    args: [project],
-    projects: { read: { commitMessage } },
-  }) => commitMessage(project),
-  commitProjectStagedFiles: ({
-    args: [project, message],
-    projects: { create: { commit } },
-  }) => commit(project, message),
+//   fetchProjectsList: ({
+//     projects: { read: { list } },
+//   }) => list(),
+//   fetchProjectStagedCommitMessage: ({
+//     args: [project],
+//     projects: { read: { commitMessage } },
+//   }) => commitMessage(project),
+//   commitProjectStagedFiles: ({
+//     args: [project, message],
+//     projects: { create: { commit } },
+//   }) => commit(project, message),
 
-  // CRM and job search.
-  createCompany: ({
-    args: [company],
-    crm: { create: { company: createCompany } },
-  }) => createCompany(company),
-  createInteraction: ({
-    args: [interaction],
-    jobSearch: { create: { interaction: createInteraction } },
-  }) => createInteraction(interaction),
-  createPerson: ({
-    args: [person],
-    crm: { create: { person: createPerson } },
-  }) => createPerson(person),
-  fetchActiveApplications: ({
-    jobSearch: { read: { activeApplications } },
-  }) => activeApplications(),
-  fetchApplication: ({
-    args: [applicationId],
-    jobSearch: { read: { application } },
-  }) => application(applicationId),
-  fetchCompany: ({
-    args: [companyId],
-    crm: { read: { company } },
-  }) => company(companyId),
-  fetchInteraction: ({
-    args: [interactionId],
-    jobSearch: { read: { interaction } },
-  }) => interaction(interactionId),
-  fetchPerson: ({
-    args: [personId],
-    crm: { read: { person } },
-  }) => person(personId),
-  fetchRecentCompanies: ({
-    crm: { read: { recentCompanies } },
-  }) => recentCompanies(),
-  fetchRecentPeople: ({
-    crm: { read: { recentPeople } },
-  }) => recentPeople(),
-  updateApplication: ({
-    args: [application],
-    jobSearch: { update: { application: updateApplication } },
-  }) => updateApplication(application),
-  updateCompany: ({
-    args: [company],
-    crm: { update: { company: updateCompany } },
-  }) => updateCompany(company),
-  updatePerson: ({
-    args: [person],
-    crm: { update: { person: updatePerson } },
-  }) => updatePerson(person),
-});
+//   // CRM and job search.
+//   createCompany: ({
+//     args: [company],
+//     crm: { create: { company: createCompany } },
+//   }) => createCompany(company),
+//   createInteraction: ({
+//     args: [interaction],
+//     jobSearch: { create: { interaction: createInteraction } },
+//   }) => createInteraction(interaction),
+//   createPerson: ({
+//     args: [person],
+//     crm: { create: { person: createPerson } },
+//   }) => createPerson(person),
+//   fetchActiveApplications: ({
+//     jobSearch: { read: { activeApplications } },
+//   }) => activeApplications(),
+//   fetchApplication: ({
+//     args: [applicationId],
+//     jobSearch: { read: { application } },
+//   }) => application(applicationId),
+//   fetchCompany: ({
+//     args: [companyId],
+//     crm: { read: { company } },
+//   }) => company(companyId),
+//   fetchInteraction: ({
+//     args: [interactionId],
+//     jobSearch: { read: { interaction } },
+//   }) => interaction(interactionId),
+//   fetchPerson: ({
+//     args: [personId],
+//     crm: { read: { person } },
+//   }) => person(personId),
+//   fetchRecentCompanies: ({
+//     crm: { read: { recentCompanies } },
+//   }) => recentCompanies(),
+//   fetchRecentPeople: ({
+//     crm: { read: { recentPeople } },
+//   }) => recentPeople(),
+//   updateApplication: ({
+//     args: [application],
+//     jobSearch: { update: { application: updateApplication } },
+//   }) => updateApplication(application),
+//   updateCompany: ({
+//     args: [company],
+//     crm: { update: { company: updateCompany } },
+//   }) => updateCompany(company),
+//   updatePerson: ({
+//     args: [person],
+//     crm: { update: { person: updatePerson } },
+//   }) => updatePerson(person),
+// });
 
 /**
  * @deprecated Use tRPC.provision.subscription instead.

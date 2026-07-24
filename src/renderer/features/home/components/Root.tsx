@@ -1,6 +1,6 @@
 import { Grid, GridProps } from "@mui/material";
 import { Diary, useDiaryPanels } from "../../diary";
-import { EmailSyncPanel } from "../../email/components/EmailSyncPanel";
+// import { EmailSyncPanel } from "../../email/components/EmailSyncPanel";
 import { Slab } from "@/renderer/shared/base";
 import { DashboardStackChip, PanelDataItem } from "@/renderer/shared/dashboard";
 
@@ -20,7 +20,7 @@ const seeder = () => Math.random();
 const paragraphs = Array.from({ length: 3 }, () => generateParagraph({ seeder }));
 
 const PanelContent = (props: PanelDataItem) => {
-  switch(props.display) {
+  switch (props.display) {
     case 'chip': return <DashboardStackChip {...props} />;
     case 'sparkline': return <DashboardSparkline {...props} values={props.value} />;
   }
@@ -44,7 +44,7 @@ export const HomeRoot = () => {
     <Slab>
       {/* {paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)} */}
     </Slab>
-    <EmailSyncPanel />
+    {/* <EmailSyncPanel /> */}
     <Diary />
   </div>
 };

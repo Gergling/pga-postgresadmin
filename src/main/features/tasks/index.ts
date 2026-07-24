@@ -1,4 +1,4 @@
-export * from './db';
+export * from './db/db';
 export * from './ipc';
 export * from './llm';
 export * from './triage';

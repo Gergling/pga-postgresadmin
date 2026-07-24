@@ -6,7 +6,7 @@ import { validateLanguageModelResponse } from '../../../llm/shared';
 import { proposedTaskAnalysisResponseSchema } from './validation';
 import { ProposedAnalysisResponse } from './proposed';
 import { getFirebaseDb } from '../../../libs/firebase';
-import { userTaskCollection } from '../db';
+import { userTaskCollection } from '../db/db';
 import { createUserTask } from '../utils';
 import { UserTaskDb } from '../types';
 

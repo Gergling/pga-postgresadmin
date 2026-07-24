@@ -1,10 +1,10 @@
-export type WorkflowState =
+export type TaskWorkflowState =
   | 'proposed' // A bot has created this task.
   | 'todo'
   | 'doing'
   | 'done'
   | 'rejected'
-;
+  ;
 
 export type WorkflowEvent =
   | 'approve'
@@ -12,7 +12,7 @@ export type WorkflowEvent =
   | 'finalize'
   | 'pause'
   | 'start'
-;
+  ;
 
 type TaskSourceTypeManual = 'manual';
 type TaskSourceTypeAutomated = 'email' | 'diary' | 'instructions';

@@ -1,5 +1,6 @@
 import { SvgIconComponent } from "@mui/icons-material";
-import { WorkflowEvent, WorkflowState } from "./base";
+import { WorkflowEvent } from "./base";
+import { TaskWorkflowState } from "../schema";
 
 export type WorkflowEventConfigItem = {
   color: string;
@@ -7,4 +8,4 @@ export type WorkflowEventConfigItem = {
   label: string;
 };
 export type WorkflowEventConfig = Record<WorkflowEvent, WorkflowEventConfigItem>;
-export type WorkflowFsm = Partial<Record<WorkflowState, Partial<Record<WorkflowEvent, WorkflowState>>>>;
+export type WorkflowFsm = Partial<Record<TaskWorkflowState, Partial<Record<WorkflowEvent, TaskWorkflowState>>>>;

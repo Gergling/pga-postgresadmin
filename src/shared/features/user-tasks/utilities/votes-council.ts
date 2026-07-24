@@ -1,4 +1,4 @@
-import { COUNCIL_MEMBER } from "../config";
+import { COUNCIL_MEMBER } from "../schema/config";
 import { TASK_VOTE_PROPS } from "../constants";
 import {
   AtomicVote,

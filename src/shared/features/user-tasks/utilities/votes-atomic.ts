@@ -1,4 +1,4 @@
-import { COUNCIL_MEMBER } from "../config";
+import { COUNCIL_MEMBER } from "../schema/config";
 import { TASK_VOTE_BASE_SUMMARY_MAP, TASK_VOTE_PROPS } from "../constants";
 import {
   AtomicVote,
@@ -33,7 +33,7 @@ export const getEchoVote = <
 
 export const getAtomicSummary = <
   T extends VotePropsName, // "importance"/"momentum"
-  U extends AtomicVoteValueMap[T] 
+  U extends AtomicVoteValueMap[T]
 >(
   rank: number | undefined,
   echo: AtomicVoteValueMap[T] | undefined,
@@ -47,7 +47,7 @@ export const getAtomicSummary = <
 
 export const getAtomicVote = <
   T extends VotePropsName, // "importance"/"momentum"
-  U extends AtomicVoteValueMap[T] 
+  U extends AtomicVoteValueMap[T]
 >(
   task: UserTask,
   member: CouncilMemberNames,

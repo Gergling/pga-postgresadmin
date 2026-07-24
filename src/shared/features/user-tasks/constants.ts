@@ -1,5 +1,18 @@
-import { TASK_IMPORTANCE, TASK_MOMENTUM, TASK_VOTE_BASE, VOTE_PROPS } from "./config";
-import { TaskImportance, TaskMomentum, TaskRanksMap, TaskVoteBaseNames, TaskVoteBaseSummaryMap, VotePropsName, WorkflowFsm } from "./types";
+import {
+  TASK_IMPORTANCE,
+  TASK_MOMENTUM,
+  TASK_VOTE_BASE,
+  TaskImportance,
+  TaskMomentum,
+  VOTE_PROPS
+} from "./schema/config";
+import { WorkflowFsm } from "./types";
+import {
+  TaskRanksMap,
+  TaskVoteBaseNames,
+  TaskVoteBaseSummaryMap,
+  VotePropsName
+} from "./types/votes";
 
 export const {
   TASK_IMPORTANCE_RANKS,

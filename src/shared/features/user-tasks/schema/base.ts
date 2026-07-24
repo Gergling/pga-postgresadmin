@@ -1,14 +1,14 @@
 import z from "zod";
 
-export const workflowStateSchema = z.enum([
-  'proposed', 'todo', 'doing', 'pause', 'start'
+export const taskWorkflowStateSchema = z.enum([
+  'proposed', 'todo', 'doing', 'done', 'rejected'
 ]);
-export type WorkflowState = z.infer<typeof workflowStateSchema>;
+export type TaskWorkflowState = z.infer<typeof taskWorkflowStateSchema>;
 
-export const workflowEventSchema = z.enum([
+export const taskWorkflowEventSchema = z.enum([
   'approve', 'dismiss', 'finalize', 'pause', 'start'
 ]);
-export type WorkflowEvent = z.infer<typeof workflowEventSchema>;
+export type TaskWorkflowEvent = z.infer<typeof taskWorkflowEventSchema>;
 
 export const taskSourceTypeManualSchema = z.literal('manual');
 export type TaskSourceTypeManual = z.infer<typeof taskSourceTypeManualSchema>;

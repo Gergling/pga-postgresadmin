@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { COUNCIL_MEMBER } from '../config';
+import { COUNCIL_MEMBER } from '../schema/config';
 import { TASK_VOTE_BASE_SUMMARY_MAP, TASK_VOTE_PROPS } from '../constants';
 import { CouncilMemberNames, TaskVoteBase, UserTask } from '../types';
 import { atomiseVotes, getAtomicSummary, getAtomicVote, getEchoVote, getMeanAtomicVoteRank } from './votes-atomic';

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { COUNCIL_MEMBER } from '../config';
+import { COUNCIL_MEMBER } from '../schema/config';
 import { AtomicVote, AtomicVoteValueSummary, CouncilMemberAtomisedVotes, CouncilMemberNames } from '../types';
 import { createMemberVotes, getCouncilMemberScores, getCouncilMemberVoteValue } from './votes-council';
 
@@ -164,7 +164,7 @@ describe('votes-council', () => {
 
       expect(result.map.librarian.summary.values).toEqual([10]);
       expect(result.map.sceptic.summary.values).toEqual(['?', 'A']);
-      
+
       // Check list structure
       const librarianInList = result.list.find(m => m.member === 'librarian');
       expect(librarianInList).toBeDefined();
@@ -199,7 +199,7 @@ describe('votes-council', () => {
       // However, the current implementation iterates COUNCIL_MEMBER to build the list.
       // If the map entry is missing, it will be undefined in the list.
       const result = getCouncilMemberScores([]);
-      
+
       expect(result.map.librarian).toBeUndefined();
       expect(result.list[0]).toBeUndefined();
     });

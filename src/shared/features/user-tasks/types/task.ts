@@ -1,4 +1,4 @@
-import { TaskSource, WorkflowState } from "./base";
+import { TaskSource, TaskWorkflowState } from "./base";
 import { CouncilVotesMap } from "./votes";
 
 type UserTaskBaseId = { id: string; };
@@ -14,7 +14,7 @@ type UserTaskBase = {
   // comments: Comment[];
   description: string;
   source: TaskSource;
-  status: WorkflowState;
+  status: TaskWorkflowState;
   summary: string;
   timeline: {
     completed?: number; // The completed date/time in epoch milliseconds.

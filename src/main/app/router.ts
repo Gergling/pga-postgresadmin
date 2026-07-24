@@ -11,6 +11,7 @@ import {
   settingsRouter,
   systemRouter,
 } from '@/main/features';
+import { tasksRouter } from '../features/tasks';
 
 const ee = new EventEmitter();
 
@@ -23,6 +24,7 @@ export const router = tRPC.router({
   release: releaseRouter,
   settings: settingsRouter,
   system: systemRouter,
+  tasks: tasksRouter,
 
   greeting: tRPC.procedure.input(z.object({ name: z.string() })).query((req) => {
     const { input } = req;
@@ -54,7 +56,7 @@ export const router = tRPC.router({
   // // Standard Web Worker (Native browser API)
   // ctx.addEventListener('message', (event) => {
   //   const { dataToProcess } = event.data;
-    
+
   //   // CPU-Bound Transformation
   //   const result = dataToProcess.map((item: any) => ({
   //     ...item,
@@ -97,7 +99,7 @@ export const router = tRPC.router({
 
 //   try {
 //     // 2. Offload (CPU-bound)
-//     // Even though we 'await', the Main Thread event loop stays 
+//     // Even though we 'await', the Main Thread event loop stays
 //     // open for other window management/IPC tasks.
 //     const result = await runWorkerTask({
 //       type: 'CLEANSE',

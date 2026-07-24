@@ -10,29 +10,29 @@ export type UiNavigationConfigItem<T extends string = string> = {
   loader?: LoaderFunction;
 }
 
-// Index logic
-& ({
-  children?: UiNavigationConfigItem[];
-  index?: false;
-} | {
-  children?: undefined;
-  index?: true;
-}) 
+  // Index logic
+  & ({
+    children?: UiNavigationConfigItem[];
+    index?: false;
+  } | {
+    children?: undefined;
+    index?: true;
+  })
 
-// Breadcrumb logic
-& ({
-  icon: React.ComponentType;
-  label: string;
-  omitBreadcrumb?: false;
-  path: T;
-} | {
-  // If the breadcrumb is being omitted, it won't be showing the icon and label.
-  // HOWEVER, it may appear in the history.
-  icon?: React.ComponentType;
-  label?: string;
-  omitBreadcrumb: true;
-  path?: T;
-});
+  // Breadcrumb logic
+  & ({
+    icon: React.ComponentType;
+    label: string;
+    omitBreadcrumb?: false;
+    path: T;
+  } | {
+    // If the breadcrumb is being omitted, it won't be showing the icon and label.
+    // HOWEVER, it may appear in the history.
+    icon?: React.ComponentType;
+    label?: string;
+    omitBreadcrumb: true;
+    path?: T;
+  });
 
 export type UiNavigationItem =
   & Pick<UiNavigationConfigItem, 'element' | 'icon' | 'label' | 'lazy' | 'loader' | 'path'>
@@ -62,18 +62,18 @@ export type BreadcrumbNavigationHistoryItemParametric = BreadcrumbNavigationHist
   type: 'task';
   id: string;
 };
-export type BreadcrumbNavigationHistoryItemLocalStorage = 
+export type BreadcrumbNavigationHistoryItemLocalStorage =
   | BreadcrumbNavigationHistoryItemHardcoded
   | BreadcrumbNavigationHistoryItemParametric
-;
-export type BreadcrumbNavigationHistoryItem = 
+  ;
+export type BreadcrumbNavigationHistoryItem =
   & Omit<BreadcrumbNavigationHistoryItemHardcoded, 'type'>
   & Pick<BreadcrumbNavigationItem, 'icon'>
   & { status: 'success' | 'error' | 'request'; }
-;
+  ;
 
 export type BreadcrumbHistoryRequestItemFunction = (match: RouteMatch<string, RouteObject>) => Promise<
-  Optional<BreadcrumbNavigationHistoryItem, 'path'>
+  Optional<BreadcrumbNavigationHistoryItem, 'path'> | undefined
 >;
 
 export type BreadcrumbNavigationMapping = Record<string, BreadcrumbNavigationItem>;

@@ -37,7 +37,7 @@ export const requestHistoryItemFactory = (
   const match = matches[matches.length - 1];
   const results = await Promise.allSettled(requestCallbacks.map((requestItem) => requestItem(match)));
   const result = results.find((result) => result.status === 'fulfilled');
-  if (result) return { path, ...result.value };
+  if (result && result.value) return { path, ...result.value };
 
   // If there is no result, throw.
   console.warn(`No result found for path: ${path}`);

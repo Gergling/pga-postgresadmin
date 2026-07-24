@@ -1,7 +1,7 @@
 import firebaseAdmin from 'firebase-admin';
 import * as dotenv from 'dotenv';
 import { FirestoreRepository, ID } from '@spacelabstech/firestoreorm';
-import { ZodObject } from 'zod';
+import { ZodObject, ZodRawShape } from 'zod';
 import { SerialisationEnvelope } from '@/shared/schema';
 import {
   loadAppSettings,
@@ -153,7 +153,7 @@ export function createProcrastinatedRepo<T extends { id?: ID; }>(
 }
 
 export const createAsynchronousRepo = <
-  T extends SerialisationEnvelope<unknown>
+  T extends SerialisationEnvelope<ZodRawShape>
 >(
   collectionName: string, schema: ZodObject
 ): Promise<FirestoreRepository<T>> => {

@@ -1,7 +1,7 @@
-import { ZodRawShape, ZodType } from "zod";
+import z from "zod";
 import { codec } from "@/shared/utilities";
-import { dateSerialisationCodec, RichDate, SerialisationDate } from "../date";
-import { RichEnvelope, SerialisationEnvelope } from "./envelope";
+import { dateSerialisationCodec } from "../date";
+import { RichEnvelope, RichEnvelopeSchema, SerialisationEnvelope, SerialisationEnvelopeSchema } from "./envelope";
 
 /**
  * Decodes from a serialisationSchema into a richSchema
@@ -9,11 +9,13 @@ import { RichEnvelope, SerialisationEnvelope } from "./envelope";
  * @param richSchema The rich schema for this data.
  * @returns a Codec.
  */
-export const envelopeCodecFactory = <T extends ZodRawShape>(
-  serialisationSchema: ZodType<SerialisationEnvelope<T>>,
-  richSchema: ZodType<RichEnvelope<T>>,
-) => codec<RichEnvelope<T>, SerialisationEnvelope<T>>({
-  encode: ({ audit, created, ...value }): SerialisationEnvelope<T> => {
+export const envelopeCodecFactory = <
+  Core extends z.ZodObject, SerialisedCore extends z.ZodObject = Core
+>(
+  serialisationSchema: SerialisationEnvelopeSchema<SerialisedCore>,
+  richSchema: RichEnvelopeSchema<Core>,
+) => codec<RichEnvelope<Core>, SerialisationEnvelope<SerialisedCore>>({
+  encode: ({ audit, created, ...value }): SerialisationEnvelope<SerialisedCore> => {
     const encodedAudit = audit.map(({ updated, ...item }) => ({
       ...item, updated: dateSerialisationCodec.encode(updated)
     }));
@@ -22,7 +24,7 @@ export const envelopeCodecFactory = <T extends ZodRawShape>(
       ...value, audit: encodedAudit, created: encodedCreated
     });
   },
-  decode: ({ audit, created, ...value }): RichEnvelope<T> => {
+  decode: ({ audit, created, ...value }): RichEnvelope<Core> => {
     const decodedAudit = audit.map(({ updated, ...item }) => ({
       ...item, updated: dateSerialisationCodec.decode(updated)
     }));
@@ -32,3 +34,8 @@ export const envelopeCodecFactory = <T extends ZodRawShape>(
     });
   },
 });
+
+export type EnvelopeCodec<
+  Core extends z.ZodObject,
+  SerialisedCore extends z.ZodObject = Core
+> = ReturnType<typeof envelopeCodecFactory<Core, SerialisedCore>>;

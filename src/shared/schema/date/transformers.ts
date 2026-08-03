@@ -1,5 +1,5 @@
 import { Temporal } from "@js-temporal/polyfill";
-import { resolveAbbreviation } from "@/shared/utilities";
+import { resolveAbbreviation, transformToRfc9557 } from "@/shared/utilities";
 import {
   TemporalInputFormatType,
   TemporalTransformError,
@@ -47,9 +47,10 @@ const decoders = [
     (match) => {
       const [, year, month, day, hour, minute, second, millisecond] = match;
       const offset = match[9] ?? '+00:00';
-      return Temporal.ZonedDateTime.from(
-        `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}[${offset}]`
-      );
+      const isoString = millisecond === undefined
+        ? `${year}-${month}-${day}T${hour}:${minute}:${second}[${offset}]`
+        : `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}[${offset}]`;
+      return Temporal.ZonedDateTime.from(isoString);
     },
     'RFC 3339 date with timezone abbreviation',
   ),

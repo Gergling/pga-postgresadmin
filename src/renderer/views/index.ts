@@ -3,4 +3,3 @@ export * from './Home';
 export * from './JobSearch';
 export * from './Root';
 export * from './SvgViewer';
-export * from './Tasks';

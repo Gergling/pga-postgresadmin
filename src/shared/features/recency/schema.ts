@@ -1,6 +1,8 @@
 import { Temporal } from "@js-temporal/polyfill";
 import z from "zod";
-import { Mandatory } from "@/shared/types";
+import { Mandatory, Swap } from "@/shared/types";
+import { codec } from "@/shared/utilities";
+import { dateSerialisationCodec, SerialisationDate } from "@/shared/schema";
 
 export const temporalGranularitySchema = z.enum([
   'years',
@@ -79,6 +81,17 @@ export const temporalPeriodSchema = z.object({
 });
 
 export type TemporalPeriod = z.infer<typeof temporalPeriodSchema>;
+
+type TemporalPeriodSerialisation = Swap<TemporalPeriod, 'start', SerialisationDate>;
+
+const temporalPeriodCodec = codec<TemporalPeriod, TemporalPeriodSerialisation>({
+  decode: ({ start, ...props }) => ({
+    ...props, start: dateSerialisationCodec.decode(start)
+  }),
+  encode: ({ start, ...props }) => ({
+    ...props, start: dateSerialisationCodec.encode(start)
+  }),
+});
 
 export const temporalGranularityConfigItemSchemaFactory = <
   BreakdownKey extends keyof Temporal.ZonedDateTime & string,
@@ -163,9 +176,67 @@ export type TemporalGranularityFrequencies<
   Granularity extends TemporalGranularity = 'days'
 > = z.infer<typeof temporalGranularityFrequenciesSchema>;
 
+type TemporalGranularityFrequenciesSerialisation = Swap<
+  Swap<
+    TemporalGranularityFrequencies,
+    'current' | 'from' | 'priorThreshold', // | 'quantise',
+    SerialisationDate
+  >,
+  'frequencies',
+  Record<string, TemporalPeriodSerialisation>
+>;
+
+const temporalGranularityFrequenciesSerialisationCodec = codec<
+  TemporalGranularityFrequencies, TemporalGranularityFrequenciesSerialisation
+>({
+  decode: ({ current, from, frequencies, priorThreshold, ...props }) => ({
+    ...props,
+    current: dateSerialisationCodec.decode(current),
+    from: dateSerialisationCodec.decode(from),
+    frequencies: Object.fromEntries(Object.entries(frequencies).map(
+      ([k, v]) => [k, temporalPeriodCodec.decode(v)]
+    )),
+    priorThreshold: dateSerialisationCodec.decode(priorThreshold),
+  }),
+  encode: ({ current, from, frequencies, priorThreshold, ...props }) => ({
+    ...props,
+    current: dateSerialisationCodec.encode(current),
+    from: dateSerialisationCodec.encode(from),
+    frequencies: Object.fromEntries(Object.entries(frequencies).map(
+      ([k, v]) => [k, temporalPeriodCodec.encode(v)]
+    )),
+    priorThreshold: dateSerialisationCodec.encode(priorThreshold),
+  }),
+});
+
 export const temporalFrequenciesSchema = z.record(
   temporalGranularitySchema,
   temporalGranularityFrequenciesSchema
 );
 
 export type TemporalFrequencies = z.infer<typeof temporalFrequenciesSchema>;
+
+type TemporalFrequenciesSerialisation = Swap<
+  TemporalFrequencies,
+  TemporalGranularity,
+  TemporalGranularityFrequenciesSerialisation
+>;
+
+export const temporalFrequenciesSerialisationCodec = codec<
+  TemporalFrequencies, TemporalFrequenciesSerialisation
+>({
+  decode: ({ years, months, weeks, days, ...props }) => ({
+    ...props,
+    years: temporalGranularityFrequenciesSerialisationCodec.decode(years),
+    months: temporalGranularityFrequenciesSerialisationCodec.decode(months),
+    weeks: temporalGranularityFrequenciesSerialisationCodec.decode(weeks),
+    days: temporalGranularityFrequenciesSerialisationCodec.decode(days),
+  }),
+  encode: ({ years, months, weeks, days, ...props }) => ({
+    ...props,
+    years: temporalGranularityFrequenciesSerialisationCodec.encode(years),
+    months: temporalGranularityFrequenciesSerialisationCodec.encode(months),
+    weeks: temporalGranularityFrequenciesSerialisationCodec.encode(weeks),
+    days: temporalGranularityFrequenciesSerialisationCodec.encode(days),
+  }),
+});

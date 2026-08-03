@@ -1,5 +1,5 @@
 import { TASK_VOTE_PROPS } from "../constants";
-import { CouncilMemberVotes, TaskVotes, TaskVoteSummary, UserTask } from "../types";
+import { CouncilMemberVotes, TaskRich, TaskVotes, TaskVoteSummary } from "../schema";
 import { atomiseVotes, getMeanAtomicVoteRank } from "./votes-atomic";
 import { getCouncilMemberScores } from "./votes-council";
 
@@ -9,7 +9,9 @@ const reduceSum = (sum?: number, value?: number) => {
   return sum + value;
 };
 
-export const reduceTaskVotes = (sum: TaskVotes, item: CouncilMemberVotes): TaskVotes => {
+export const reduceTaskVotes = (
+  sum: TaskVotes, item: CouncilMemberVotes
+): TaskVotes => {
   const echoes = TASK_VOTE_PROPS.reduce(
     (acc, voteProp) => item.atomised[voteProp].echo ? acc + 1 : acc,
     sum.echoes,
@@ -49,7 +51,7 @@ const getTaskScores = (
   }
 );
 
-export const getVoteSummary = (task: UserTask): TaskVoteSummary => {
+export const getVoteSummary = (task: TaskRich): TaskVoteSummary => {
   const atomic = atomiseVotes(task);
   const council = getCouncilMemberScores(atomic);
   const taskScores = getTaskScores(council.list);

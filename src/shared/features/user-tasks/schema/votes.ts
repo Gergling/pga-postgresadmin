@@ -1,38 +1,30 @@
 import z from "zod";
 import {
-  // CouncilMemberNames,
+  COUNCIL_MEMBER,
+  CouncilMemberNames,
   councilMemberNamesSchema,
   taskImportanceSchema,
   taskMomentumSchema,
+  TaskVoteBaseNames,
 } from "./config";
 
-// export type VotePropsName = keyof VoteProps;
-// type VotePropsMap = {
-//   [K in VotePropsName]: VoteProps[K][number]['name'];
-// }
-// export type TaskRanksMap = {
-//   [K in VotePropsName]: Record<VotePropsMap[K], number>;
-// }
-// export type TaskRanks<PropsName extends VotePropsName> = TaskRanksMap[PropsName];
-// export type TaskVoteBaseNames = TaskVoteBase['name'];
-// export type TaskVoteBaseSummaryMap = {
-//   [K in TaskVoteBase as K['name']]: K['summary'];
-// };
-// export type TaskVoteBaseSummary = TaskVoteBase['summary'];
+export type CouncilVotesBase = Record<CouncilMemberNames, TaskVoteBaseNames>;
 
-// export type TaskImportance = VotePropsMap['importance'];
-// export type TaskMomentum = VotePropsMap['momentum'];
+const initialVotes = Object.fromEntries(COUNCIL_MEMBER.map(member => [
+  member.name, 'Awaiting'
+])) as Record<
+  CouncilMemberNames, 'Awaiting'
+>;
 
-// export type CouncilVotesBase = Record<CouncilMemberNames, TaskVoteBaseNames>;
-// export type CouncilVotes<T extends TaskImportance | TaskMomentum> = Record<CouncilMemberNames, T | TaskVoteBaseNames>;
-// export type CouncilVotesMap = {
-//   [K in VotePropsName]: CouncilVotes<VotePropsMap[K]>;
-// };
-
-export const councilVotesMapSchema = z.record(
-  councilMemberNamesSchema, z.object({
-    importance: taskImportanceSchema.default('Awaiting'),
-    momentum: taskMomentumSchema.default('Awaiting'),
-  })
-);
+export const councilVotesMapSchema = z.object({
+  importance: z.record(
+    councilMemberNamesSchema, taskImportanceSchema.catch('Awaiting')
+  ),
+  momentum: z.record(
+    councilMemberNamesSchema, taskMomentumSchema.catch('Awaiting')
+  ),
+}).catch(() => ({
+  importance: initialVotes,
+  momentum: initialVotes,
+}));
 export type CouncilVotesMap = z.infer<typeof councilVotesMapSchema>;

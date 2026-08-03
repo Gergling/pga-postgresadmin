@@ -4,8 +4,10 @@ export const TASK_VOTE_BASE = [
   { name: 'Awaiting', description: 'Awaiting a vote.', summary: '?' },
   { name: 'Abstained', description: 'Abstained from voting because more information is required.', summary: 'A' },
 ] as const;
-// export const taskVoteBaseSchema = z.enum(TASK_VOTE_BASE.map(({ name }) => name));
-// export type TaskVoteBase = z.infer<typeof taskVoteBaseSchema>;
+export const taskVoteBaseNameSchema = z.enum(TASK_VOTE_BASE.map(({ name }) => name));
+export type TaskVoteBaseNames = z.infer<typeof taskVoteBaseNameSchema>;
+export const taskVoteBaseSummarySchema = z.enum(TASK_VOTE_BASE.map(({ summary }) => summary));
+export type TaskVoteBaseSummary = z.infer<typeof taskVoteBaseSummarySchema>;
 
 export const TASK_IMPORTANCE = [
   { name: 'Regressive', description: 'Actively damaging; inaction is better than action. Examples: Self-harm, bad habits, or bridges being burnt.' },
@@ -57,3 +59,7 @@ export const VOTE_PROPS = {
   importance: TASK_IMPORTANCE,
   momentum: TASK_MOMENTUM,
 } as const;
+export type VotePropsName = keyof typeof VOTE_PROPS;
+export const votePropsNameSchema = z.enum(
+  Object.keys(VOTE_PROPS) as VotePropsName[]
+);

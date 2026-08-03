@@ -1,20 +1,19 @@
-import { COUNCIL_MEMBER } from "../schema/config";
+import { COUNCIL_MEMBER, CouncilMemberNames } from "../schema/config";
 import { TASK_VOTE_PROPS } from "../constants";
+import { getMeanAtomicVoteRank } from "./votes-atomic";
 import {
   AtomicVote,
   AtomicVoteValueSummary,
   CouncilMemberAtomisedVotes,
-  CouncilMemberNames,
   CouncilMemberVotes,
   CouncilMemberVoteValue,
-  CouncilVotesBase,
-} from "../types";
-import { getMeanAtomicVoteRank } from "./votes-atomic";
+  CouncilVotesBase
+} from "../schema";
 
 export const createMemberVotes = (): CouncilVotesBase => COUNCIL_MEMBER.reduce(
-  (acc, { id }) => ({
+  (acc, { name }) => ({
     ...acc,
-    [id]: 'Awaiting',
+    [name]: 'Awaiting',
   }),
   {} as CouncilVotesBase
 );
@@ -41,7 +40,9 @@ const getCouncilMemberSummary = (
   return summaries;
 };
 
-export const getCouncilMemberVoteValue = (atomised: CouncilMemberAtomisedVotes): CouncilMemberVoteValue => {
+export const getCouncilMemberVoteValue = (
+  atomised: CouncilMemberAtomisedVotes
+): CouncilMemberVoteValue => {
   const {
     summaries,
     echoes
@@ -118,7 +119,7 @@ export const getCouncilMemberScores = (
     },
     {} as CouncilMemberScores['map']
   );
-  const list = COUNCIL_MEMBER.map(({ id }) => map[id]);
+  const list = COUNCIL_MEMBER.map(({ name }) => map[name]);
   return {
     list,
     map,

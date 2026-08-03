@@ -30,11 +30,17 @@ type UserTaskBase = {
 // feature in the audit. The updated property is never changed by the user
 // explicitly, but the "latest" is copied into the audit log.
 type AuditOmittedKey = 'audit' | 'source' | 'id';
+/**
+ * @deprecated Should be using Task class. envelope.audit has the properties.
+ */
 export type UserTaskAudit<T extends UserTaskBase> = Partial<
   & Omit<T, AuditOmittedKey>
   & Record<AuditOmittedKey, never>
 >;
 
+/**
+ * @deprecated Should be using Task class.
+ */
 export type UserTask = UserTaskBase & UserTaskBaseId & {
   // audit: UserTaskAudit[];
 }

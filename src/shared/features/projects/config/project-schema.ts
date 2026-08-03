@@ -7,6 +7,8 @@ import {
 import { codec } from '@/shared/utilities';
 
 export const projectGitSchema = z.object({
+  commitDates: z.array(serialisationDateSchema),
+  earliestCommitDate: serialisationDateSchema,
   lastCheck: serialisationDateSchema,
   latestCommitDate: serialisationDateSchema,
   totalStagedFiles: z.number(),
@@ -29,6 +31,8 @@ export const projectSchema = z.object({
 export type ProjectSchema = z.infer<typeof projectSchema>;
 
 const projectRendererGitSchema = projectGitSchema.extend({
+  commitDates: z.array(richDateSchema),
+  earliestCommitDate: richDateSchema,
   lastCheck: richDateSchema,
   latestCommitDate: richDateSchema,
 });
@@ -54,8 +58,14 @@ const projectGitCodec = z.codec(
     decode: (value) => {
       if (value === false) return 'none';
       if (value === undefined) return 'unknown';
+      const commitDates = value.commitDates.map(
+        (serialisedDate) => dateSerialisationCodec.decode(serialisedDate)
+      );
       return {
         ...value,
+        commitDates,
+        earliestCommitDate: dateSerialisationCodec
+          .decode(value.earliestCommitDate),
         lastCheck: dateSerialisationCodec.decode(value.lastCheck),
         latestCommitDate: dateSerialisationCodec.decode(value.latestCommitDate),
       };
@@ -64,9 +74,17 @@ const projectGitCodec = z.codec(
       if (value === 'none') return false;
       if (value === 'unknown') return undefined;
       const lastCheck = serialisationDateSchema.parse(value.lastCheck);
-      const latestCommitDate = serialisationDateSchema.parse(value.latestCommitDate);
+      const latestCommitDate = serialisationDateSchema
+        .parse(value.latestCommitDate);
+      const commitDates = value.commitDates.map(
+        (zdt) => serialisationDateSchema.parse(zdt)
+      );
+      const earliestCommitDate = serialisationDateSchema
+        .parse(value.earliestCommitDate);
       return {
         ...value,
+        commitDates,
+        earliestCommitDate,
         lastCheck,
         latestCommitDate,
       };

@@ -153,7 +153,7 @@ export function createProcrastinatedRepo<T extends { id?: ID; }>(
 }
 
 export const createAsynchronousRepo = <
-  T extends SerialisationEnvelope<ZodRawShape>
+  T extends SerialisationEnvelope<ZodObject>
 >(
   collectionName: string, schema: ZodObject
 ): Promise<FirestoreRepository<T>> => {

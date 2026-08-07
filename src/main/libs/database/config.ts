@@ -21,7 +21,7 @@ const register = metaCollectionRegister();
 
 const syncEvents = ['afterCreate', 'afterUpdate'] as const;
 
-export const setupCollection = <T extends SerialisationEnvelope<ZodRawShape>>(
+export const setupCollection = <T extends SerialisationEnvelope<ZodObject>>(
   collectionName: string,
   schema: ZodObject, // More specifically, this should infer back to T.
 ) => {

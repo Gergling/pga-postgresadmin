@@ -40,14 +40,16 @@ export const serialisationDateSchema = z.unknown().transform((value, ctx) => {
     return;
   }
   return serialised.value;
-}).pipe(serialisationDatePipeSchema).default(
-  () => {
-    const now = Temporal.Now.zonedDateTimeISO();
-    return {
-      epochMilliseconds: now.epochMilliseconds,
-      timeZoneId: now.timeZoneId.toString(),
-    };
-  }
-);
+}).pipe(serialisationDatePipeSchema);
 
 export type SerialisationDate = z.infer<typeof serialisationDateSchema>;
+
+export const serialisationDateNow = (
+  now: Temporal.ZonedDateTime = Temporal.Now.zonedDateTimeISO()
+): SerialisationDate => {
+  return {
+    epochMilliseconds: now.epochMilliseconds,
+    timeZoneId: now.timeZoneId.toString(),
+  };
+}
+

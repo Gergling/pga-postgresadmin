@@ -65,4 +65,6 @@ export const envelopeRichSchemaFactory = <T extends ZodObject>(
 export type RichEnvelopeSchema<TCoreSchema extends ZodObject> = ReturnType<
   typeof envelopeRichSchemaFactory<TCoreSchema>
 >;
-export type RichEnvelope<TCoreSchema extends ZodObject> = z.infer<RichEnvelopeSchema<TCoreSchema>>;
+export type RichEnvelope<TCoreSchema extends ZodObject> = z.infer<
+  RichEnvelopeSchema<TCoreSchema>
+>;

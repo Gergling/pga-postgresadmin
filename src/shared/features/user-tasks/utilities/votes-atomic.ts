@@ -51,7 +51,6 @@ export const getAtomicVote = <
   member: CouncilMemberNames,
   voteProp: T
 ): AtomicVote<T> => {
-  console.log(task.data)
   const vote: U | TaskVoteBaseNames = task.data.votes[voteProp][member] as U | TaskVoteBaseNames;
   const echo = getEchoVote(task, member, voteProp);
   const rank = vote === 'Awaiting' || vote === 'Abstained'

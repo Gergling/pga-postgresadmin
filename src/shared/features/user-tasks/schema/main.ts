@@ -19,6 +19,9 @@ const taskCoreTimelineSerialisationSchema = z.object({
   start: serialisationDateSchema.optional(),
 }).catch({});
 
+export type TaskCoreTimelineRich = z.infer<typeof taskCoreTimelineRichSchema>;
+export type TaskCoreTimelineSerialised = z.infer<typeof taskCoreTimelineSerialisationSchema>;
+
 const taskCoreBaseSchema = z.object({
   description: z.string().catch(''),
   source: taskSourceSchema.catch({ type: 'manual' }),

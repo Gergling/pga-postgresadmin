@@ -38,3 +38,22 @@ export const deepMerge = <T>(target: any, source: any): T => {
 export const getObjectKeys = <T extends object>(
   obj: T
 ) => Object.keys(obj) as (keyof T)[];
+
+export const reduceObjectChanges = <T extends object>(
+  base: T, changes: Partial<T>
+) => getObjectKeys(base).reduce(
+  (acc, key) => {
+    const existingValue = base[key];
+    const updatedValue = changes[key];
+
+    if (
+      updatedValue === undefined || existingValue === updatedValue
+    ) return acc;
+
+    return {
+      ...acc,
+      [key]: updatedValue,
+    };
+  },
+  {} as Partial<T>
+);

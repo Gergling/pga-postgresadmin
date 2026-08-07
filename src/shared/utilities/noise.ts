@@ -1,7 +1,3 @@
-type BaseProps = {
-  seeder: () => number;
-};
-
 const characterCategories = {
   vowel: {
     lower: 'aeiouy',
@@ -26,13 +22,20 @@ const diacritics = {
   C: 'ÇĆĈ', N: 'Ñ', S: 'ÇĆĈ', B: 'ß', D: 'Ð',
 };
 
-// Words should commonly be a mean of 1 syllable with a STD of 1 or 2.
-
-// Sentence length can vary depending on the medium:
-// Social Media/Texting: Mean often drops to 6–10 words.
-// Most professional writing, e.g. journalism or non-fiction aims for 17.5 words, STD 10.
-// Scientific/Academic Writing: Mean often climbs to 25+ words.
-// Legal Documents: Can have a mean exceeding 50 words with a very high standard deviation
+const accents = {
+  scotlon: {
+    characters: {
+      a: 'ah',
+      e: 'erh',
+      i: 'ai',
+      o: 'oo',
+      u: 'uhr',
+    }
+  }
+} as const;
+const noAccent = 'none';
+type NoAccent = typeof noAccent;
+type Accent = NoAccent | keyof typeof accents;
 
 // STD could scale.
 // Distribution is right-skewed.
@@ -64,7 +67,9 @@ type CharacterCatagoryAll = {
 };
 type CharacterCatagory = CharacterCatagoryAll[keyof CharacterCatagoryAll];
 
-const seederFactory = (seeder: () => number) => {
+type Seeder = () => number;
+
+const seederFactory = (seeder: Seeder) => {
   const scale = (value: number, floor = false) => {
     const scaled = seeder() * value;
     return floor ? Math.floor(scaled) : scaled;
@@ -81,23 +86,35 @@ const getCharacters = ({
   return characterCategories[pronunciation][wordCase];
 };
 
-const genP = (seeder: () => number) => (
+type BaseProps = {
+  accent: Accent;
+  seeder: Seeder;
+};
+
+const genP = (seeder: Seeder) => (
   p: keyof typeof PROBABILITIES
 ) => seeder() < PROBABILITIES[p];
 
 const pickCharacter = (
   category: CharacterCatagory,
-  { seeder }: BaseProps
+  { accent, seeder }: BaseProps
 ) => {
   const characters = getCharacters(category);
   const index = Math.floor(seeder() * characters.length);
-  return characters[index];
+  const character = characters[index];
+  if (accent === noAccent) return character;
+
+  const accentedCharacters = accents[accent].characters;
+  const accentedCharacter = accentedCharacters[character as keyof typeof accentedCharacters];
+
+  return accentedCharacter ?? character;
 };
 
 const START_WORD = 'word';
 const START_SENTENCE = 'sentence';
 type SyllableProps = BaseProps & { starts?: typeof START_WORD | typeof START_SENTENCE; };
-const generateSyllable = ({ seeder, starts }: SyllableProps) => {
+const generateSyllable = (props: SyllableProps) => {
+  const { seeder, starts } = props;
   const p = genP(seeder);
   const capitalise = starts === 'sentence' || (
     starts === 'word' && p('wordIsProperNoun')
@@ -112,51 +129,64 @@ const generateSyllable = ({ seeder, starts }: SyllableProps) => {
       condition: boolean; uc: boolean;
     }
   )[] = [
-    { condition: prefixVowel, pronunciation: 'vowel', uc: true },
-    {
-      condition: hardConsonant, pronunciation: 'hard',
-      uc: !prefixVowel && capitalise,
-    },
-    {
-      condition: softConsonant, pronunciation: 'soft',
-      uc: !prefixVowel && capitalise && !hardConsonant,
-    },
-    { condition: true, pronunciation: 'vowel', uc: false, },
-    { condition: anotherSoftConsonant, pronunciation: 'soft', uc: false },
-  ];
+      { condition: prefixVowel, pronunciation: 'vowel', uc: true },
+      {
+        condition: hardConsonant, pronunciation: 'hard',
+        uc: !prefixVowel && capitalise,
+      },
+      {
+        condition: softConsonant, pronunciation: 'soft',
+        uc: !prefixVowel && capitalise && !hardConsonant,
+      },
+      { condition: true, pronunciation: 'vowel', uc: false, },
+      { condition: anotherSoftConsonant, pronunciation: 'soft', uc: false },
+    ];
   return characters.reduce((acc, { condition, pronunciation, uc }) => {
     if (!condition) return acc;
     if (pronunciation === 'number') return acc + pickCharacter(
-      { pronunciation }, { seeder }
+      { pronunciation }, props
     );
     return acc + pickCharacter({
       pronunciation, wordCase: uc ? 'upper' : 'lower',
-    }, { seeder });
+    }, props);
   }, '');
 };
+
+// Words should commonly be a mean of 1 syllable with a STD of 1 or 2.
 
 type WordProps = Omit<SyllableProps, 'starts'> & {
   starts?: Exclude<SyllableProps['starts'], 'word'>;
 };
-const generateWord = ({ seeder, ...props }: WordProps) => {
+const generateWord = (props: WordProps) => {
+  const { seeder } = props;
   const gen = seederFactory(seeder);
   const totalSyllables = gen.scale(7, true) + 1;
   const endWithConsonant = gen.p('wordEndsWithConsonant');
   const syllables = Array.from({ length: totalSyllables }, (_, i) => {
     const starts = (i === 0 ? (props.starts ?? 'word') : undefined);
-    return generateSyllable({ seeder, starts });
+    return generateSyllable({ ...props, starts });
   });
   return syllables.join('') + (endWithConsonant
     ? pickCharacter({
       pronunciation: gen.p('syllableHasHardCharacter') ? 'hard' : 'soft',
       wordCase: 'lower'
-    }, { seeder }) : ''
+    }, props) : ''
   );
 };
 
+// Sentence length can vary depending on the medium:
+// Social Media/Texting: Mean often drops to 6–10 words.
+// Most professional writing, e.g. journalism or non-fiction aims for 17.5 words, STD 10.
+// Scientific/Academic Writing: Mean often climbs to 25+ words.
+// Legal Documents: Can have a mean exceeding 50 words with a very high standard deviation
+
+// Sentence length can be mean 4, STD 3, Manchester United Nil.
+
+
 const MAXIMUM_SENTENCE_LENGTH = 20;
 
-const generateSentence = ({ seeder }: BaseProps) => {
+const generateSentence = (props: BaseProps) => {
+  const { seeder } = props;
   // Decide the number of words. Possibly from 1 to 20.
   const gen = seederFactory(seeder);
   const totalWords = gen.scale(MAXIMUM_SENTENCE_LENGTH, true) + 1;
@@ -167,7 +197,7 @@ const generateSentence = ({ seeder }: BaseProps) => {
   // const hasComma = pHasComma > 0 && seeder() < pHasComma;
   const words = Array.from({ length: totalWords }, (_, i) => {
     const starts = i === 0 ? 'sentence' : undefined;
-    return generateWord({ seeder, starts });
+    return generateWord({ ...props, starts });
   });
   return words.join(' ') + (isQuestion ? '?' : '.');
   // Sentence may contain a comma. Could increase the probability up to the

@@ -1,43 +1,31 @@
 import { DataGridProps, GridColDef } from "@mui/x-data-grid";
 import {
-  TaskRelationshipBase,
-  TaskVoteSummary,
-  UserTask,
-  UserTaskAudit,
-  WorkflowEvent,
+  Task,
   WorkflowEventConfigItem
-} from "../../../shared/features/user-tasks";
-import { GridCellRenderer } from "../../shared/grid";
-import { UiNavigationConfigItem } from "../../shared/navigation";
+} from "@/shared/features/user-tasks";
+import { GridCellRenderer } from "@/renderer/shared/grid";
+import { UiNavigationConfigItem } from "@/renderer/shared/navigation";
 
-export type UiUserTask<T extends boolean = false> =
-  & Omit<UserTask, 'id'>
-  & Pick<T extends true ? Required<UserTask> : UserTask, 'id'>
-  & {
-    audit: UserTaskAudit<UiUserTask>[];
-    relationships: TaskRelationshipBase<UiUserTask<T>>;
-    scores: TaskVoteSummary;
-    view: 'edge' | 'outdated' | 'transitioning';
-  };
-
-export type TaskComparisonFunction = (a: UiUserTask, b: UiUserTask) => number;
-export type TaskFilterFunction = (task: UiUserTask) => boolean;
-export type TaskReducerFunction = (tasks: UiUserTask[], task: UserTask) => UiUserTask[];
+export type TaskComparisonFunction = (a: Task, b: Task) => number;
+export type TaskFilterFunction = (task: Task) => boolean;
+export type TaskReducerFunction = (tasks: Task[], task: Task) => Task[];
 
 export type TaskAction = WorkflowEventConfigItem & {
   action: () => void;
-  name: WorkflowEvent;
+  name: string;
 };
 
 export type TaskViewResponse = {
-  columns: GridColDef<UiUserTask>[];
-  data: UiUserTask[];
+  list?: {
+    columns: GridColDef<Task>[];
+    data: Task[];
+  };
   message: string;
   success: boolean;
 };
 
 export type UseUserTaskResponse = {
-  grid: DataGridProps<UiUserTask>;
+  grid: DataGridProps<Task>;
   message: string;
   success: boolean;
 };
@@ -48,4 +36,4 @@ export type TaskView = {
   path: string;
 };
 
-export type CellRenderer = GridCellRenderer<UiUserTask>;
+export type CellRenderer = GridCellRenderer<Task>;

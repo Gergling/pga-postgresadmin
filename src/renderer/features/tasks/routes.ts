@@ -1,10 +1,9 @@
-import { Placeholder } from "../svg-viewer/components";
-import { UiNavigationConfigItem } from "../../shared/navigation/types";
-import { getNavigationIcon } from "../../shared/navigation/components/getNavigationIcon";
-// import { lazyImport } from "@/renderer/shared/navigation";
+import { Placeholder } from "@/renderer/features/svg-viewer/components";
+import { UiNavigationConfigItem } from "@/renderer/shared/navigation/types";
+import { getNavigationIcon } from "@/renderer/shared/navigation/components/getNavigationIcon";
 import { redirect } from "react-router-dom";
-import { TasksRoot } from "./components";
-import { TASK_VIEW_CONFIG } from "./views";
+import { TasksRoot } from "./view";
+import { TASK_VIEW_CONFIG } from "./view/config";
 
 export const TASKS_ROUTES: UiNavigationConfigItem = {
   // lazy: lazyImport(() => import('./components/Root')),

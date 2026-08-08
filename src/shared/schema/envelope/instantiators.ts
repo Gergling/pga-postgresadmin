@@ -42,10 +42,11 @@ export class EnvelopeInstance<
   schema: Required<SchemaParams<TCoreSchemas['rich'], TCoreSchemas['serialisation']>>;
   envelope: RichEnvelope<TCoreSchemas['rich']>;
   changes: Partial<z.infer<TCoreSchemas['rich']>>;
-  persistCallback?: (
-    serialised: SerialisationEnvelope<TCoreSchemas['serialisation']>,
-    changes: Partial<z.infer<TCoreSchemas['rich']>>
-  ) => Promise<unknown>;
+  persistCallback?: (params: {
+    changes: Partial<z.infer<TCoreSchemas['rich']>>;
+    rich: RichEnvelope<TCoreSchemas['rich']>;
+    serialised: SerialisationEnvelope<TCoreSchemas['serialisation']>;
+  }) => Promise<unknown>;
 
   constructor(
     { schema, envelope }: EnvelopeConstructorParams<
@@ -149,10 +150,11 @@ export class EnvelopeInstance<
     return this.envelope.id;
   }
 
-  onPersist<T = void>(callback: (
-    serialised: SerialisationEnvelope<TCoreSchemas['serialisation']>,
-    changes: Partial<z.infer<TCoreSchemas['rich']>>
-  ) => Promise<T>) {
+  onPersist<T = void>(callback: (params: {
+    changes: Partial<z.infer<TCoreSchemas['rich']>>;
+    rich: RichEnvelope<TCoreSchemas['rich']>;
+    serialised: SerialisationEnvelope<TCoreSchemas['serialisation']>;
+  }) => Promise<T>) {
     this.persistCallback = callback;
     return this;
   }
@@ -163,7 +165,11 @@ export class EnvelopeInstance<
     );
 
     // Run persistence.
-    const response = await this.persistCallback(this.serialise(), this.changes);
+    const response = await this.persistCallback({
+      changes: this.changes,
+      rich: this.envelope,
+      serialised: this.serialise(),
+    });
 
     // Reset changes after successful persistence.
     this.changes = {};

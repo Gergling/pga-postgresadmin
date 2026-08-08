@@ -8,7 +8,7 @@ export type DropdownOption<T extends string | number = string | number> = {
 }
 
 export type DropdownProps<T extends string | number = string | number> = {
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   onSelect: (value: T) => void;
   options: DropdownOption<T>[];
 } & ({
@@ -61,7 +61,7 @@ export const Dropdown = <T extends string | number = string | number>({
 
   return (
     <>
-      {showSelectedText ?
+      {showSelectedText || !icon ?
         <Button
           aria-controls={open ? 'dropdown-menu' : undefined}
           aria-haspopup="true"
@@ -69,7 +69,7 @@ export const Dropdown = <T extends string | number = string | number>({
           onClick={handleClick}
           startIcon={icon}
         >{selectedOption?.label}</Button>
-      :
+        :
         <IconButton
           onClick={handleClick}
           aria-controls={open ? 'dropdown-menu' : undefined}

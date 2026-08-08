@@ -11,24 +11,24 @@ export interface TextFieldProps extends Omit<MuiFieldProps, 'onChange'> {
   value: string;
 }
 
-export const TextField: React.FC<TextFieldProps> = ({ 
+export const TextField: React.FC<TextFieldProps> = ({
   debounceMs = 1000,
   /**
    * @deprecated Wrap in a Safety component instead.
    */
   editSwitch,
-  isTitle, 
-  onPersist, 
-  value, 
-  ...props 
+  isTitle,
+  onPersist,
+  value,
+  ...props
 }) => {
   const [localValue, setLocalValue] = useState(value);
   const [disabled, setDisabled] = useState(editSwitch);
 
   // Keep local value in sync if the global store changes (e.g., external update)
-  useEffect(() => {
-    setLocalValue(value);
-  }, [value]);
+  // useEffect(() => {
+  //   setLocalValue(value);
+  // }, [value]);
 
   // Create the debounced persistence function
   const debouncedPersist = useCallback(

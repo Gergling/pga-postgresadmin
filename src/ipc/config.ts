@@ -9,7 +9,6 @@ import {
 } from '../main/features/tasks/types';
 import { CrmIpc, CrmIpcAwaited } from '../main/features/crm';
 import { JobSearchIpc, JobSearchIpcAwaited } from '../main/features/job-search';
-import { ProjectsIpc, ProjectsIpcAwaited } from '@/main/features/projects/ipc';
 
 // Minimalist configuration type for the renderer side.
 // IpcInvocationConfigBase really just makes these functions return promises.

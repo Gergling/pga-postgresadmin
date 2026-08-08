@@ -1,7 +1,9 @@
-import { exec } from 'node:child_process';
+import { exec, spawn } from 'node:child_process';
+import readline from 'readline';
 import util from 'node:util';
 import { errorSchema } from '@/shared/schema/error';
 import { LogApi } from '@/main/shared';
+import z from 'zod';
 
 const executeCommand = util.promisify(exec);
 
@@ -64,15 +66,51 @@ export const runGitCommit = (
  * @param cwd Working directory.
  * @returns Promise<Date>
  */
-export const fetchLatestCommitDate = async (cwd: string): Promise<Date> => {
+export const fetchLatestCommitDate = async (cwd: string): Promise<string> => {
   try {
     const { stdout } = await executeCommand(
       'git log -1 --format=%cI',
       { cwd, encoding: 'utf8' }
     );
-    return new Date(stdout.trim());
+    return stdout.trim();
   } catch (error) {
     console.error('Error fetching latest commit date at cwd:', cwd);
     throw error;
   }
 };
+
+const stringSchema = z.string();
+
+export const streamAllCommitDates = <T>(
+  cwd: string, callback: (line: string) => T, { log }: LogApi
+): Promise<void> => log(
+  `Streaming all commit dates: ${cwd}`,
+  async ({ setStatus }) => new Promise((resolve, reject) => {
+    const gitProcess = spawn(
+      'git', ['log', '--all', '--date=iso-strict', '--pretty=format:%ad'], {
+      env: { ...process.env, GIT_PAGER: 'cat', cwd } // Disables scrolling pager safely
+    });
+
+    const reader = readline.createInterface({
+      input: gitProcess.stdout,
+      terminal: false
+    });
+
+    reader.on('line', (line) => {
+      // This triggers instantly for every single date, one by one
+      // console.log('Commit Date found:', line);
+      try {
+        const parsed = stringSchema.parse(line);
+        setStatus('information', parsed);
+        callback(parsed);
+      } catch (e) {
+        reject(e);
+      }
+    });
+
+    gitProcess.on('error', (error) => {
+      reject(error);
+    });
+
+    reader.on('close', () => resolve());
+  }));

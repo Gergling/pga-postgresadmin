@@ -1,28 +1,13 @@
 import z from "zod";
 import { observable } from '@trpc/server/observable';
-import { createCrudConfig, IpcCrudConfig } from "@/main/ipc/utilities";
 import { projectSchema } from "@/shared/features/projects";
-import { tRPC } from "@/main/config";
+import { rpcLog, tRPC } from "@/main/config";
 import { GenerateCommitMessageUpdateProps } from "./types";
 import {
   commitProjectStagedFiles,
   fetchProjectStagedCommitMessage
 } from "./crud";
 import { extractLocalProject, fetchProjectList } from "./extractors";
-import { log } from "@/main/shared";
-
-const projectsIpc = createCrudConfig({
-  create: {
-    commit: commitProjectStagedFiles,
-  },
-  read: {
-    commitMessage: fetchProjectStagedCommitMessage,
-    list: fetchProjectList,
-  },
-});
-
-export type ProjectsIpc = typeof projectsIpc;
-export type ProjectsIpcAwaited = IpcCrudConfig<ProjectsIpc>;
 
 const inputSchema = z.object({
   message: z.string(),
@@ -34,16 +19,18 @@ export const projectsRouter = tRPC.router({
     input: { message, project }
   }) => commitProjectStagedFiles(project, message)),
   fetchLocalStatus: tRPC.procedure.input(z.string()).query(
-    ({ input }) => extractLocalProject(input)
+    ({ input, path }) => rpcLog(
+      { input, path }, (logApi) => extractLocalProject({ name: input, logApi })
+    )
   ),
-  fetchList: tRPC.procedure.query(() => fetchProjectList()),
+  fetchList: tRPC.procedure.query(({ path }) => rpcLog({ path }, fetchProjectList)),
   fetchStagedCommitMessage: tRPC.procedure
     .input(projectSchema)
     .subscription(
-      ({ input: project }) => observable<
+      ({ input: project, path }) => observable<
         GenerateCommitMessageUpdateProps, GenerateCommitMessageUpdateProps
       >((emit) => {
-        log(`RPC(fetchStagedCommitMessage: ${project.name})`, (
+        rpcLog({ input: project.name, path }, (
           logApi
         ) => fetchProjectStagedCommitMessage({ emit, logApi, project }));
       })

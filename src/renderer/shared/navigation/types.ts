@@ -5,6 +5,8 @@ import { LoaderFunction, RouteMatch, RouteObject } from "react-router-dom";
 export type UiNavigationConfigItem<T extends string = string> = {
   element?: React.ComponentType;
   HydrateFallback?: RouteObject['HydrateFallback'];
+  isListView?: boolean;
+  // TODO: Junk it.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   lazy?: () => Promise<{ Component: React.ComponentType<any> }>;
   loader?: LoaderFunction;
@@ -59,7 +61,7 @@ type BreadcrumbNavigationHistoryItemBase = Pick<BreadcrumbNavigationItem, 'label
 type BreadcrumbNavigationHistoryItemHardcoded = BreadcrumbNavigationHistoryItemBase
   & { type?: undefined; };
 export type BreadcrumbNavigationHistoryItemParametric = BreadcrumbNavigationHistoryItemBase & {
-  type: 'task';
+  type: 'task'; // TODO: Check if this is being used... because it probably shouldn't be.
   id: string;
 };
 export type BreadcrumbNavigationHistoryItemLocalStorage =
@@ -83,7 +85,20 @@ export type BreadcrumbActiveNavigationItem = BreadcrumbActiveNavigationItemChild
   children: BreadcrumbActiveNavigationItemChild[];
 };
 
-export type TaskViewConfigName = "proposed" | "quick" | "important" | "abstained" | "awaiting";
+export type TaskListViewConfigName =
+  | "proposed"
+  | "quick"
+  | "important"
+  | "abstained"
+  | "awaiting"
+  ;
+export type TaskDetailViewConfigName =
+  | "new"
+  ;
+export type TaskViewConfigName =
+  | TaskListViewConfigName
+  | TaskDetailViewConfigName;
+;
 
 export type BreadcrumbActiveNavigation = {
   breadcrumbs: BreadcrumbActiveNavigationItem[];

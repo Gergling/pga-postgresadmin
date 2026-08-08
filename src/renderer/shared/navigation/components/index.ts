@@ -2,5 +2,4 @@
 export * from './Breadcrumbs';
 export * from './HydrateFallback';
 export * from './LoadingHistory';
-export * from '../../../views/NavigationProvider';
 export * from './Tabs';

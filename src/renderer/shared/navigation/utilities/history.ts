@@ -1,18 +1,17 @@
 import { QuestionMark } from "@mui/icons-material";
 import { BreadcrumbHistoryRequestItemFunction, BreadcrumbNavigationHistoryItem } from "../types";
-import { NavigationLoadingHistoryIcon } from "../components";
 import { NAVIGATION_HISTORY_KEY_BASE } from "../constants";
 import { RouteMatch } from "react-router-dom";
 
 export const getFallbackHistoryItem = (path: string): BreadcrumbNavigationHistoryItem => ({
   icon: QuestionMark,
-  label: '(Unknown)',
+  label: path.slice(0, 12) + '...',
   status: 'error',
   path,
 });
 
 export const getLoadingHistoryItem = (path: string): BreadcrumbNavigationHistoryItem => ({
-  icon: NavigationLoadingHistoryIcon,
+  icon: QuestionMark,
   label: 'Loading...',
   status: 'request',
   path,

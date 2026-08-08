@@ -3,7 +3,7 @@ import { create } from "zustand";
 import { matchRoutes as matchRoutesBase } from "react-router-dom";
 import { useQueries, UseQueryOptions } from "@tanstack/react-query";
 import { contextFactory } from "@gergling/ui-components";
-import { Optional } from "../../../shared/types";
+import { Optional } from "@/shared/types";
 import {
   BreadcrumbHistoryRequestItemFunction,
   BreadcrumbNavigationHistoryItem,
@@ -51,7 +51,6 @@ const store = create<{
 export const {
   Provider: NavigationRegisterProvider,
   useContextHook: useNavigationRegister,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 } = contextFactory(({ tree }: PropsWithChildren & { tree: UiNavigationItem }) => {
   // Store setup.
   const {

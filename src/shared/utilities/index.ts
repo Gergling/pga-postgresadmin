@@ -1,6 +1,7 @@
 export * from './aggregator';
 export * from './codec';
 export * from './colour';
+export * from './comparison';
 export * from './date';
 export * from './debounce';
 export * from './fallback';

@@ -39,6 +39,10 @@ export const getObjectKeys = <T extends object>(
   obj: T
 ) => Object.keys(obj) as (keyof T)[];
 
+export const getObjectEntries = <T extends object>(
+  obj: T
+) => Object.entries(obj) as [keyof T, T[keyof T]][];
+
 export const reduceObjectChanges = <T extends object>(
   base: T, changes: Partial<T>
 ) => getObjectKeys(base).reduce(

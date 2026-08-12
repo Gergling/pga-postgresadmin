@@ -17,7 +17,9 @@ const DashboardPanel = ({ children, ...props }: GridProps) => {
 };
 
 const seeder = () => Math.random();
-const paragraphs = Array.from({ length: 3 }, () => generateParagraph({ seeder }));
+const paragraphs = Array.from({ length: 3 }, () => generateParagraph({
+  accent: 'scotlon', seeder, weight: { sentenceLength: 4 }
+}));
 
 const PanelContent = (props: PanelDataItem) => {
   switch (props.display) {
@@ -42,7 +44,7 @@ export const HomeRoot = () => {
       )}
     </Grid>
     <Slab>
-      {/* {paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)} */}
+      {paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
     </Slab>
     {/* <EmailSyncPanel /> */}
     <Diary />

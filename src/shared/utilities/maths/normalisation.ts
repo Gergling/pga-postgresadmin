@@ -15,3 +15,9 @@ export const interpolate = (
   const interpolated = outputMinimum + outputScaled;
   return interpolated;
 };
+
+export const boxMullerMagnitude = (seed: number): number => {
+  const value = (seed + Number.MIN_VALUE) % 1;
+  if (value === 0) return boxMullerMagnitude(0);
+  return Math.sqrt(-2.0 * Math.log(value));
+};

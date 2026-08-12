@@ -1,3 +1,5 @@
+import { boxMullerMagnitude } from "./maths";
+
 const characterCategories = {
   vowel: {
     lower: 'aeiouy',
@@ -14,6 +16,24 @@ const characterCategories = {
   number: '²³º¼½¾' + Array.from({ length: 10 }, (_, i) => i).join(''),
 } as const;
 
+const accents = {
+  scotlon: {
+    characters: {
+      a: 'ah',
+      e: 'erh',
+      i: 'ai',
+      m: 'ak',
+      o: 'oh',
+      p: 'v',
+      u: 'uhr',
+      y: 'at',
+    }
+  }
+} as const;
+const noAccent = 'none';
+type NoAccent = typeof noAccent;
+type Accent = NoAccent | keyof typeof accents;
+
 // TODO: Diacritic probability should be maybe 0.01.
 const diacritics = {
   a: 'àáâãäåąæ', e: 'æèéêë', i: 'ìíîï', o: 'ðòóôõö', u: 'ùúûü', y: 'ýÿ',
@@ -21,21 +41,6 @@ const diacritics = {
   c: 'çćĉ', n: 'ñ', s: 'çćĉ',
   C: 'ÇĆĈ', N: 'Ñ', S: 'ÇĆĈ', B: 'ß', D: 'Ð',
 };
-
-const accents = {
-  scotlon: {
-    characters: {
-      a: 'ah',
-      e: 'erh',
-      i: 'ai',
-      o: 'oo',
-      u: 'uhr',
-    }
-  }
-} as const;
-const noAccent = 'none';
-type NoAccent = typeof noAccent;
-type Accent = NoAccent | keyof typeof accents;
 
 // STD could scale.
 // Distribution is right-skewed.
@@ -75,8 +80,12 @@ const seederFactory = (seeder: Seeder) => {
     return floor ? Math.floor(scaled) : scaled;
   };
   const p = (p: keyof typeof PROBABILITIES) => seeder() < PROBABILITIES[p];
+  const boxMullerMag = (m: number, c: number, floor = false) => {
+    const r = (m * boxMullerMagnitude(seeder())) + c;
+    return floor ? Math.floor(r) : r;
+  }
 
-  return { p, scale };
+  return { p, scale, boxMullerMag };
 };
 
 const getCharacters = ({
@@ -89,6 +98,9 @@ const getCharacters = ({
 type BaseProps = {
   accent: Accent;
   seeder: Seeder;
+  weight: {
+    sentenceLength: number | 'social' | 'academic' | 'professional' | 'legal';
+  };
 };
 
 const genP = (seeder: Seeder) => (
@@ -107,7 +119,11 @@ const pickCharacter = (
   const accentedCharacters = accents[accent].characters;
   const accentedCharacter = accentedCharacters[character as keyof typeof accentedCharacters];
 
-  return accentedCharacter ?? character;
+  if (!accentedCharacter) return character;
+
+  if (category.wordCase !== 'upper') return accentedCharacter;
+
+  return accentedCharacter.at(0)?.toUpperCase() + accentedCharacter.slice(1);
 };
 
 const START_WORD = 'word';
@@ -160,7 +176,7 @@ type WordProps = Omit<SyllableProps, 'starts'> & {
 const generateWord = (props: WordProps) => {
   const { seeder } = props;
   const gen = seederFactory(seeder);
-  const totalSyllables = gen.scale(7, true) + 1;
+  const totalSyllables = gen.boxMullerMag(0.5, 1, true);
   const endWithConsonant = gen.p('wordEndsWithConsonant');
   const syllables = Array.from({ length: totalSyllables }, (_, i) => {
     const starts = (i === 0 ? (props.starts ?? 'word') : undefined);
@@ -182,14 +198,29 @@ const generateWord = (props: WordProps) => {
 
 // Sentence length can be mean 4, STD 3, Manchester United Nil.
 
+const getSentenceLength = (weight: BaseProps['weight']['sentenceLength']) => {
+  switch (weight) {
+    case 'social':
+      return 8;
+    case 'professional':
+      return 17.5;
+    case 'academic':
+      return 25;
+    case 'legal':
+      return 50;
+    default:
+      return weight;
+  }
+};
 
-const MAXIMUM_SENTENCE_LENGTH = 20;
+// const MAXIMUM_SENTENCE_LENGTH = 20;
 
 const generateSentence = (props: BaseProps) => {
   const { seeder } = props;
   // Decide the number of words. Possibly from 1 to 20.
   const gen = seederFactory(seeder);
-  const totalWords = gen.scale(MAXIMUM_SENTENCE_LENGTH, true) + 1;
+  const sentenceLength = getSentenceLength(props.weight.sentenceLength);
+  const totalWords = gen.boxMullerMag(sentenceLength, 1, true);
   const isQuestion = gen.p('sentenceIsQuestion');
   // const pHasComma = totalWords === 1 ? 0 : totalWords / (
   //   MAXIMUM_SENTENCE_LENGTH + 1

@@ -28,3 +28,18 @@ export const transformTemplateCompilation = <T extends string = string>(
     new RegExp(options.getKeyParameter(key), 'g'), safeValue
   );
 }, template);
+
+/**
+ * Converts a string into a 32-bit signed integer seed.
+ * Uses a bitwise approach to ensure "abc" and "cba" produce different results.
+ */
+export const stringToSeed = (str: string): number => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+};
+

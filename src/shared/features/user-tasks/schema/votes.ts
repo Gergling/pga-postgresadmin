@@ -6,6 +6,8 @@ import {
   taskImportanceSchema,
   taskMomentumSchema,
   TaskVoteBaseNames,
+  VoteProps,
+  VotePropsName,
 } from "./config";
 
 export type CouncilVotesBase = Record<CouncilMemberNames, TaskVoteBaseNames>;
@@ -28,3 +30,17 @@ export const councilVotesMapSchema = z.object({
   momentum: initialVotes,
 }));
 export type CouncilVotesMap = z.infer<typeof councilVotesMapSchema>;
+
+type VotePropsMap = {
+  [K in VotePropsName]: VoteProps[K][number]['name'];
+}
+export type TaskRanksMap = {
+  [K in VotePropsName]: Record<VotePropsMap[K], number>;
+}
+export type TaskRanks<PropsName extends VotePropsName> = TaskRanksMap[PropsName];
+
+export type TaskImportance = VotePropsMap['importance'];
+export type TaskMomentum = VotePropsMap['momentum'];
+
+export type CouncilVotes<T extends TaskImportance | TaskMomentum> = Record<CouncilMemberNames, T | TaskVoteBaseNames>;
+

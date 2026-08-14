@@ -4,6 +4,7 @@ import {
   EnvelopeInstance,
 } from "@/shared/schema";
 import {
+  CouncilMemberNames,
   TaskRich,
   taskRichSchema,
   TaskSerialisation,
@@ -14,6 +15,7 @@ import { reduceFsm } from "./fsm";
 import { getVoteSummary } from "./votes-task";
 import { codec } from "@/shared/utilities";
 import { taskTimelineCodec } from "./timeline";
+import { PRIORITY_COUNCILLOR_VOTING_OPINION_ORDER } from "../constants";
 
 const taskEnvelopeCodec = envelopeCodecFactory(
   taskSerialisationSchema, taskRichSchema
@@ -47,6 +49,13 @@ export class Task extends EnvelopeInstance<Props['base']> {
   }
   get voteSummary() {
     return getVoteSummary(this.envelope);
+  }
+  get nextVoteCouncillor(): CouncilMemberNames | undefined {
+    return PRIORITY_COUNCILLOR_VOTING_OPINION_ORDER.find(
+      (councillor) => this.voteSummary.council.map[
+        councillor
+      ].summary.awaiting > 0
+    );
   }
 }
 

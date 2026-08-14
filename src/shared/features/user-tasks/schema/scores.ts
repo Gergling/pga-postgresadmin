@@ -19,10 +19,7 @@ export const atomicVoteValueMapSchema = z.object({
   [votePropsNameSchema.enum.momentum]: taskMomentumSchema,
 });
 export type AtomicVoteValueMap = z.infer<typeof atomicVoteValueMapSchema>;
-// export type AtomicVoteValueMap = {
-//   importance: TaskImportance;
-//   momentum: TaskMomentum;
-// };
+
 const atomicVoteValueSummarySchema = z.union([taskVoteBaseSummarySchema, z.number()]);
 export type AtomicVoteValueSummary = z.infer<typeof atomicVoteValueSummarySchema>;
 const atomicVoteValueBaseSchema = z.object({
@@ -30,7 +27,7 @@ const atomicVoteValueBaseSchema = z.object({
   rank: z.number().optional(),
   summary: atomicVoteValueSummarySchema,
 });
-// type AtomicVoteValueBase = z.infer<typeof atomicVoteValueBaseSchema>;
+
 const atomicVoteValueSchemaFactory = <T extends VotePropsName>(
   voteProp: T
 ) => atomicVoteValueBaseSchema.extend({
@@ -39,13 +36,7 @@ const atomicVoteValueSchemaFactory = <T extends VotePropsName>(
 export type AtomicVoteValue<T extends VotePropsName> = z.infer<
   ReturnType<typeof atomicVoteValueSchemaFactory<T>>
 >;
-// export type AtomicVoteValue<T extends VotePropsName> = {
-//   echo: boolean;
-//   rank: number | undefined; // Will be undefined if vote is indecisive and
-//   // echo is undefined. Should appear "ghosted" if vote is indecisive but echo is not.
-//   summary: AtomicVoteValueSummary;
-//   voteProp: T;
-// };
+
 const atomicVoteFactory = <T extends VotePropsName>(
   voteProp: T,
   member: CouncilMemberNames,
@@ -64,14 +55,9 @@ const x = votePropsNameSchema.options.reduce(
   [],
 );
 
-// const atomicVotesSchema = z.array();
-
 export type AtomicVote<T extends VotePropsName = VotePropsName> = z.infer<
   ReturnType<typeof atomicVoteFactory<T>>
 >;
-// export type AtomicVote<T extends VotePropsName = VotePropsName> = {
-//   member: CouncilMemberNames;
-// } & AtomicVoteValue<T>;
 
 // Councillor
 export type CouncilMemberAtomisedVotes = {
@@ -86,10 +72,9 @@ const councilMemberAtomisedVotes = z.object(
     };
   }, {} as CouncilMemberAtomisedVotes)
 );
-// export type CouncilMemberAtomisedVotes2 = z.infer<typeof councilMemberAtomisedVotes>;
-
 
 export type CouncilMemberVoteValue = {
+  awaiting: number;
   echoes: boolean[];
   values: AtomicVoteValueSummary[];
 };

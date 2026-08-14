@@ -44,18 +44,21 @@ export const getCouncilMemberVoteValue = (
   atomised: CouncilMemberAtomisedVotes
 ): CouncilMemberVoteValue => {
   const {
+    awaiting,
+    echoes,
     summaries,
-    echoes
   } = TASK_VOTE_PROPS.reduce(
-    ({ echoes, summaries }, voteProp) => {
+    ({ awaiting, echoes, summaries }, voteProp) => {
       const atom = atomised[voteProp];
       const { echo, summary } = atom;
       return {
-        summaries: [...summaries, summary],
+        awaiting: (summary === '?' ? 1 : 0) + awaiting,
         echoes: [...echoes, echo],
+        summaries: [...summaries, summary],
       };
     },
     {
+      awaiting: 0,
       echoes: [] as boolean[],
       summaries: [] as AtomicVoteValueSummary[],
     },
@@ -63,6 +66,7 @@ export const getCouncilMemberVoteValue = (
   const values = getCouncilMemberSummary(summaries);
 
   return {
+    awaiting,
     echoes,
     values,
   };

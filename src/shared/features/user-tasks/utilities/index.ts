@@ -1,3 +1,4 @@
+export * from './comparison';
 export * from './instantiate';
 export * from './votes-atomic';
 export * from './votes-council';

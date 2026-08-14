@@ -1,18 +1,17 @@
+import { getObjectKeys } from "@/shared/utilities";
 import {
+  CouncilMemberNames,
   TASK_IMPORTANCE,
   TASK_MOMENTUM,
   TASK_VOTE_BASE,
   TaskImportance,
   TaskMomentum,
-  VOTE_PROPS
-} from "./schema/config";
-import { WorkflowFsm } from "./types";
-import {
   TaskRanksMap,
   TaskVoteBaseNames,
   TaskVoteBaseSummaryMap,
-  VotePropsName
-} from "./types/votes";
+  VOTE_PROPS
+} from "./schema";
+import { WorkflowFsm } from "./types";
 
 export const {
   TASK_IMPORTANCE_RANKS,
@@ -62,7 +61,11 @@ export const {
   }
 );
 
-export const TASK_VOTE_PROPS = Object.keys(VOTE_PROPS) as VotePropsName[];
+export const TASK_MEAN_RANKS_MAXIMUM = (
+  TASK_IMPORTANCE_RANKS_MAXIMUM + TASK_MOMENTUM_RANKS_MAXIMUM
+) / 2;
+
+export const TASK_VOTE_PROPS = getObjectKeys(VOTE_PROPS);
 
 export const TASK_IMPORTANCE_NAMES: TaskImportance[] = TASK_IMPORTANCE.map(({ name }) => name);
 
@@ -99,3 +102,17 @@ export const TASK_FSM: WorkflowFsm = {
     finalize: 'done',
   },
 };
+
+// This is just the council computing priority list.
+export const PRIORITY_COUNCILLOR_VOTING_OPINION_ORDER: CouncilMemberNames[] = [
+  "librarian", // Librarian should always "triage" any LLM work, handling the
+  // smallest and simplest prompt.
+  "guardian", // Health leads all as an underlying productivity dependency.
+  "philosopher", // The holistic perspective.
+  "architect", // Space and tooling are a leading productivity dependency.
+  "strategist", // Finances and career are dependencies in the long and short
+  // term.
+  "diplomat", // Good social interactions can multiply health.
+  "sceptic", // If we've got all that, time to start checking for holes.
+];
+

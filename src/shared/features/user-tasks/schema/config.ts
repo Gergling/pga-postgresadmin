@@ -1,4 +1,5 @@
 import z from "zod";
+import { getObjectKeys } from "@/shared/utilities";
 
 export const TASK_VOTE_BASE = [
   { name: 'Awaiting', description: 'Awaiting a vote.', summary: '?' },
@@ -8,6 +9,10 @@ export const taskVoteBaseNameSchema = z.enum(TASK_VOTE_BASE.map(({ name }) => na
 export type TaskVoteBaseNames = z.infer<typeof taskVoteBaseNameSchema>;
 export const taskVoteBaseSummarySchema = z.enum(TASK_VOTE_BASE.map(({ summary }) => summary));
 export type TaskVoteBaseSummary = z.infer<typeof taskVoteBaseSummarySchema>;
+type TaskVoteBase = typeof TASK_VOTE_BASE[number];
+export type TaskVoteBaseSummaryMap = {
+  [K in TaskVoteBase as K['name']]: K['summary'];
+};
 
 export const TASK_IMPORTANCE = [
   { name: 'Regressive', description: 'Actively damaging; inaction is better than action. Examples: Self-harm, bad habits, or bridges being burnt.' },
@@ -59,7 +64,20 @@ export const VOTE_PROPS = {
   importance: TASK_IMPORTANCE,
   momentum: TASK_MOMENTUM,
 } as const;
-export type VotePropsName = keyof typeof VOTE_PROPS;
+export type VoteProps = typeof VOTE_PROPS;
 export const votePropsNameSchema = z.enum(
-  Object.keys(VOTE_PROPS) as VotePropsName[]
+  getObjectKeys(VOTE_PROPS)
 );
+export type VotePropsName = keyof VoteProps;
+
+export const voteResponseSchema = z.object({
+  [votePropsNameSchema.enum.importance]: z.object({
+    reasoning: z.string(),
+    value: taskImportanceSchema,
+  }),
+  [votePropsNameSchema.enum.momentum]: z.object({
+    reasoning: z.string(),
+    value: taskMomentumSchema,
+  }),
+});
+export type VoteResponse = z.infer<typeof voteResponseSchema>;

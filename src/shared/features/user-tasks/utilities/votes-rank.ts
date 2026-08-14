@@ -1,5 +1,5 @@
 import { TASK_IMPORTANCE_RANKS, TASK_MOMENTUM_RANKS } from "../constants";
-import { TaskRanks, TaskRanksMap, VotePropsName } from "../types";
+import { TaskRanks, TaskRanksMap, VotePropsName } from "../schema";
 
 const taskRankMap: TaskRanksMap = {
   importance: TASK_IMPORTANCE_RANKS,

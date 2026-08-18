@@ -10,7 +10,7 @@ export type BandConfig = {
 const createBandConfig = <
   T extends Record<string, number>
 >(config: T): BandConfig[] => {
-  const { bands } = Object.entries(config).reduce(
+  const { bands } = Object.entries(config).sort((a, b) => a[1] - b[1]).reduce(
     (acc, [color, maximum]) => ({
       ...acc,
       previous: maximum,

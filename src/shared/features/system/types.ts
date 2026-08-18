@@ -1,4 +1,4 @@
-import { MathsStatisticsSpread } from "@/shared/types";
+import { MathsStatisticsSpread } from "@/shared/utilities";
 import { SystemComputeColor } from "./config";
 
 export type SystemCpuUsageState = number[];
@@ -34,4 +34,11 @@ export type SystemCheckResponse = {
     // values: SystemComputeColor[];
     // range: SystemComputeColor[];
   };
+};
+
+export type CpuSnapshot = { idle: number; total: number; };
+export type DeltaSnapshot = CpuSnapshot & { free: number; usage: number; };
+export type ReduceCpuUsageState = {
+  lastSnapshot?: CpuSnapshot;
+  delta: DeltaSnapshot[];
 };

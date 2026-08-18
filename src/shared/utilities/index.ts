@@ -1,4 +1,4 @@
-export * from './aggregator';
+export * from './aggregation';
 export * from './codec';
 export * from './colour';
 export * from './comparison';

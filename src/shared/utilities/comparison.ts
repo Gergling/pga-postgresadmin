@@ -12,6 +12,10 @@ export const comparatorFactory = <T>() => {
     return ascComparator(b, a);
   };
 
+  const rank = (
+    ranking: T[],
+  ): SpecialComparator => (a, b) => ranking.indexOf(a) - ranking.indexOf(b);
+
   const stack = (
     comparators: SpecialComparator[]
   ): SpecialComparator => (a, b) => {
@@ -22,5 +26,5 @@ export const comparatorFactory = <T>() => {
     return 0;
   };
 
-  return { create, flip, stack };
+  return { create, flip, rank, stack };
 };

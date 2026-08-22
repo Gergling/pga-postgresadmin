@@ -31,7 +31,7 @@ const errorObjectSchemas = createErrorConfig([
       cause: 'unknown',
       operation: syscall ?? '',
       raw: e,
-      scope: { type: 'unknown' },
+      scope: { type: 'unknown', typeof: typeof e },
       text: `An uncategorised error occurred: ${code} (${errno})`
     })
   },
@@ -47,7 +47,7 @@ export const transformObjectError = (error: object): GeneralError => {
     cause: 'unknown',
     operation: 'unknown',
     raw: error,
-    scope: { type: 'unknown' },
+    scope: { type: 'unknown', typeof: typeof error },
     text: `An uncategorised object error occurred: ${JSON.stringify(error)}`,
   };
 }

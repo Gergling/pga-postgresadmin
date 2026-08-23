@@ -23,7 +23,6 @@ export type LanguageModelResponseSchemaSuccess<T> = z.infer<
 const LanguageModelResponseSchemaRetryableExtension = z.object({
   ...LanguageModelResponseSchemaRetryTimeoutExtension.shape,
   canRetry: z.literal(true),
-  // retryTimeout: z.number().optional(),
   status: z.union([
     z.literal('rate-limitations').describe(
       'Model access was rate-limited (e.g. 429).'

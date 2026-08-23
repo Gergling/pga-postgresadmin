@@ -1,4 +1,5 @@
 import z from "zod";
+import { LlmCoreIdentifier, LlmCorePriority } from "./core";
 
 export type LanguageModelTransformFunctionParamsDefault = {
   response: string;
@@ -8,10 +9,10 @@ export type LanguageModelTransformFunctionParams<T> = LanguageModelTransformFunc
   schema?: z.ZodType<T>;
 };
 
-export type LanguageModelProps = {
-  local: boolean;
-  name: string;
-  source: string;
+export type LanguageModelProps = LlmCoreIdentifier & {
+  local: boolean; // TBH this is the only other thing we can reliably deduce and
+  // use, so...
+  priority?: LlmCorePriority;
   temperature?: number;
   thinking?: boolean;
   tokenLimits: {
@@ -19,8 +20,3 @@ export type LanguageModelProps = {
     output?: number;
   };
 };
-
-export type LanguageModelListFunction<T> = (
-  preferred: string[],
-  excluded: string[],
-) => Promise<T>;

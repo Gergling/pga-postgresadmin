@@ -1,8 +1,11 @@
-// Probably belongs in shared
 import { Optional } from "../../../shared/types";
 import { CHANNEL_SUBSCRIBE_TO_RITUAL_TELEMETRY } from "../../../shared/channels";
 import { RitualTelemetrySubscriptionParams } from "../../../shared/features/ai";
-import { getVessel } from "../../shared/vessel";
+import { getVessel } from "@/main/shared/vessel";
+import { tRPC } from "@/main/config";
+import {
+  llmListOperationSummaries,
+} from "@/main/shared/llm/crud";
 
 /**
  * @deprecated Use tRPC.procedure.subscription instead.
@@ -15,7 +18,7 @@ export const setupRitualTelemetryHandler = (ipcMain: Electron.IpcMain) => {
   ) => {
     // console.log("Renderer has requested Ritual Telemetry subscription.");
 
-    return { status: 'success' }; 
+    return { status: 'success' };
   });
 };
 
@@ -50,12 +53,20 @@ export const setupRitualTelemetrySubscription = (
 export const emitRitualTelemetry = (payload: Optional<RitualTelemetrySubscriptionParams, 'timestamp'>) => {
   const timestamp = Date.now()
   const vessel = getVessel();
-  
+
   if (!vessel) {
     console.warn("Ritual Telemetry failed: No vessel registered.");
     return;
   }
-  
+
   // The broadcast
   vessel.webContents.send(CHANNEL_SUBSCRIBE_TO_RITUAL_TELEMETRY, { timestamp, ...payload });
 };
+
+export const aiRouter = tRPC.router({
+  /**
+   * @deprecated Use readOperationSummaries.
+   */
+  readLeadingModels: tRPC.procedure.query(llmListOperationSummaries),
+  readOperationSummaries: tRPC.procedure.query(llmListOperationSummaries),
+});

@@ -3,7 +3,9 @@ export const SYSTEM_COMPUTE_COLOR_ORDER = [
 ] as const;
 export type SystemComputeColor = typeof SYSTEM_COMPUTE_COLOR_ORDER[number];
 
-type BandConfig = { color: SystemComputeColor; minimum: number; maximum: number; };
+type BandConfig = {
+  color: SystemComputeColor; minimum: number; maximum: number;
+};
 
 const createBandConfig = <
   T extends Record<string, number>

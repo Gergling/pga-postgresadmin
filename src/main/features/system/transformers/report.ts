@@ -3,9 +3,11 @@ import { getComputeBand, getSystemBands } from "@/shared/features/system";
 import { ANSI_COLOUR_MAP, AnsiColourCode, log } from "@/main/shared";
 import {
   getCpuUsage,
-  getTrendingFreeMemory
+  getTrendingFreeMemory,
+  getTrendingMemoryUsage
 } from "../extractors";
 import { SYSTEM_COMPUTE_COLOR_ORDER, SystemComputeColor } from "../config";
+import * as os from 'node:os';
 
 const data: { compute: SystemComputeColor[]; } = {
   compute: [],
@@ -51,9 +53,11 @@ const getComputeMessage = (
 
 const tick = async () => {
   const cpu = getCpuUsage();
-  const memory = getTrendingFreeMemory();
-  const { compute: band, cpu: cpuBand, memory: memoryBand } = getSystemBands(cpu, memory);
-  // console.log(cpu, cpuBand, memory, memoryBand)
+  const memory = getTrendingMemoryUsage();
+  const {
+    compute: band, cpu: cpuBand, memory: memoryBand
+  } = getSystemBands(cpu, memory);
+  // console.log(cpu, cpuBand, memory, memoryBand, os.cpus())
   const previous = data.compute.length
     ? medianDiscrete(data.compute, SYSTEM_COMPUTE_COLOR_ORDER)
     : undefined;

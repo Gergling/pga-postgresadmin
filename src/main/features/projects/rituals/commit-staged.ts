@@ -1,22 +1,23 @@
-import task from 'tasuku';
 import { runLanguageModel } from '@/main/features/ai';
 import {
-  CONVENTIONAL_COMMIT_MESSAGE_SCHEMA, Project
+  CONVENTIONAL_COMMIT_MESSAGE_SCHEMA, getProjectOperationCode, Project
 } from "@/shared/features/projects";
 import { GenerateCommitMessageUpdateEmitter } from "../types";
 import { LogApi } from "@/main/shared";
 
+const operationCode = getProjectOperationCode('staged-commit-message');
+
 export const generateCommitMessage = async (
   project: Project, prompt: string, emit: GenerateCommitMessageUpdateEmitter,
-  logApi: LogApi
+  { log }: LogApi
 ): Promise<void> => {
   // TODO: Might want to prioritise models/gemini-2.5-pro or
   // skip models/gemini-2.5-flash
-  const { state } = await task(
-    'Generate commit message', async ({ setError, task }) => {
+  const state = await log(
+    'Generate commit message', async (logApi) => {
       try {
-        await runLanguageModel(
-          prompt, task, (props) => {
+        return runLanguageModel(
+          prompt, operationCode, logApi, (props) => {
             const emission = { ...props, project };
 
             // If it's failed, it won't try again for whatever reason.
@@ -29,17 +30,22 @@ export const generateCommitMessage = async (
             emit.next(emission);
 
             if (props.payload.status === 'success') emit.complete();
-          }, { schema: CONVENTIONAL_COMMIT_MESSAGE_SCHEMA }
+          },
+          {
+            retryOnStringResponse: true,
+            schema: CONVENTIONAL_COMMIT_MESSAGE_SCHEMA,
+          }
         );
       } catch (e) {
         const error = e instanceof Error
           ? e
           : new Error('An unknown error occurred.');
-        setError(error);
+        logApi.setStatus('error', error);
+
         throw error;
       }
     }
   );
 
-  if (state === 'success') return emit.complete();
+  // if (state === 'success') return emit.complete();
 };

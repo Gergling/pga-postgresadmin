@@ -1,6 +1,10 @@
 import * as os from 'node:os';
 import { mathsStatisticsSpread, mean, median, wait } from "@/shared/utilities";
-import { summariseCpuUsage } from "../utilities";
+import {
+  reduceCpuUsage,
+  ReduceCpuUsageState,
+  summariseCpuUsage
+} from '@/shared/features/system';
 
 /**
  * This construct sits as a singleton keeping a history of CPU usage data in
@@ -9,8 +13,12 @@ import { summariseCpuUsage } from "../utilities";
 const data: {
   started: boolean;
   usage: number[];
+  state: ReduceCpuUsageState
 } = {
   started: false,
+  state: {
+    delta: [],
+  },
   usage: [],
 };
 
@@ -32,6 +40,7 @@ const tick = async () => {
    * We add the current CPU usage to the end of the array, but only keep the
    * last entries. This is to make sure we aren't leaking.
    */
+  data.state = reduceCpuUsage(data.state, os.cpus());
   data.usage = [...data.usage, getCpuUsageSnapshot()].slice(-MAXIMUM_TICKS);
   /**
    * Wait a second...

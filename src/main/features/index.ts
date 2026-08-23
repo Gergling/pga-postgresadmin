@@ -1,3 +1,4 @@
+export * from './ai';
 export * from './cli';
 export * from './diary';
 export * from './environment';

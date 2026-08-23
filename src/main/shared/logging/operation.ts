@@ -22,11 +22,12 @@ export type LogParent = <T extends unknown | void>(
 ) => Promise<T>;
 
 export type LogApi = {
+  getRuntime: () => number,
   log: LogParent;
   operation: LogOperationState;
   setMessage: (message: string | string[] | object) => void;
   setStatus: (
-    status: Exclude<TaskStatus, 'error' | 'success'>,
+    status: Exclude<TaskStatus, 'success'>,
     message?: string | string[] | object
   ) => void;
 };
@@ -48,6 +49,10 @@ export const log: LogParent = async <T>(
 
   print(code);
 
+  const getRuntime = (): number => {
+    if (operation.duration !== undefined) return operation.duration;
+    return new Date().getTime() - new Date(operation.start).getTime();
+  }
   const logWrapper: LogParent = <U extends unknown | void>(
     title: string, callback: LogChild<U>, options?: LogOptions
   ) => log<U>(title, callback, { parentCode: code, ...options });
@@ -62,7 +67,7 @@ export const log: LogParent = async <T>(
 
   try {
     const result = await callback({
-      log: logWrapper, operation, setMessage, setStatus
+      getRuntime, log: logWrapper, operation, setMessage, setStatus
     });
     const completedOperation = getOperation(code);
     const status = completedOperation.status === 'awaiting'

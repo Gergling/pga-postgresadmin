@@ -18,6 +18,7 @@ export type LogOperationState = {
   start: string;
   updated?: string;
   end?: string;
+  duration?: number;
 
   // Summary metadata
   summary: {
@@ -145,6 +146,8 @@ export const updateOperation = (code: string, options: UpdateOperationOptionPara
     updatedOperation.updated = getIsoDateTimeString();
   } else {
     updatedOperation.end = getIsoDateTimeString();
+    // TODO: Ideally test for timezone wibble.
+    updatedOperation.duration = new Date(updatedOperation.end).getTime() - new Date(updatedOperation.start).getTime();
   }
 
   state.operations.set(code, updatedOperation);
@@ -196,7 +199,7 @@ export const getOperationSummary = (code: string = ROOT_CODE): LogOperationState
 
       // Otherwise, we only want to show operations that have a message,
       // or are not successful. This can include information
-      return node?.summary.showChildren || op.status !== 'success'
+      return node?.summary.showChildren || op.status !== 'success';
     }
   );
   const initial = node ? [node] : [];

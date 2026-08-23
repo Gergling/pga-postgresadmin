@@ -1,6 +1,8 @@
 import { Optional } from "../../../shared/types";
 import { LoaderFunction, RouteMatch, RouteObject } from "react-router-dom";
 
+export type PathVisits = Record<string, number>;
+
 // Navigation config base
 export type UiNavigationConfigItem<T extends string = string> = {
   element?: React.ComponentType;

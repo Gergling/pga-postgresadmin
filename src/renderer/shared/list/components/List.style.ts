@@ -43,6 +43,7 @@ export const ListItem = styled.div<{
     },
     // First child of the item is used as the guide for the decor.
     '& > :first-child': {
+      position: 'relative',
       '& > :first-child': {
         position: 'relative',
 
@@ -68,7 +69,7 @@ export const ListItem = styled.div<{
 
       // That involves assigning it to the first child of the last child.
       '& > :first-child': {
-        position: 'relative',
+        // position: 'relative',
         '&:before': {
           ...verticalDecor(color, thickness, width),
           bottom: '50%',

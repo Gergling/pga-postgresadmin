@@ -1,38 +1,56 @@
 import { useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useNavigationRegister } from '../context';
-import { BreadcrumbNavigationHistoryItem } from '../types';
+import { BreadcrumbNavigationHistoryItem, PathVisits } from '../types';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { addVisitReducer, getDisplayedPaths, getFrequentPaths } from '../utilities';
+import { NAVIGATION_HISTORY_MAXIMUM_FREQUENCY } from '../constants';
 
 // Abstractable
 const NAVIGATION_HISTORY_STORE_KEY = 'navigationHistory';
 
-const getFrequentPaths = (
-  history: string[],
-) => {
-  const frequency = history.reduce((acc, path) => ({
-    ...acc,
-    [path]: (acc[path] || 0) + 1,
-  }), {} as Record<string, number>);
-  const mostFrequentPaths = Object
-    .entries(frequency)
-    .map(([path, frequency]) => ({ path, frequency }))
-    .sort((a, b) => b.frequency - a.frequency)
-    .map(({ path }) => path)
-    .slice(0, 5)
-  ;
-  return mostFrequentPaths;
-};
+// WHAT IF we "map" (record, cos serialisation) to a path an incremented number.
+// We visit once, and it is set to 1. If it already exists, we increment.
+// Recent visits: We count the number of items with a minimum of 1.
+// Total visits: We sum the number of visits across all items.
+// Overflow: Total visits - MAXIMUM_FREQUENCY + (DISPLAYED_HISTORY * 2).
+// After adding, if overflow > DISPLAYED_HISTORY, we should run a cutback.
+// First of all, anything beyond an index of DISPLAYED_HISTORY with < 0 visits is deleted.
+// Second, decrement every item by 1.
+
+// Items are still ordered by frequency.
 
 const store = create<{
   history: string[];
   addHistory: (pathname: string) => void;
+  visits: PathVisits;
+  displayed: string[];
+  addVisit: (pathname: string) => void;
 }>()(persist((set) => ({
+  displayed: [],
   history: [],
-  addHistory: (pathname) => set((state) => ({
-    history: [pathname, ...state.history],
-  })),
+  visits: {},
+  /**
+   * @deprecated Use addVisit.
+   * @param pathname 
+   * @returns 
+   */
+  addHistory: (pathname) => set((state) => {
+    const visits = addVisitReducer(state.visits, pathname);
+    const displayed = getDisplayedPaths(visits);
+    return {
+      displayed,
+      // TODO: Ideally needs a system for keeping the first DISPLAYED_HISTORY unique paths as well.
+      history: [pathname, ...state.history].slice(0, NAVIGATION_HISTORY_MAXIMUM_FREQUENCY),
+      visits,
+    };
+  }),
+  addVisit: (pathname) => set((state) => {
+    const visits = addVisitReducer(state.visits, pathname);
+    const displayed = getDisplayedPaths(visits);
+    return { displayed, visits };
+  }),
 }), {
   name: NAVIGATION_HISTORY_STORE_KEY, // Key in LocalStorage
 }));
@@ -42,21 +60,16 @@ const store = create<{
 export const useNavigationHistory = () => {
   const { pathname } = useLocation();
   const { map, loading } = useNavigationRegister();
-  const { history, addHistory } = store();
+  const { addHistory, displayed } = store();
 
-  const frequent = useMemo(
-    () => getFrequentPaths(history),
-    [history]
-  );
-
-  const { items, readyPaths } = useMemo(() => frequent.reduce<{
+  const { items, readyPaths } = useMemo(() => displayed.reduce<{
     items: BreadcrumbNavigationHistoryItem[],
     readyPaths: string[]
   }>((acc, path) => {
     const item = map[path];
     if (item) return { ...acc, items: [...acc.items, item] };
     return { ...acc, readyPaths: [...acc.readyPaths, path] };
-  }, { items: [], readyPaths: [] }), [frequent, map]);
+  }, { items: [], readyPaths: [] }), [displayed, map]);
 
   useEffect(() => {
     addHistory(pathname);

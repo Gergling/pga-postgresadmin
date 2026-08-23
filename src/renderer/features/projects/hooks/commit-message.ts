@@ -35,11 +35,13 @@ export const useCommitMessage = (
   useEffect(() => {
     if (subscription.data) {
       const { data } = subscription;
-      const { attempts, payload, project, retryTimeout } = data;
+      const { attempts, llm, payload, project, retryTimeout } = data;
 
-      const contentMessage = [
+      const attemptMessage = [
         `Attempt ${attempts.current} of ${attempts.maximum}: ${payload.status}.`,
-        `${(Math.round(retryTimeout / 100) / 10)}s to retry.`
+        `${(Math.round(retryTimeout / 100) / 10)}s to retry.`,
+        `Using ${llm.name} ${llm.source}`,
+        `${attempts.current === 1 ? 'experimentally' : 'for stability'}.`,
       ].join(' ');
 
       // On failure or success, we update the store to say as much.
@@ -54,14 +56,14 @@ export const useCommitMessage = (
       if (payload.status === 'failed') {
         pushMessage({
           content: [
-            contentMessage,
+            attemptMessage,
             payload.message,
             '(This could do with a component)'
           ].join(' '),
         });
       } else {
         pushMessage({
-          content: contentMessage,
+          content: attemptMessage,
         });
       }
 
@@ -71,6 +73,9 @@ export const useCommitMessage = (
         // Responses can be a string, but shouldn't be.
         if (typeof commitMessage === 'string') {
           console.error('WTF just happened?', data)
+          pushMessage({
+            content: 'Commit message was a string. That is bad.',
+          });
           return;
         }
         pushMessage({
@@ -88,7 +93,12 @@ export const useCommitMessage = (
       }
     }
 
-    if (subscription.error) console.error('Commit message subscription error', subscription.error);
+    if (subscription.error) {
+      console.error('Commit message subscription error', subscription.error);
+      pushMessage({
+        content: `Commit message subscription error: ${subscription.error.message}`,
+      });
+    }
   }, [subscription]);
 
   useEffect(() => {

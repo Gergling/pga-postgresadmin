@@ -6,12 +6,7 @@ import {
   startOperation,
   updateOperation
 } from "./state";
-
-type LogOptions = {
-  debug?: boolean;
-  parentCode?: string;
-  showSummaryChildren?: boolean;
-};
+import { LogOptions } from "./types";
 
 type LogChild<T extends unknown | void> = (props: LogApi) => Promise<T>;
 
@@ -25,6 +20,7 @@ export type LogApi = {
   getRuntime: () => number,
   log: LogParent;
   operation: LogOperationState;
+  options: LogOptions | undefined;
   setMessage: (message: string | string[] | object) => void;
   setStatus: (
     status: Exclude<TaskStatus, 'success'>,
@@ -39,6 +35,7 @@ export const log: LogParent = async <T>(
   const code = startOperation(options?.parentCode, title, {
     debug: options?.debug,
     showSummaryChildren: options?.showSummaryChildren,
+    showSummary: options?.showSummary,
   });
 
   if (!callback) {
@@ -67,7 +64,7 @@ export const log: LogParent = async <T>(
 
   try {
     const result = await callback({
-      getRuntime, log: logWrapper, operation, setMessage, setStatus
+      getRuntime, log: logWrapper, operation, options, setMessage, setStatus
     });
     const completedOperation = getOperation(code);
     const status = completedOperation.status === 'awaiting'

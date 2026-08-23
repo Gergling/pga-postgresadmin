@@ -1,6 +1,7 @@
 import { getIsoDateTimeString } from "@/shared/utilities";
 import { INDENT, TaskStatus } from "./config";
 import { getCode, shouldPropagateStatus } from "./utilities";
+import { LogOptions } from "./types";
 
 export type LogOperationState = {
   // Metadata
@@ -24,6 +25,7 @@ export type LogOperationState = {
   summary: {
     debug: boolean;
     showChildren: boolean;
+    suppress: boolean;
   };
 };
 
@@ -61,10 +63,7 @@ const createCode = () => {
 };
 
 export const startOperation = (
-  parentCode: string = ROOT_CODE, title: string, options: {
-    debug?: boolean;
-    showSummaryChildren?: boolean;
-  }
+  parentCode: string = ROOT_CODE, title: string, options: LogOptions
 ) => {
   const code = createCode();
   const existing = state.operations.get(code);
@@ -83,9 +82,11 @@ export const startOperation = (
     parent: parentCode,
     summary: {
       debug: options.debug ?? parentOperation?.summary.debug ?? false,
-      showChildren: options.showSummaryChildren
+      showChildren: !!options.showSummary
+        || options.showSummaryChildren
         ?? parentOperation?.summary.showChildren
         ?? false,
+      suppress: options.showSummary === false,
     },
     start: getIsoDateTimeString(),
     status: 'awaiting',
@@ -160,7 +161,7 @@ export const updateOperation = (code: string, options: UpdateOperationOptionPara
   // After the timeout completes, compare to the previous state.
   // If the state hasn't changed, we run the summary print.
   setTimeout(() => {
-    if (state.clean) return;
+    if (state.clean || operation.summary.suppress) return;
     state.clean = true;
     state.summaryHook();
   }, 2000);

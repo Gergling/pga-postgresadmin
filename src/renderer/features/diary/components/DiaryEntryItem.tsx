@@ -17,9 +17,10 @@ import {
 import { useDiary } from "../context";
 
 export const DiaryEntryItem = ({
-  entry: { created, data: { status, text }, id }
+  entry
 }: { entry: DiaryEntryRich; }) => {
-  const { commitDiaryEntry, rejectDiaryEntry } = useDiary();
+  const { created, data: { status, text }, id } = entry;
+  const { commitDiaryEntry } = useDiary();
 
   const isLocked = useMemo(
     () => status === 'processing' || status === 'processed',
@@ -51,12 +52,14 @@ export const DiaryEntryItem = ({
           <StyledControls>
             {!isLocked && (
               <>
-                <StyledButton onClick={() => commitDiaryEntry(id)}>
+                <StyledButton onClick={() => commitDiaryEntry(entry)}>
                   Commit
                 </StyledButton>
 
-                <StyledButton onClick={() => rejectDiaryEntry(id)}>
-                  Reject
+                <StyledButton>
+                  <s>
+                    Reject
+                  </s>
                 </StyledButton>
               </>
             )}

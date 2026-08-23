@@ -14,6 +14,8 @@ import {
   useDiaryEntryList,
 } from './hooks';
 import { getConvergenceSummary } from './utilities';
+import { trpcReact } from '@/renderer/libs/react-query';
+import { DiaryEntryRich } from '@/shared/features/diary';
 
 const store = create<{
   isListFetchingEnabled: boolean;
@@ -51,6 +53,14 @@ const context = contextFactory((_: PropsWithChildren) => {
   //   rejectDiaryEntry,
   //   triageTasks,
   // } = useDiaryIpc(drawer.isListFetchingEnabled);
+  const {
+    mutateAsync: updateDiaryEntry,
+  } = trpcReact.diary.update.useMutation();
+  const commitDiaryEntry = useCallback(async (
+    envelope: DiaryEntryRich
+  ) => updateDiaryEntry({
+    ...envelope, data: { ...envelope.data, status: 'committed' }
+  }), [updateDiaryEntry]);
 
   /**
    * IPC: Extraction and Loading.
@@ -116,7 +126,7 @@ const context = contextFactory((_: PropsWithChildren) => {
     ...summary,
     drawer,
     recentDiaryEntries,
-    // commitDiaryEntry,
+    commitDiaryEntry,
     handleCreateDiaryEntry,
     // rejectDiaryEntry,
   };

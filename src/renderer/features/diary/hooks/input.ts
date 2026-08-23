@@ -1,6 +1,7 @@
 import { DiaryEntrySerialisation, diaryEntrySerialisationSchema } from "@/shared/features/diary";
 import { trpcReact } from "@/renderer/libs/react-query";
 import { diaryInputStore } from "../stores";
+import { serialisationDateNow } from "@/shared/schema";
 
 export const useDiaryEntryCreator = () => {
   const { setText, text } = diaryInputStore();
@@ -15,9 +16,9 @@ export const useDiaryEntryCreator = () => {
 
   const create = (onSuccess: () => void) => {
     const entry: DiaryEntrySerialisation = diaryEntrySerialisationSchema.parse({
+      created: serialisationDateNow(),
       data: { text }
     });
-    // TODO: Set the cache with the id as the creationKey or whatever.
     mutate(entry, { onSuccess });
   };
 

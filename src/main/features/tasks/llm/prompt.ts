@@ -1,7 +1,11 @@
 import { readFileSync } from 'fs';
 import task from 'tasuku';
 import { runLanguageModel } from '@/main/features/ai';
-import { TASK_IMPORTANCE, TASK_MOMENTUM, TaskSourceType } from '../../../../shared/features/user-tasks';
+import {
+  TASK_IMPORTANCE,
+  TASK_MOMENTUM,
+  TaskSourceType
+} from '@/shared/features/user-tasks';
 import { validateLanguageModelResponse } from '../../../llm/shared';
 import { proposedTaskAnalysisResponseSchema } from './validation';
 import { ProposedAnalysisResponse } from './proposed';
@@ -9,6 +13,8 @@ import { getFirebaseDb } from '../../../libs/firebase';
 import { userTaskCollection } from '../db/db';
 import { createUserTask } from '../utils';
 import { UserTaskDb } from '../types';
+import { getTaskOperationCode } from './utilities';
+import { log } from '@/main/shared';
 
 const getInstructionsAbstract = (source: TaskSourceType) => {
   if (source === 'email') return 'Propose new tasks from the following fragments of emails received. Look for explicit or implicit requests.';
@@ -79,12 +85,14 @@ export const generateTaskContent = async (
   const prompt = buildTriagePrompt(source, data);
   // TODO: Needs a responseJsonSchema
   let response;
-  await task(
+  await log(
     `Generate tasks from ${source}`,
-    ({ task }) => runLanguageModel(prompt, task, (props) => {
-      console.log(props);
-      response = props;
-    }),
+    (logApi) => runLanguageModel(
+      prompt, getTaskOperationCode(source), logApi, (props) => {
+        console.log(props);
+        response = props;
+      }
+    ),
     // TODO: Needs emission.
   );
   // TODO: Zod schema will make this irrelevant.

@@ -55,5 +55,3 @@ export const mapLanguageModels = <T>(
     map(model, i)
   ];
 }, [] as LanguageModelSourceLevelProps[]);
-
-export const getOperationCodeFactory = (featureName: string) => (operationName: string) => `${featureName}:${operationName}`;

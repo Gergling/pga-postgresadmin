@@ -29,14 +29,12 @@ const runModel = <CompletionProps>({
 }) => log(
   `Run model: ${model.source} ${model.name}`,
   async (logApi) => {
-    console.log('ABOUT TO RUN', model)
     const result = await generator({
       logApi,
       prompt: [prompt, retry.promptAppendix].join('\n'),
       schema,
       temperature: retry.temperature,
     });
-    console.log('COMPLETED A RUN', result)
     if (result.status === 'failed') {
       logApi.setStatus('warning', result.message);
     } else {

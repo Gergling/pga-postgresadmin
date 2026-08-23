@@ -13,6 +13,7 @@ export type SystemMetricsRequest = { type: 'cpu' };
 export type SystemMetricsResponse = { medianFreeMem: number };
 
 export type SystemCheckResponse = {
+  // isUserActive: boolean;
   memory: {
     // median: number;
     mean: number;

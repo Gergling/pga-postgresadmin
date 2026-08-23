@@ -24,6 +24,12 @@ export const TIMEOUT_PRESET_CONFIG = createConfig({
 });
 
 export type TimeoutPreset = keyof typeof TIMEOUT_PRESET_CONFIG;
+
+// type TimeoutConfigParams = {
+//   systemReport:
+//   timeoutTrigger: number;
+// };
+
 type ScheduledOperation<Params = unknown> = {
   name: string;
   priority: (params: Params) => number | Promise<number>;

@@ -6,3 +6,7 @@ export const getLlmInstructions = (
   ? i
   : i.instruction
 ).join('\n\n');
+
+export const getOperationCodeFactory = (
+  featureName: string
+) => (operationName: string) => `${featureName}:${operationName}`;

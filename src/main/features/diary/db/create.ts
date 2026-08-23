@@ -2,16 +2,14 @@ import {
   DiaryEntrySerialisation,
   diaryEntrySerialisationSchema,
 } from "@/shared/features/diary";
-import { diaryDb, diaryRepo } from "../schema";
+import { diaryDb } from "../schema";
 
 export const createNewDiaryEntry = async (
-  { data: { text } }: DiaryEntrySerialisation
+  entry: DiaryEntrySerialisation
 ): Promise<DiaryEntrySerialisation> => {
   // When creating, we must absolutely have a fresh audit log, created property
   // and id.
-  const record = diaryEntrySerialisationSchema.parse({
-    data: { text },
-  });
+  const record = diaryEntrySerialisationSchema.parse(entry);
 
   try {
     const { inserted } = await diaryDb.insert(record);

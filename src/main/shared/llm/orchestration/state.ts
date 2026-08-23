@@ -1,15 +1,24 @@
 import z from "zod";
-import {
-  LanguageModelResponseStatus,
-  LanguageModelResponseStatusRetryable,
-} from "@/main/shared/llm";
+import { Mandatory } from "@/shared/types";
 import { hashFactory } from "@/shared/utilities";
+import {
+  LanguageModelGeneratorResponse,
+  LanguageModelResponseStatusRetryable,
+  LlmCoreIdentifier
+} from "@/shared/features/llm";
+import { llmModelRunInsert } from "../crud";
+import { transformLanguageModelResponse } from "./transform";
+import { LanguageModelOrchestrationUpdateProps, llmRunCore, llmRunCoreStarted } from "../types";
+import { getUpdateProps } from "../get-update-props";
 
 const analyseLanguageStateSchema = z.object({
-  log: z.array(z.object({
-    model: z.string(),
-    status: z.string(),
-  })).default([]).describe('A log of what has been tried so far'),
+  current: z.discriminatedUnion('phase', [
+    z.object({ phase: z.literal('ready') }),
+    z.object({ phase: z.literal('started') }).extend(llmRunCoreStarted.shape),
+    z.object({ phase: z.literal('finished') }).extend(llmRunCore.shape),
+  ]).default({ phase: 'ready' }),
+  log: z.array(llmRunCore).default([])
+    .describe('A log of what has been tried so far'),
   maximumFailures: z.number().default(10),
   succeeded: z.boolean().default(false),
 });
@@ -25,28 +34,35 @@ export type AnalyseLanguageStateAction = (
   props: AnalyseLanguageState
 ) => AnalyseLanguageState;
 
-const logFailureActionFactory = (
-  model: string, status: LanguageModelResponseStatus
+const setModelActionFactory = (
+  source: string, model: string
 ): AnalyseLanguageStateAction => (state) => {
   return {
     ...state,
-    log: [
-      ...state.log,
-      { model, status },
-    ],
+    current: { model, phase: 'started', source },
   };
 };
 
-const logSuccessActionFactory = (): AnalyseLanguageStateAction => (state) => {
+// finish - move the current state into the log
+const logResultActionFactory = (
+  operation: string
+): AnalyseLanguageStateAction => (state) => {
+  if (state.current.phase !== 'finished') throw new Error(
+    `Logging LLM result without finished run for operation: ${operation}`
+  );
+  const succeeded = state.current.status === 'success';
   return {
     ...state,
-    succeeded: true,
+    current: { phase: 'ready' },
+    log: [...state.log, state.current],
+    succeeded
   };
 };
 
 const promptAppendixErrorState: Record<LanguageModelResponseStatusRetryable, string> = {
   'parsing-incompatibility': 'a non-JSON-compatible string',
   'rate-limitations': 'a rate-limited response (e.g. 429)',
+  'string-retry': 'a string response when a string-retry setting was given',
   'traffic': 'an error caused by to high traffic (e.g. 503)',
 };
 
@@ -77,31 +93,71 @@ const getLogReport = ({ log }: AnalyseLanguageState) => log.reduce(
       some,
       total,
     };
-  }, {
-  last: {
-    parsingIncompatibility: false,
   },
-  some: {
-    parsingIncompatibility: false,
-    serverRetry: false,
-  },
-  total: {
-    serverRetry: 0,
-  },
-}
+  {
+    last: {
+      parsingIncompatibility: false,
+    },
+    some: {
+      parsingIncompatibility: false,
+      serverRetry: false,
+    },
+    total: {
+      serverRetry: 0,
+    },
+  }
 );
 
-export class LanguageAnalysisState {
-  private state: AnalyseLanguageState;
-  private hasher: () => number;
+// Update props can be set as we go along.
+// Can trigger the update callback function when ready.
+// When that happens, can also update the training log (operation, source,
+// model, status, runtime, so we can filter for the operation and aggregate the
+// sources and models sorted by descending probability of success and ascending
+// mean runtime).
 
-  constructor(initial?: Partial<AnalyseLanguageState>, seed?: number) {
-    this.state = analyseLanguageStateSchema.parse({ ...initial });
+type Params<UpdateCompletionProps> = {
+  initial: AnalyseLanguageState;
+  operation: string;
+  retryOnStringResponse: boolean;
+  schema?: z.ZodType<UpdateCompletionProps>;
+  seed?: number;
+};
+
+export class LanguageAnalysisState<UpdateCompletionProps> {
+  private hasher: () => number;
+  private operation: string;
+  // TODO: Technically this type IS very much known.
+  private promises: Promise<unknown>[] = [];
+  private retryOnStringResponse: boolean;
+  private state: AnalyseLanguageState;
+  private schema?: z.ZodType<UpdateCompletionProps>;
+
+  constructor({
+    initial, operation, retryOnStringResponse, schema, seed
+  }: Params<UpdateCompletionProps>) {
     this.hasher = hashFactory(seed ?? Math.random());
+    this.operation = operation;
+    this.retryOnStringResponse = retryOnStringResponse;
+    this.schema = schema;
+    this.state = initial;
   }
 
+  static from<UpdateCompletionProps>(
+    params: Mandatory<Params<UpdateCompletionProps>, 'operation' | 'retryOnStringResponse'>
+  ) {
+    const initial = analyseLanguageStateSchema.parse({ ...params?.initial });
+    return new LanguageAnalysisState<UpdateCompletionProps>({
+      ...params,
+      initial,
+      seed: params?.seed ?? Math.random(),
+    });
+  }
+
+  // If we've started, that counts as another attempt, but won't have been
+  // logged yet.
   get attempts() {
-    return this.state.log.length;
+    if (this.state.current.phase === 'ready') return this.state.log.length;
+    return this.state.log.length + 1;
   }
 
   get maximumAttempts() {
@@ -118,8 +174,8 @@ export class LanguageAnalysisState {
     return this.attempts < this.state.maximumFailures;
   }
 
-  get excludedModels() {
-    return this.state.log.map(({ model }) => model);
+  get excludedModels(): LlmCoreIdentifier[] {
+    return this.state.log.map(({ model, source }) => ({ name: model, source }));
   }
 
   get logReport() {
@@ -158,14 +214,121 @@ export class LanguageAnalysisState {
     return 0.1;
   }
 
-  logFailure(model: string, status: LanguageModelResponseStatus) {
-    const action = logFailureActionFactory(model, status);
+  // Update run throughout the process.
+  // Run a function when it starts... for whatever reason.
+  // Set the model and source after they're chosen.
+  setModel(source: string, model: string) {
+    // Set the current model.
+    const action = setModelActionFactory(source, model);
     this.state = action(this.state);
     return this;
   }
-  logSuccess() {
-    const action = logSuccessActionFactory();
-    this.state = action(this.state);
-    return this;
+
+  /**
+   * The most efficient way to handle the emission state AND logging is to
+   * trigger both from one function. This will start a log run in the
+   * background, and return the emission props.
+   * @param result The language model response type for a string response.
+   * @returns LanguageModelOrchestrationUpdateProps<UpdateCompletionProps>
+   */
+  processResult(
+    result: LanguageModelGeneratorResponse
+  ): LanguageModelOrchestrationUpdateProps<UpdateCompletionProps> {
+    const operation = this.operation;
+
+    if (this.state.current.phase !== 'started') throw new Error(
+      `Setting LLM result without starting model for operation: ${operation}`
+    );
+
+    const currentState: AnalyseLanguageState['current'] = {
+      ...this.state.current,
+      phase: 'finished', runtime: result.runtime, status: result.status,
+    };
+    const llm = { ...currentState, name: currentState.model };
+
+    // An unsuccessful response can yield a simple
+    if (result.status !== 'success') {
+      this.handleRunCompletion(currentState);
+      return getUpdateProps(this, result, llm);
+    }
+
+    // The initial response appears successful, so we transform.
+    const response = transformLanguageModelResponse({
+      source: this.state.current.source,
+      response: result.response, schema: this.schema,
+    });
+
+    // The response can come back undefined from some models, so we have to handle
+    // it by overriding the status.
+    if (response === undefined) {
+      const status = 'parsing-incompatibility';
+      this.handleRunCompletion({ ...currentState, status });
+      return getUpdateProps(this, {
+        ...result,
+        canRetry: true,
+        status,
+      }, llm);
+    }
+
+    this.handleRunCompletion(currentState);
+
+    // If it's not a string, it's the type we want.
+    if (typeof response !== 'string') {
+      return getUpdateProps(this, {
+        ...result,
+        response,
+      }, llm);
+    }
+
+    // At this point, we know we're getting a string type response.
+    const stringResponse: LanguageModelOrchestrationUpdateProps<UpdateCompletionProps> = {
+      attempts: {
+        current: this.attempts,
+        maximum: this.maximumAttempts,
+      },
+      llm,
+      payload: { ...result, response },
+      retryTimeout: this.retryTimeout,
+      type: 'string',
+      willRetry: this.canAttempt,
+    };
+
+    // If we didn't want to retry on a string response, we can just return the
+    // response.
+    // TODO: Test earlier whether the schema we're using is just a string schema.
+    // This is to catch misconfigurations of the call sooner.
+    if (!this.retryOnStringResponse) return stringResponse;
+
+    // Otherwise, we return a retry response.
+    return {
+      ...stringResponse,
+      payload: { ...result, canRetry: true, status: 'string-retry' },
+      willRetry: true,
+    };
+
+  }
+  handleRunCompletion(current: AnalyseLanguageState['current']) {
+    const operation = this.operation;
+
+    if (current.phase !== 'finished') throw new Error(
+      `Setting LLM result without starting model for operation: ${operation}`
+    );
+
+    this.state = logResultActionFactory(operation)({ ...this.state, current });
+
+    // Persist the current run.
+    const persistencePromise = llmModelRunInsert({ ...current, operation });
+
+    this.promises.push(persistencePromise);
+  }
+
+  /**
+   * This is JIC we want to await the persistence operations.
+   */
+  async awaitOperations() {
+    await Promise.all(this.promises);
+
+    // Once we're done, we can clear the promises.
+    this.promises.length = 0;
   }
 }

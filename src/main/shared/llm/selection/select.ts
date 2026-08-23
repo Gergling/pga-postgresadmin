@@ -1,32 +1,48 @@
-import { Task } from 'tasuku';
+import {
+  LanguageModelProps,
+} from "@/shared/features/llm";
 import {
   LanguageModelOrchestrationListFunction,
-  LanguageModelProps,
   LanguageModelSourceLevelConfigResponse,
 } from "../types";
 import { compareLanguageModels } from "./comparators";
+import { llmReadOperationSummary } from "../crud";
 
 export const fetchNextModelFactory = (
   sources: LanguageModelSourceLevelConfigResponse[]
 ): LanguageModelOrchestrationListFunction => {
   if (sources.length === 0) throw new Error('No sources provided.');
-  return async (
-    preferred: string[], excluded: string[], task: Task
-  ): Promise<LanguageModelProps | undefined> => {
+  return async ({
+    attempts,
+    excluded,
+    logApi: { log, setStatus }, operation, preferred,
+  }): Promise<LanguageModelProps | undefined> => {
+    // Grab the ideal operation models.
+    const operationSummary = await llmReadOperationSummary(operation);
+
+    if (operationSummary) {
+      const useStable = attempts > 0;
+      const model = useStable ? operationSummary.stable : operationSummary.experimental;
+      setStatus('information', `Found operation summary. Using ${useStable ? 'stable' : 'experimental'} model: ${model.source} ${model.name}`)
+      preferred.push(model);
+    }
+
     // Get all possible models.
-    const sourced = await task.group((task) => (
-      sources.map(({ models, source }) => task(
-        `Getting models for ${source}`, () => models(preferred, excluded)
-      ))
-    ), { concurrency: 5, maxVisible: height => height - 5 });
+    const sourced = await log(
+      'Getting models for sources',
+      ({ log }) => Promise.all(sources.map(({ models, source }) => log(
+        source, (logApi) => models({ excluded, logApi, preferred })
+      )))
+    );
 
     // If we have run out of models, we simply return.
     if (sourced.length === 0) return;
 
     // Flatten, sort and select the top.
-    const sorted = sourced.map(
-      ({ result }) => result
-    ).flat().sort(compareLanguageModels);
+    const sorted = sourced.flat().filter(
+      ({ priority }) => priority !== 'excluded'
+    ).sort(compareLanguageModels);
+
     return sorted[0];
   }
 };

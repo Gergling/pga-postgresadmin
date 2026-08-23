@@ -1,6 +1,4 @@
-import {
-  LanguageModelTransformFunctionParams,
-} from "../types";
+import { LanguageModelTransformFunctionParams } from "@/shared/features/llm";
 import { errorSchema } from "@/shared/schema/error";
 
 const jsonParse = (response: string) => {

@@ -1,7 +1,7 @@
+import { LanguageModelProps } from "@/shared/features/llm";
 import {
   LanguageModelErrorResponse,
   LanguageModelGeneratorFunction,
-  LanguageModelProps,
   LanguageModelSourceLevelConfigResponse,
   LanguageModelSourceLevelProps
 } from "./types";
@@ -29,10 +29,14 @@ export const generatorFactory = (
 
   const generator: LanguageModelGeneratorFunction = async (props) => {
     // Probably a good place for a `task` call.
+    const started = new Date().getTime();
     const response = await sourceLevelConfig.generate({
       ...props, model: model.name
     });
+    const finished = new Date().getTime();
+    const runtime = finished - started;
     return {
+      runtime,
       source: model.source,
       ...response,
     };
@@ -51,3 +55,5 @@ export const mapLanguageModels = <T>(
     map(model, i)
   ];
 }, [] as LanguageModelSourceLevelProps[]);
+
+export const getOperationCodeFactory = (featureName: string) => (operationName: string) => `${featureName}:${operationName}`;

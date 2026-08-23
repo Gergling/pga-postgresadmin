@@ -1,9 +1,11 @@
-import { LanguageModelSourceLevelResponse } from "./schema";
 import {
-  LanguageModelGeneratorFunctionParams,
   LanguageModelListFunction,
   LanguageModelProps,
+  LanguageModelSourceLevelResponse,
   LanguageModelTransformFunctionParams
+} from "@/shared/features/llm";
+import {
+  LanguageModelGeneratorFunctionParams,
 } from "./base";
 
 export type LanguageModelSourceLevelProps = Omit<LanguageModelProps, 'source'>;
@@ -32,13 +34,13 @@ export type LanguageModelSourceLevelConfigParams =
   & {
     models: LanguageModelListFunction<LanguageModelSourceLevelProps[]>;
   }
-;
+  ;
 export type LanguageModelSourceLevelConfigResponse =
   & LanguageModelSourceLevelConfigBase
   & {
     models: LanguageModelListFunction<LanguageModelProps[]>;
   }
-;
+  ;
 
 export type LanguageModelSourceLevelFunction = (
   props: LanguageModelSourceLevelConfigParams

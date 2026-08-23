@@ -1,15 +1,57 @@
-import { Task } from 'tasuku';
 import { ZodType } from 'zod';
+import { LogApi } from '@/main/shared/logging';
 import {
+  LanguageModelGeneratorFunction,
   LanguageModelOrchestrationUpdateFunction,
-  LanguageModelResponseSchema,
   LanguageModelSourceLevelConfigResponse
 } from "../types";
-import { generatorFactory } from '../utilities';
+import { getRetryTimeout } from '../get-update-props';
 import { fetchNextModelFactory } from '../selection';
+import { generatorFactory } from '../utilities';
 import { LanguageAnalysisState } from "./state";
-import { transformLanguageModelResponse } from './transform';
-import { getRetryTimeout, getUpdateProps } from '../get-update-props';
+import { LanguageModelProps, LlmCoreIdentifier } from '@/shared/features/llm';
+import { llmSummariseOperation } from '../crud';
+
+const runModel = <CompletionProps>({
+  generator,
+  logApi: { log },
+  model,
+  prompt,
+  retry,
+  schema,
+}: {
+  generator: LanguageModelGeneratorFunction;
+  logApi: LogApi;
+  model: LanguageModelProps;
+  prompt: string;
+  retry: LanguageAnalysisState<CompletionProps>;
+  schema?: ZodType<CompletionProps>;
+}) => log(
+  `Run model: ${model.source} ${model.name}`,
+  async (logApi) => {
+    console.log('ABOUT TO RUN', model)
+    const result = await generator({
+      logApi,
+      prompt: [prompt, retry.promptAppendix].join('\n'),
+      schema,
+      temperature: retry.temperature,
+    });
+    console.log('COMPLETED A RUN', result)
+    if (result.status === 'failed') {
+      logApi.setStatus('warning', result.message);
+    } else {
+      if (result.status !== 'success') {
+        const message = result.status === 'unexpected'
+          ? ` ${result.message}` : '';
+        logApi.setStatus(
+          'warning',
+          `Failed due to ${result.status}.${message}`
+        );
+      }
+    }
+    return result;
+  }
+);
 
 export const configureLanguageModelStrategies = (
   sources: LanguageModelSourceLevelConfigResponse[]
@@ -19,108 +61,69 @@ export const configureLanguageModelStrategies = (
 
   const analyser = async <CompletionProps>(
     prompt: string,
-    task: Task,
+    operation: string,
+    { log }: LogApi,
     update: LanguageModelOrchestrationUpdateFunction<CompletionProps>,
     options?: {
-      schema?: ZodType<CompletionProps>,
+      retryOnStringResponse?: boolean;
+      schema?: ZodType<CompletionProps>;
       // TODO: Optional transformer if not defaulting to string response and
       // schema.
     },
-  ): Promise<void> => {
-    // Hardcoding for now. Later we can decide we want to put certain
-    // sources/models at the top of the list.
-    const preferredModels: string[] = [];
-    const retry = new LanguageAnalysisState();
+  ): Promise<void> => log(
+    `Running language model analysis: ${operation}`,
+    async (logApi): Promise<void> => {
+      const { log } = logApi;
+      const preferredModels: LlmCoreIdentifier[] = [];
+      const retry = LanguageAnalysisState.from({
+        operation,
+        retryOnStringResponse: !!options?.retryOnStringResponse,
+        schema: options?.schema,
+      });
+      while (retry.canAttempt) {
+        await log(
+          `Attempt ${retry.attempts + 1} of ${retry.maximumAttempts}`,
+          async (logApi) => {
+            const { setStatus, log } = logApi;
+            const model = await log(
+              'Fetch next model', (logApi) => fetchNextModel({
+                attempts: retry.attempts,
+                excluded: retry.excludedModels,
+                logApi,
+                operation,
+                preferred: preferredModels,
+              })
+            );
 
-    // const { error, result, state, warning } = 
-    await task(
-      'Language model analysis ' + (new Date().toLocaleString()),
-      async ({ task }): Promise<void> => {
-        while (retry.canAttempt) {
-          await task(
-            `Attempt ${retry.attempts + 1} of ${retry.maximumAttempts}`,
-            async ({ setWarning, setError, task }) => {
-              const { result: model } = await task(
-                'Fetch next model', ({ task }) => fetchNextModel(
-                  preferredModels, retry.excludedModels, task
-                )
-              );
-    
-              if (!model) throw new Error('No more models available.');
-    
-              const generator = generatorLookup(model);
+            if (!model) throw new Error('No more models available.');
 
-              const { result } = await task(
-                `Run model: ${model.source} ${model.name}`,
-                async ({ setError, setWarning }) => {
-                  const result = await generator({
-                    prompt: [prompt, retry.promptAppendix].join('\n'),
-                    schema: options?.schema,
-                    temperature: retry.temperature,
-                  });
-                  if (result.status === 'failed') setError(result.message);
-                  if (result.status !== 'failed' && result.status !== 'success') {
-                    setWarning(`Failed due to ${result.status}.`);
-                  }
-                  return result;
-                },
-                { showTime: true }
-              );
+            const generator = generatorLookup(model);
 
-              if (result.status !== 'success') {
-                retry.logFailure(model.name, result.status);
-              } else {
-                const response = transformLanguageModelResponse({
-                  source: model.source, response: result.response,
-                  schema: options?.schema
-                });
+            retry.setModel(model.source, model.name);
 
-                if (response === undefined) {
-                  const payload: LanguageModelResponseSchema<CompletionProps> = {
-                    ...result,
-                    canRetry: true,
-                    status: 'parsing-incompatibility',
-                  };
+            const result = await runModel({
+              generator, logApi, model, prompt, retry, schema: options?.schema,
+            });
 
-                  retry.logFailure(model.name, payload.status);
+            const emissionResponse = retry.processResult(result);
 
-                  update(getUpdateProps(retry, payload));
+            update(emissionResponse);
 
-                  return;
-                }
+            if (emissionResponse.payload.status === 'success') return;
 
-                retry.logSuccess();
-
-                update({
-                  attempts: {
-                    current: retry.attempts + 1,
-                    maximum: retry.maximumAttempts,
-                  },
-                  payload: { ...result, response },
-                  retryTimeout: retry.retryTimeout,
-                  willRetry: retry.canAttempt,
-                });
-    
-                return;
-              }
-    
-              update(getUpdateProps<CompletionProps>(retry, result));
-
-              if (retry.canAttempt) {
-                const retryTimeout = getRetryTimeout(retry, result);
-                setWarning(`Retrying in ${retryTimeout}ms.`);
-                await new Promise(resolve => setTimeout(resolve, retryTimeout));
-              } else {
-                setError('Will not be retrying.');
-              }
+            if (retry.canAttempt) {
+              const retryTimeout = getRetryTimeout(retry, result);
+              setStatus('warning', `Retrying in ${retryTimeout}ms.`);
+              await new Promise(resolve => setTimeout(resolve, retryTimeout));
+            } else {
+              throw new Error('Will not be retrying.');
             }
-          );
-        }
-      }, { showTime: true }
-    );
-
-    // TODO: Process error, result, state, warning
-  };
+          }
+        );
+      }
+      await llmSummariseOperation(operation, logApi);
+    }
+  );
 
   return analyser;
 };

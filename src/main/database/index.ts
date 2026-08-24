@@ -1,7 +1,8 @@
+// Are we using pg anymore?
 import { Pool, PoolClient } from 'pg';
 import { IpcHandlerDatabase } from './types';
 import { selectDatabaseList } from './queries';
-import { loadDatabaseServerCredentials } from '../docker/server';
+// import { loadDatabaseServerCredentials } from '../docker/server';
 
 export const getDatabaseClient = (pool: Pool) => async () => {
   try {
@@ -36,60 +37,60 @@ export const getDatabaseClient = (pool: Pool) => async () => {
 //   query: string
 // ) => client.query(query);
 
-const getDatabaseList = (
-  client: PoolClient
-) => async () => {
-  const query = selectDatabaseList();
-  const result = await client.query(query);
-  return result.rows;
-};
+// const getDatabaseList = (
+//   client: PoolClient
+// ) => async () => {
+//   const query = selectDatabaseList();
+//   const result = await client.query(query);
+//   return result.rows;
+// };
 
-const createDatabase = (
-  client: PoolClient
-) => async (dbName: string) => {
-  const query = `CREATE DATABASE "${dbName}";`;
-  await client.query(query);
-};
+// const createDatabase = (
+//   client: PoolClient
+// ) => async (dbName: string) => {
+//   const query = `CREATE DATABASE "${dbName}";`;
+//   await client.query(query);
+// };
 
-export const getDatabase = async (): Promise<IpcHandlerDatabase> => {
-  const credentials = await loadDatabaseServerCredentials();
+// export const getDatabase = async (): Promise<IpcHandlerDatabase> => {
+//   const credentials = await loadDatabaseServerCredentials();
 
-  if (!credentials) throw new Error(`Running getDatabase without any credentials saved.`);
+//   if (!credentials) throw new Error(`Running getDatabase without any credentials saved.`);
 
-  const pool = new Pool(credentials);
+//   const pool = new Pool(credentials);
 
-  const getClient = getDatabaseClient(pool);
+//   const getClient = getDatabaseClient(pool);
 
-  return {
-    createDatabase: async (dbName: string) => {
-      const client = await getClient();
-      try {
-        // Ideally we loop everything else and just configure this into the generic
-        // function. We'll get a few more first though.
-        await createDatabase(client)(dbName);
-        return { success: true };
-      } catch (error) {
-        console.error('Error running DML query:', error);
-        return { success: false, error: error.message };
-      } finally {
-        if (client) {
-          client.release();
-        }
-      }
-    },
-    selectDatabases: async () => {
-      const client = await getClient();
-      try {
-        const data = await getDatabaseList(client)();
-        return { success: true, data };
-      } catch (error) {
-        console.error('Error running DML query:', error);
-        return { success: false, error: error.message };
-      } finally {
-        if (client) {
-          client.release();
-        }
-      }
-    },
-  }
-};
+//   return {
+//     createDatabase: async (dbName: string) => {
+//       const client = await getClient();
+//       try {
+//         // Ideally we loop everything else and just configure this into the generic
+//         // function. We'll get a few more first though.
+//         await createDatabase(client)(dbName);
+//         return { success: true };
+//       } catch (error) {
+//         console.error('Error running DML query:', error);
+//         return { success: false, error: error.message };
+//       } finally {
+//         if (client) {
+//           client.release();
+//         }
+//       }
+//     },
+//     selectDatabases: async () => {
+//       const client = await getClient();
+//       try {
+//         const data = await getDatabaseList(client)();
+//         return { success: true, data };
+//       } catch (error) {
+//         console.error('Error running DML query:', error);
+//         return { success: false, error: error.message };
+//       } finally {
+//         if (client) {
+//           client.release();
+//         }
+//       }
+//     },
+//   }
+// };

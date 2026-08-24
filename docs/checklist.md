@@ -109,8 +109,8 @@ Parameters should be considered out of scope since the current use-cases are pre
 - [X] Configuration setup runner which is a factory for taking the source-level configurations.
 - Local runner configuration.
   - [X] Ollama requires no docker (although it can have docker).
-  - [ ] Whether to use local once spun up should be dependent on the system CPU/memory output.
-  - [ ] Choose thresholds for memory and CPU. E.g. memory can be at <85 (including 80-85 yellow zone), 85-95 (red zone, and it asks) and beyond that it vetoes. CPU can be 10%-15%.
+  - ~~[ ] Whether to use local once spun up should be dependent on the system CPU/memory output.~~
+  - [X] Choose thresholds for memory and CPU. E.g. memory can be at <85 (including 80-85 yellow zone), 85-95 (red zone, and it asks) and beyond that it vetoes. CPU can be 10%-15%.
 
 ## Actionable
 
@@ -124,7 +124,9 @@ Work which needs thought or experimentation.
 
 The idea is to open a task detail view and see the child tasks in a table. The children of those tasks should appear under their parents, but ideally indented or something. The maximum display depth can be limited, but there should be no storage depth limit.
 
-This will need a system to keep the firebase calls efficient when getting data for a whole task tree. One simple way to do this is with summary data. A task can keep track of all ancestor ids and all descendant ids. That way, a secondary call can be made to batch-request the related tasks.
+~~This will need a system to keep the firebase calls efficient when getting data for a whole task tree. One simple way to do this is with summary data. A task can keep track of all ancestor ids and all descendant ids. That way, a secondary call can be made to batch-request the related tasks.~~
+
+A local database is in use so calls aren't as much of a problem for Firebase, as they can be scheduled. 
 
 ### Project Tasks
 
@@ -247,14 +249,16 @@ Extraction can be done in separate stages, with the traversal gathering the path
     * Otherwise: Set `action` to `scan`.
 * Scan (limit):
   1. Find [limit] records of `isDirectory: false` with the action `scan`. If none are returned, skip.
-    1. Extract the space used from the file path's stats.
-    2. Update the record with the space used and set action to 'none'.
+      * Steps:
+        1. Extract the space used from the file path's stats.
+        2. Update the record with the space used and set action to 'none'.
   2. Aggregate: Find first record of `isDirectory: true` with the action `scan`. If none are returned, we're done.
-    1. Check records for `parentPath` matching this record's `path`:
-      * If found: check for `isDirectory: true`:
-        * If found: Run aggregate for this record's `path`.
-        * Otherwise: Sum the space used and apply to this record's directory path.
-      * Otherwise: `usage: 0`.
+      * Steps:
+        1. Check records for `parentPath` matching this record's `path`:
+        * If found: check for `isDirectory: true`:
+          * If found: Run aggregate for this record's `path`.
+          * Otherwise: Sum the space used and apply to this record's directory path.
+        * Otherwise: `usage: 0`.
     2. Set `action` to `none`.
 * Activity Check (timeout): Find a records with a created time in the last [timeout] or an audit element in the last [timeout]. This simply returns the records ordered by the oldest changes in the last [timeout].
 * Extraction (limit, timeout, backfill): Run "light" resource checks.

@@ -1,5 +1,5 @@
 import { comparatorFactory } from "@/shared/utilities";
-import { ModelClassification } from "../schema";
+import { ModelClassification, SerialisedModelSummary } from "../schema";
 
 const STABILITY_THRESHOLD = 5;
 
@@ -42,3 +42,36 @@ export const compareModelRuntimes = comparatorFactory<number>().create(
     return a - b;
   }
 );
+
+const modelSummaryComparatorFactory = comparatorFactory<SerialisedModelSummary>();
+
+const compareLlmModelFactory = (
+  experimental?: boolean
+) => {
+  const comparator = experimental
+    ? compareExperimentalModelActionClassifications
+    : compareStableModelActionClassifications
+    ;
+  return modelSummaryComparatorFactory.create(
+    (a, b) => comparator(a.classification, b.classification)
+  );
+};
+const compareLlmModelsByRuns = modelSummaryComparatorFactory.create(
+  (a, b) => b.count - a.count
+);
+const compareLlmModelsByRate = modelSummaryComparatorFactory.create(
+  (a, b) => b.rate - a.rate
+);
+const compareLlmModelsByUxEfficiency = modelSummaryComparatorFactory.create(
+  (a, b) => b.efficiency.ux - a.efficiency.ux
+);
+
+export const compareLlmModelsForStability = modelSummaryComparatorFactory.stack([
+  compareLlmModelFactory(false),
+  compareLlmModelsByUxEfficiency,
+]);
+export const compareLlmModelsForExperimentation = modelSummaryComparatorFactory.stack([
+  compareLlmModelFactory(true),
+  compareLlmModelsByRuns,
+  compareLlmModelsByRate,
+]);

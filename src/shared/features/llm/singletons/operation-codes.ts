@@ -22,6 +22,18 @@ class FeatureOperationCodeConfig {
     }
     return feature;
   }
+  static getOperationName(operationCode: string) {
+    return [
+      ...FeatureOperationCodeConfig.operationCodes.entries()
+    ].reduce((acc, [featureName, config]) => {
+      const operationName = config.getOperationName(operationCode);
+      if (operationName) return {
+        featureName,
+        operationName
+      };
+      return acc;
+    }, {} as { featureName: string; operationName: string; });
+  }
   getCode(operationName: string) {
     const code = this.operationCodes.get(operationName);
     if (!code) {
@@ -29,12 +41,16 @@ class FeatureOperationCodeConfig {
     }
     return code;
   }
+  get name() { return this.featureName; }
   setCode(operationName: string) {
     if (this.operationCodes.has(operationName)) {
       throw new Error(`Operation name "${operationName}" already exists for feature "${this.featureName}"`);
     }
     this.operationCodes.set(operationName, getFullyQualifiedCode(this.featureName, operationName));
     return this;
+  }
+  getOperationName(operationCode: string) {
+    return [...this.operationCodes.values()].find((code) => code === operationCode);
   }
 }
 
@@ -55,3 +71,5 @@ export const configureValidOperationCodes = (
 export const getOperationCodes = (
   featureName: string
 ) => FeatureOperationCodeConfig.getFeature(featureName);
+
+export const getOperationFeature = FeatureOperationCodeConfig.getOperationName;

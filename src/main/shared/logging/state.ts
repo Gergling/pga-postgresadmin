@@ -83,9 +83,9 @@ export const startOperation = (
     summary: {
       debug: options.debug ?? parentOperation?.summary.debug ?? false,
       showChildren: !!options.showSummary
-        || options.showSummaryChildren
-        ?? parentOperation?.summary.showChildren
-        ?? false,
+        || (options.showSummaryChildren
+          ?? parentOperation?.summary.showChildren
+          ?? false),
       suppress: options.showSummary === false,
     },
     start: getIsoDateTimeString(),

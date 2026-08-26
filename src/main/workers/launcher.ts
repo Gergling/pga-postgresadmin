@@ -7,7 +7,7 @@ export const runWorkerTask = (payload: ETLPayload): Promise<string> => {
     // TODO: I'm 90% certain this won't work because it will need to find the
     // correct bundled file.
     const child = utilityProcess.fork(path.join(__dirname, '../../workers/etl.js'));
-    
+
     child.postMessage(payload);
 
     child.on('message', (response) => {

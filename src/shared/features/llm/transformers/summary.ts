@@ -1,12 +1,16 @@
 import { mean, median } from "@/shared/utilities";
 import {
   LanguageModelHistoryBase,
-  ModelClassification,
   SerialisedModelSummary,
   SerialisedOperationSummary,
   serialisedOperationSummarySchema
 } from "../schema";
-import { compareExperimentalModelActionClassifications, compareModelRuntimes, compareStableModelActionClassifications, getModelActionClassification } from "./utilities";
+import { getModelEfficiency } from "../utilities";
+import {
+  compareLlmModelsForExperimentation,
+  compareLlmModelsForStability,
+  getModelActionClassification
+} from "./utilities";
 
 class ModelGroup {
   data: LanguageModelHistoryBase[];
@@ -51,33 +55,26 @@ class ModelGroup {
         },
         { failureCount: 0, retryableCount: 0, successfulRuntimes: [] }
       );
-      // TODO: isExperimental should apply to *all* statuses which can be
-      // considered worth trying the model again, e.g. traffic or rate
-      // limitations.
-      // "Stable" should be a separate factor and applies to models where there
-      // are at least 5 *successful* runs.
-      // That way, we can choose the quickest from our "stable" models, and the
-      // most records from our "experimental" models. This will always yield a
-      // fallback JIC finding a stable model is difficult.
-      // Also this *really* should go into an operation table. That way we can
-      // run something like a "summariseOperation" each time we've completed
-      // (or even failed) a language model run.
 
-      // If a model has run more than 5 times successfully, we'll call it stable.
       const successCount = successfulRuntimes.length;
       const count = successCount + failureCount;
       const rate = successCount / count;
       const classification = getModelActionClassification({
         failureCount, retryableCount, successCount
       });
+      const runtime = {
+        mean: mean(successfulRuntimes),
+        median: median(successfulRuntimes),
+      }
+      const efficiency = getModelEfficiency({
+        rate, runtime
+      });
       this.cache = {
         classification,
         count,
-        runtime: {
-          mean: mean(successfulRuntimes),
-          median: median(successfulRuntimes),
-        },
+        efficiency,
         rate,
+        runtime,
       };
     }
     return this.cache;
@@ -98,31 +95,15 @@ class ModelGroup {
   }
   selectModel(subject: ModelGroup, stable: boolean): ModelGroup {
     const comparator = stable
-      ? compareStableModelActionClassifications
-      : compareExperimentalModelActionClassifications
+      ? compareLlmModelsForStability
+      : compareLlmModelsForExperimentation
       ;
 
-    const comparison = comparator(
-      subject.serialised.classification,
-      this.serialised.classification
-    );
+    const comparison = comparator(subject.serialised, this.serialised);
+
     if (comparison < 0) return subject;
 
-    // If we're comparing two models with the same classification, we'll use
-    // the one with the lowest runtime, but only if both models have
-    // successful runs.
-    if (stable
-      && comparison === 0
-      && subject.hasSuccessfulRuns
-      && this.hasSuccessfulRuns
-    ) {
-      const comparison = compareModelRuntimes(
-        subject.values.runtime.median,
-        this.values.runtime.median
-      );
-      if (comparison < 0) return subject;
-    }
-    return subject;
+    return this;
   }
   get selectCleanupModels(): LanguageModelHistoryBase[] {
     return this.data.sort((a, b) => b.timestamp - a.timestamp).slice(100);

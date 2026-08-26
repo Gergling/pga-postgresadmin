@@ -17,9 +17,18 @@ const modelClassificationSchema = z.enum([
 
 export type ModelClassification = z.infer<typeof modelClassificationSchema>;
 
+const serialisedModelSummaryEfficiency = z.object({
+  infrastucture: z.number().catch(runtimeNumericErrorCodes.UNREADABLE_PROPERTY),
+  ux: z.number().catch(runtimeNumericErrorCodes.UNREADABLE_PROPERTY),
+}).catch({
+  infrastucture: runtimeNumericErrorCodes.UNREADABLE_PROPERTY,
+  ux: runtimeNumericErrorCodes.UNREADABLE_PROPERTY,
+});
+
 export const serialisedModelSummarySchema = llmCoreIdentifierSchema.def.innerType.extend({
   classification: modelClassificationSchema.catch('no-data'),
   count: z.number().catch(runtimeNumericErrorCodes.UNREADABLE_PROPERTY),
+  efficiency: serialisedModelSummaryEfficiency,
   rate: z.number().catch(runtimeNumericErrorCodes.UNREADABLE_PROPERTY),
   runtime: z.object({
     mean: z.number().catch(runtimeNumericErrorCodes.UNREADABLE_PROPERTY),
@@ -28,6 +37,10 @@ export const serialisedModelSummarySchema = llmCoreIdentifierSchema.def.innerTyp
 }).catch({
   classification: 'no-data',
   count: runtimeNumericErrorCodes.IRRETRIEVABLE_RECORD,
+  efficiency: {
+    ux: runtimeNumericErrorCodes.IRRETRIEVABLE_RECORD,
+    infrastucture: runtimeNumericErrorCodes.IRRETRIEVABLE_RECORD,
+  },
   name: runtimeStringErrorCodes.IRRETRIEVABLE_RECORD,
   rate: runtimeNumericErrorCodes.IRRETRIEVABLE_RECORD,
   runtime: {

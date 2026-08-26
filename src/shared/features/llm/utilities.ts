@@ -1,3 +1,4 @@
+import { SerialisedModelSummary } from "./schema";
 import { LlmInstruction } from "./types";
 
 export const getLlmInstructions = (
@@ -10,3 +11,11 @@ export const getLlmInstructions = (
 export const getOperationCodeFactory = (
   featureName: string
 ) => (operationName: string) => `${featureName}:${operationName}`;
+
+type ModelEfficiencyParams = Pick<SerialisedModelSummary, 'rate' | 'runtime'>;
+export const getModelEfficiency = ({
+  rate, runtime: { mean, median }
+}: ModelEfficiencyParams): SerialisedModelSummary['efficiency'] => {
+  const scaled = rate * 100000;
+  return { infrastucture: scaled / mean, ux: scaled / median };
+}

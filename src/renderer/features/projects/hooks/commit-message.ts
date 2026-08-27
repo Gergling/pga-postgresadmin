@@ -10,6 +10,7 @@ import {
 } from "../components";
 import { commitMessageStore } from "../stores";
 import { useProjectDetail } from "../context";
+import { useLlmOperationUtils } from "../../ai";
 
 export type ChatMessage = Optional<ChatMessageProps, 'role' | 'timestamp'>;
 
@@ -17,6 +18,11 @@ export const useCommitMessage = (
   project: ProjectRenderer,
   pushMessage: (message: ChatMessage) => void
 ) => {
+  const {
+    invalidate: invalidateLlmOperationQuery
+  } = useLlmOperationUtils({
+    featureName: 'project', operationName: 'staged-commit-message'
+  });
   const {
     chatActivity, enableFetchCommitMessage, outdated,
     onCommit, setCommitMessageFetched, startFetchingCommitMessage,
@@ -49,6 +55,10 @@ export const useCommitMessage = (
       // payload status.
       if (['failed', 'success'].includes(payload.status)) {
         setCommitMessageFetched();
+        // TODO: We can invalidate the cache for this operation.
+        invalidateLlmOperationQuery(); // TODO: Be aware that this returns a
+        // promise. That means it should probably either be awaited or run a
+        // refetch on the other end or something.
       }
 
       // One failure, we add a special message to the chat. Otherwise, we

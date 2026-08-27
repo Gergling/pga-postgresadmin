@@ -1,6 +1,6 @@
 import { trpcReact } from "@/renderer/libs/react-query";
 import { Skeleton } from "@mui/material";
-import { AiOperation } from "./Operation";
+import { AiOperation } from "./Item";
 
 export const AiOperationsList = () => {
   const {

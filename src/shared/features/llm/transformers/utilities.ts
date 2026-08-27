@@ -2,16 +2,18 @@ import { comparatorFactory } from "@/shared/utilities";
 import { ModelClassification, SerialisedModelSummary } from "../schema";
 
 const STABILITY_THRESHOLD = 5;
+const RETRYABILITY_THRESHOLD = 10;
+const UNRELIABILITY_THRESHOLD = 20;
 
 type Params = { failureCount: number; retryableCount: number; successCount: number; };
 type Check = (props: Params) => boolean;
 
 
 const experimentalRanking: ModelClassification[] = [
-  'no-data', 'potential', 'retryable', 'stable', 'unsuccessful'
+  'no-data', 'potential', 'retryable', 'unreliable', 'stable', 'unsuccessful'
 ];
 const stabilityRanking: ModelClassification[] = [
-  'stable', 'potential', 'retryable', 'no-data', 'unsuccessful'
+  'stable', 'potential', 'retryable', 'no-data', 'unreliable', 'unsuccessful'
 ];
 
 export const getModelActionClassification = (
@@ -19,7 +21,16 @@ export const getModelActionClassification = (
 ): ModelClassification => ([
   { check: (props) => props.successCount > STABILITY_THRESHOLD, name: 'stable' },
   { check: (props) => props.successCount > 0, name: 'potential' },
-  { check: (props) => props.failureCount > 0, name: 'unsuccessful' },
+  {
+    check: (props) =>
+      props.failureCount > 0 || props.retryableCount > UNRELIABILITY_THRESHOLD,
+    name: 'unsuccessful'
+  },
+  {
+    check: (props) =>
+      props.retryableCount > RETRYABILITY_THRESHOLD,
+    name: 'unreliable'
+  },
   { check: (props) => props.retryableCount > 0, name: 'retryable' },
 ] satisfies {
   check: Check;

@@ -11,6 +11,7 @@ import {
   compareLlmModelsForStability,
   getModelActionClassification
 } from "./utilities";
+import { reduceLlmHistory } from "./reducers";
 
 class ModelGroup {
   data: LanguageModelHistoryBase[];
@@ -39,24 +40,12 @@ class ModelGroup {
       const {
         failureCount, retryableCount, successfulRuntimes
       } = this.data.reduce(
-        (acc, { runtime, status }) => {
-          if (status === 'success') return {
-            ...acc,
-            successfulRuntimes: [...acc.successfulRuntimes, runtime],
-          };
-          if (['rate-limitations', 'traffic'].includes(status)) return {
-            ...acc,
-            retryableCount: acc.retryableCount + 1,
-          };
-          return {
-            ...acc,
-            failureCount: acc.failureCount + 1,
-          };
-        },
+        reduceLlmHistory,
         { failureCount: 0, retryableCount: 0, successfulRuntimes: [] }
       );
 
       const successCount = successfulRuntimes.length;
+      // Perhaps include different types of count.
       const count = successCount + failureCount;
       const rate = successCount / count;
       const classification = getModelActionClassification({

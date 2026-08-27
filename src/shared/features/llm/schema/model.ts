@@ -13,6 +13,7 @@ const modelClassificationSchema = z.enum([
   'retryable',
   'stable',
   'unsuccessful',
+  'unreliable',
 ]);
 
 export type ModelClassification = z.infer<typeof modelClassificationSchema>;

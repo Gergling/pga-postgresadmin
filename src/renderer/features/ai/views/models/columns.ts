@@ -1,9 +1,17 @@
 import { GridColDef, GridColumnGroup } from "@mui/x-data-grid";
 import { SerialisedModelSummary } from "@/shared/features/llm";
-// import { OperationModelCellRenderer } from "./ModelClassificationCellRenderer";
 import { createElement } from "react";
 import { OperationModelClassification } from "../../shared";
 import { formatPercentage } from "@/shared/utilities";
+
+const placeholderNaN = (value: number) => {
+  if (Number.isNaN(value)) return '-';
+  return value.toFixed(1);
+};
+
+const formatEfficiency = (
+  value: number
+) => (Number.isNaN(value) ? 0 : value).toFixed(1);
 
 export const modelSummaryColumns: GridColDef<SerialisedModelSummary>[] = [
   {
@@ -31,12 +39,12 @@ export const modelSummaryColumns: GridColDef<SerialisedModelSummary>[] = [
     headerName: 'Infrstr',
     renderCell: ({
       row: { efficiency: { infrastucture } }
-    }) => infrastucture.toFixed(1),
+    }) => formatEfficiency(infrastucture),
   },
   {
     field: 'efficiency.ux',
     headerName: 'UX',
-    renderCell: ({ row: { efficiency: { ux } } }) => ux.toFixed(1),
+    renderCell: ({ row: { efficiency: { ux } } }) => formatEfficiency(ux),
   },
   {
     field: 'count',
@@ -45,19 +53,19 @@ export const modelSummaryColumns: GridColDef<SerialisedModelSummary>[] = [
   {
     field: 'rate',
     headerName: 'Rate',
-    renderCell: ({ row: { rate } }) => formatPercentage(rate, {
+    renderCell: ({ row: { rate } }) => formatPercentage(Number.isNaN(rate) ? 0 : rate, {
       decimalPlaces: 1
     }),
   },
   {
     field: 'runtime.median',
     headerName: 'Median',
-    renderCell: ({ row: { runtime: { median } } }) => median,
+    renderCell: ({ row: { runtime: { median } } }) => placeholderNaN(median),
   },
   {
     field: 'runtime.mean',
     headerName: 'Mean',
-    renderCell: ({ row: { runtime: { mean } } }) => mean,
+    renderCell: ({ row: { runtime: { mean } } }) => placeholderNaN(mean),
   },
 ];
 

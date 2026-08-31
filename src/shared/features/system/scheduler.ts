@@ -4,8 +4,6 @@
 // (catch, error and skip loudly if anything violates).
 // A function to run the operation.
 
-import { getObjectKeys } from "@/shared/utilities";
-
 // Logging SHOULD NOT be handled here. ONLY logic and the singleton data.
 
 // Priority must be measured against system resources. This acts as a comparison.
@@ -17,55 +15,84 @@ const createConfig = <
   T extends Record<string, unknown>
 >(config: T): T => config;
 
+// We currently have two cases:
+// Repeats
+// One-time on startup
+
+// Will also want inactivity-tapering for checks that are more likely to orient
+// around user-action.
+
+// We already have a "priority" function which can be used to rank functions
+// and compare to available resources.
+
 export const TIMEOUT_PRESET_CONFIG = createConfig({
   '10s': 10000,
   '15s': 15000,
   '30s': 30000,
 });
 
-export type TimeoutPreset = keyof typeof TIMEOUT_PRESET_CONFIG;
+type ScheduleConfiguration = {
+  repeat: boolean;
+};
 
-// type TimeoutConfigParams = {
-//   systemReport:
-//   timeoutTrigger: number;
-// };
+type ScheduleEventConfiguration = () => ScheduleConfiguration;
 
-type ScheduledOperation<Params = unknown> = {
+
+export const getScheduleConfigurationReport = (
+  configuration: ScheduleConfiguration
+) => {
+  const delay = 10000;
+  const initialisation = configuration.repeat
+    ? 'to be repeated'
+    : 'once on startup';
+  const config = { delay };
+  const description = { initialisation };
+
+  return { config, description };
+};
+
+type ScheduledOperationBase<Params = unknown> = {
   name: string;
   priority: (params: Params) => number | Promise<number>;
   run: (params: Params) => Promise<void>;
 };
+type ScheduledOperationParams<
+  Params = unknown
+> = ScheduledOperationBase<Params> & {
+  event: ScheduleConfiguration | ScheduleEventConfiguration;
+};
+type ScheduledOperation<
+  Params = unknown
+> = ScheduledOperationBase<Params> & {
+  event: ScheduleEventConfiguration;
+};
 type RunReport = {
   status: 'no-operations' | 'success';
 };
-type EventCallback = (params: { type: '' }) => void;
 
-type Schedules = Record<TimeoutPreset, ScheduledOperation[]>;
+const schedules: ScheduledOperation[] = [];
 
-const schedules = getObjectKeys(TIMEOUT_PRESET_CONFIG).reduce(
-  (acc, key) => ({ ...acc, [key]: [] }), {} as Schedules
-);
 
 // Example cases: Voting, email, explorer (incl. backfill).
 
 // These can be run from anywhere in main (or renderer, technically...
 // depending on whether we *should*... probably not since the renderer side has
 // its own scheduling solutions in potentiae).
-export const scheduleOperationFactory = <Params>(
-  // cb: 
-) => {
+export const scheduleOperationFactory = <Params>() => {
   const add = (
-    timeout: TimeoutPreset, operation: ScheduledOperation<Params>
+    { event, ...params }: ScheduledOperationParams<Params>
   ) => {
-    schedules[timeout].push(operation);
-    // cb(timeout, operation);
+    if (typeof event !== 'function') {
+      return schedules.push({ ...params, event: () => event });
+    }
+    return schedules.push({ ...params, event });
   };
-  const run = async (timeout: TimeoutPreset, params: Params): Promise<RunReport> => {
-    const operations = schedules[timeout];
+  const run = async (params: Params): Promise<RunReport> => {
+    const operations = schedules;
     // TODO: 1. Filter by system capacities, e.g. internet, etc.
     // If no operations, quit with a 'no-operations' status,
     // ideally providing details of the missing requirements.
-
+    // This is a placeholder, which is why it does nothing.
     const availableOperations = operations.filter((_) => true);
 
     if (availableOperations.length === 0) return { status: 'no-operations' };

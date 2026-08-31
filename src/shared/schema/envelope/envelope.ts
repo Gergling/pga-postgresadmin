@@ -1,5 +1,10 @@
 import z, { ZodObject, ZodType } from "zod";
-import { RichDate, richDateSchema, SerialisationDate, serialisationDateSchema } from "../date";
+import {
+  RichDate,
+  richDateSchema,
+  SerialisationDate,
+  serialisationDateSchema
+} from "../date";
 
 const auditEnvelopeSchemaFactory = <T extends ZodObject, U extends RichDate | SerialisationDate>(
   data: T, dateSchema: ZodType<U>
@@ -7,6 +12,26 @@ const auditEnvelopeSchemaFactory = <T extends ZodObject, U extends RichDate | Se
   data: data.partial(),
   updated: dateSchema.describe('This is the date when this data was last updated.'),
 });
+
+const envelopeBaseSchema = z.object({
+  created: serialisationDateSchema.describe('This is the date when the data was wrapped.'),
+  id: z.string().default(() => crypto.randomUUID()),
+  sync: z.number().optional().describe(
+    'Last sync time in epochMilliseconds. Undefined means never synced.'
+  )
+});
+
+export const envelopeSchemaFactory = <T extends z.ZodRawShape>(
+  schema: T
+) => z.object({
+  ...envelopeBaseSchema.shape,
+  audit: z.array(z.object({
+    data: z.object(schema).partial(),
+    updated: serialisationDateSchema.describe('This is the date when this data was last updated.'),
+  })).default([]),
+  data: z.object(schema),
+});
+export type Envelope<T extends z.ZodRawShape = z.ZodRawShape> = z.infer<ReturnType<typeof envelopeSchemaFactory<T>>>;
 
 const baseFactory = <T extends ZodObject, U extends RichDate | SerialisationDate>(
   data: T, dateSchema: ZodType<U>
@@ -19,7 +44,7 @@ const baseFactory = <T extends ZodObject, U extends RichDate | SerialisationDate
     'Last sync time in epochMilliseconds. Undefined means never synced.'
   ),
 });
-export type Envelope<T extends ZodObject, U extends RichDate | SerialisationDate> = z.infer<
+export type EnvelopeLegacy<T extends ZodObject, U extends RichDate | SerialisationDate> = z.infer<
   ReturnType<typeof baseFactory<T, U>>
 >;
 
@@ -32,7 +57,7 @@ export type EnvelopeSchemaFactoryParams<T extends ZodObject> = {
   };
 };
 
-const envelopeSchemaFactory = <
+const envelopeSchemaFactoryLegacy = <
   U extends RichDate | SerialisationDate
 >(
   dateSchema: ZodType<U>
@@ -51,7 +76,7 @@ const envelopeSchemaFactory = <
 
 export const envelopeSerialisationSchemaFactory = <T extends ZodObject>(
   params: EnvelopeSchemaFactoryParams<T>
-) => envelopeSchemaFactory(serialisationDateSchema)(params);
+) => envelopeSchemaFactoryLegacy(serialisationDateSchema)(params);
 export type SerialisationEnvelopeSchema<T extends ZodObject> = ReturnType<
   typeof envelopeSerialisationSchemaFactory<T>
 >;
@@ -61,7 +86,7 @@ export type SerialisationEnvelope<T extends ZodObject> = z.infer<
 
 export const envelopeRichSchemaFactory = <T extends ZodObject>(
   params: EnvelopeSchemaFactoryParams<T>
-) => envelopeSchemaFactory(richDateSchema)(params);
+) => envelopeSchemaFactoryLegacy(richDateSchema)(params);
 export type RichEnvelopeSchema<TCoreSchema extends ZodObject> = ReturnType<
   typeof envelopeRichSchemaFactory<TCoreSchema>
 >;

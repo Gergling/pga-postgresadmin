@@ -22,8 +22,20 @@ const taskCoreTimelineSerialisationSchema = z.object({
 export type TaskCoreTimelineRich = z.infer<typeof taskCoreTimelineRichSchema>;
 export type TaskCoreTimelineSerialised = z.infer<typeof taskCoreTimelineSerialisationSchema>;
 
+const taskCoreBaseRelationshipSchema = z.object({
+  children: z.array(z.string()).catch([]),
+  parent: z.string().optional(),
+  predecessors: z.array(z.string()).catch([]),
+  successors: z.array(z.string()).catch([]),
+});
+
+export type TaskCoreBaseRelationship = z.infer<
+  typeof taskCoreBaseRelationshipSchema
+>;
+
 const taskCoreBaseSchema = z.object({
   description: z.string().catch(''),
+  relationships: taskCoreBaseRelationshipSchema.catch(taskCoreBaseRelationshipSchema.parse({})),
   source: taskSourceSchema.catch({ type: 'manual' }),
   status: taskWorkflowStateSchema,
   summary: z.string().catch(''),

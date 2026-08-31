@@ -3,7 +3,9 @@ import {
   COUNCIL_MEMBER,
   CouncilMemberNames,
   councilMemberNamesSchema,
+  TaskImportance,
   taskImportanceSchema,
+  TaskMomentum,
   taskMomentumSchema,
   TaskVoteBaseNames,
   VoteProps,
@@ -38,9 +40,6 @@ export type TaskRanksMap = {
   [K in VotePropsName]: Record<VotePropsMap[K], number>;
 }
 export type TaskRanks<PropsName extends VotePropsName> = TaskRanksMap[PropsName];
-
-export type TaskImportance = VotePropsMap['importance'];
-export type TaskMomentum = VotePropsMap['momentum'];
 
 export type CouncilVotes<T extends TaskImportance | TaskMomentum> = Record<CouncilMemberNames, T | TaskVoteBaseNames>;
 

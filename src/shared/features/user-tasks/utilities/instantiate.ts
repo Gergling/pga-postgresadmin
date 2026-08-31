@@ -3,6 +3,7 @@ import {
   EnvelopeFactory,
   EnvelopeInstance,
 } from "@/shared/schema";
+import { codec } from "@/shared/utilities";
 import {
   CouncilMemberNames,
   TaskRich,
@@ -11,11 +12,14 @@ import {
   taskSerialisationSchema,
   TaskWorkflowEvent,
 } from "../schema";
-import { reduceFsm } from "./fsm";
-import { getVoteSummary } from "./votes-task";
-import { codec } from "@/shared/utilities";
-import { taskTimelineCodec } from "./timeline";
 import { PRIORITY_COUNCILLOR_VOTING_OPINION_ORDER } from "../constants";
+import {
+  reduceTaskRelationshipState,
+  TaskRelationshipAction
+} from "../state";
+import { reduceFsm } from "./fsm";
+import { taskTimelineCodec } from "./timeline";
+import { getVoteSummary } from "./votes-task";
 
 const taskEnvelopeCodec = envelopeCodecFactory(
   taskSerialisationSchema, taskRichSchema
@@ -43,10 +47,7 @@ export class Task extends EnvelopeInstance<Props['base']> {
     super(params);
     this.view = 'edge';
   }
-  applyStatusEvent(event: TaskWorkflowEvent) {
-    const status = reduceFsm(this.envelope.data.status, event);
-    return this.updateData({ status });
-  }
+
   get voteSummary() {
     return getVoteSummary(this.envelope);
   }
@@ -56,6 +57,18 @@ export class Task extends EnvelopeInstance<Props['base']> {
         councillor
       ].summary.awaiting > 0
     );
+  }
+
+  link(action: TaskRelationshipAction) {
+    const {
+      data: { relationships }
+    } = reduceTaskRelationshipState(this.envelope, action);
+    return this.updateData({ relationships });
+  }
+
+  applyStatusEvent(event: TaskWorkflowEvent) {
+    const status = reduceFsm(this.envelope.data.status, event);
+    return this.updateData({ status });
   }
 }
 

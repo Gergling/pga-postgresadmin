@@ -5,6 +5,7 @@ import {
   SerialisationDate,
   serialisationDateSchema
 } from "../date";
+import { Temporal } from "@js-temporal/polyfill";
 
 const auditEnvelopeSchemaFactory = <T extends ZodObject, U extends RichDate | SerialisationDate>(
   data: T, dateSchema: ZodType<U>
@@ -21,17 +22,44 @@ const envelopeBaseSchema = z.object({
   )
 });
 
-export const envelopeSchemaFactory = <T extends z.ZodRawShape>(
+const envelopeSchemaExtensionFactory = <T extends z.ZodRawShape>(
   schema: T
 ) => z.object({
-  ...envelopeBaseSchema.shape,
   audit: z.array(z.object({
     data: z.object(schema).partial(),
     updated: serialisationDateSchema.describe('This is the date when this data was last updated.'),
   })).default([]),
   data: z.object(schema),
 });
-export type Envelope<T extends z.ZodRawShape = z.ZodRawShape> = z.infer<ReturnType<typeof envelopeSchemaFactory<T>>>;
+export const envelopeSchemaFactory = <T extends z.ZodRawShape>(
+  schema: T
+) => z.object({
+  ...envelopeBaseSchema.shape,
+  // audit: z.array(z.object({
+  //   data: z.object(schema).partial(),
+  //   updated: serialisationDateSchema.describe('This is the date when this data was last updated.'),
+  // })).default([]),
+  // data: z.object(schema),
+  ...envelopeSchemaExtensionFactory(schema).shape,
+});
+export type EnvelopeSchema<
+  T extends z.ZodRawShape = z.ZodRawShape
+> = ReturnType<typeof envelopeSchemaFactory<T>>;
+export type Envelope<T extends z.ZodRawShape = z.ZodRawShape> = z.infer<
+  EnvelopeSchema<T>
+>;
+export type EnvelopeFromCore<Core extends object> = z.infer<
+  typeof envelopeBaseSchema
+> & {
+  audit: { data: Partial<Core>; updated: SerialisationDate; }[];
+  data: Core;
+};
+export type EnrichedEnvelopeFromCore<Core extends object> = Omit<
+  EnvelopeFromCore<Core>, 'audit' | 'created'
+> & {
+  audit: { data: Partial<Core>; updated: Temporal.ZonedDateTime; }[];
+  created: Temporal.ZonedDateTime;
+};
 
 const baseFactory = <T extends ZodObject, U extends RichDate | SerialisationDate>(
   data: T, dateSchema: ZodType<U>

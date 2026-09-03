@@ -1,6 +1,8 @@
 import z from "zod";
 import { parserFactory } from "../database";
-import { serialisationDateSchema } from "../date";
+import { serialisationDateNow, serialisationDateSchema } from "../date";
+import { Envelope, EnvelopeSchema } from "./envelope";
+import { Temporal } from "@js-temporal/polyfill";
 
 export const envelopeParserFactory = <T extends z.ZodObject>({
   dataSchema, ...props
@@ -30,3 +32,8 @@ export const envelopeParserFactory = <T extends z.ZodObject>({
 
   return { parser };
 };
+
+export const createNewEnvelope = <T extends EnvelopeSchema>(
+  schema: T, data: z.infer<T>['data'],
+  now: Temporal.ZonedDateTime = Temporal.Now.zonedDateTimeISO()
+) => schema.parse({ created: serialisationDateNow(now), data });

@@ -1,5 +1,18 @@
 export type Comparator<T> = (a: T, b: T) => number;
 
+export const compareUndefinedAsc = (a?: unknown, b?: unknown): number => {
+  if (!a) {
+    if (!b) return 0;
+    return -1;
+  }
+  if (!b) return 1;
+  return 0;
+};
+
+export const compareAlphabeticalAsc: Comparator<string> = (
+  a, b
+) => a.localeCompare(b);
+
 export const comparatorFactory = <T>() => {
   type SpecialComparator = Comparator<T>;
 
@@ -26,5 +39,9 @@ export const comparatorFactory = <T>() => {
     return 0;
   };
 
-  return { create, flip, rank, stack };
+  const map = <To>(
+    fn: (from: T) => To, comparator: Comparator<To>
+  ): Comparator<T> => (a, b) => comparator(fn(a), fn(b));
+
+  return { create, flip, rank, stack, map };
 };

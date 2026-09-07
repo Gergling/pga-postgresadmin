@@ -1,8 +1,5 @@
 import { LanguageModelHistoryBase } from "../schema";
-
-export type ReduceLlmHistoryProps = {
-  failureCount: 0, retryableCount: 0, successfulRuntimes: []
-};
+import { ReduceLlmHistoryProps } from "../types";
 
 export const reduceLlmHistory = (
   acc: ReduceLlmHistoryProps, { runtime, status }: LanguageModelHistoryBase

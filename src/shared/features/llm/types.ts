@@ -3,3 +3,9 @@ export type LlmInstruction = {
   context: string;
   instruction: string;
 } | string;
+
+export type ReduceLlmHistoryProps = {
+  failureCount: number;
+  retryableCount: number;
+  successfulRuntimes: number[];
+};

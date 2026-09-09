@@ -62,6 +62,22 @@ const createCode = () => {
   return code;
 };
 
+const shouldShowChildren = (
+  options: LogOptions, parentOperation?: LogOperationState
+) => {
+  if (options.showSummary !== undefined) return !!options.showSummary;
+
+  if (
+    options.showSummaryChildren !== undefined
+  ) return options.showSummaryChildren;
+
+  if (
+    parentOperation?.summary.showChildren !== undefined
+  ) return parentOperation?.summary.showChildren;
+
+  return false;
+};
+
 export const startOperation = (
   parentCode: string = ROOT_CODE, title: string, options: LogOptions
 ) => {
@@ -82,11 +98,10 @@ export const startOperation = (
     parent: parentCode,
     summary: {
       debug: options.debug ?? parentOperation?.summary.debug ?? false,
-      showChildren: !!options.showSummary
-        || (options.showSummaryChildren
-          ?? parentOperation?.summary.showChildren
-          ?? false),
-      suppress: options.showSummary === false,
+      showChildren: shouldShowChildren(
+        options, parentOperation
+      ),
+      suppress: options.showSummary === false || !!parentOperation?.summary.suppress,
     },
     start: getIsoDateTimeString(),
     status: 'awaiting',

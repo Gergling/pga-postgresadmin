@@ -56,7 +56,8 @@ const printStartLine = (operation: LogOperationState) => {
 const printEndLine = (operation: LogOperationState) => {
   const status = getStatus(operation);
 
-  const endLine = [status.icon, ANSI_COLOUR_MAP.reset].join(' ') + '\n';
+  const duration = operation.duration ? `${operation.duration}ms` : '';
+  const endLine = [status.icon, ANSI_COLOUR_MAP.reset, duration].join(' ') + '\n';
 
   stdio(endLine);
   setLineStart(true);

@@ -1,15 +1,9 @@
-import { getObjectKeys, wait } from "@/shared/utilities";
+import { wait } from "@/shared/utilities";
 import {
+  getScheduleConfigurationReport,
   scheduleOperationFactory,
-  TIMEOUT_PRESET_CONFIG,
-  TimeoutPreset
 } from "@/shared/features/system";
 import { log, LogApi } from "@/main/shared";
-
-// const logApi = log('Scheduler', async ({ log }) => ({
-//   logAdd: log('Scheduling operations', async (logApi) => logApi),
-//   logRun: log('Running operations', async (logApi) => logApi),
-// }));
 
 const {
   add,
@@ -20,51 +14,72 @@ const {
 export const scheduleOperation = async (
   ...args: Parameters<typeof add>
 ) => {
-  const timeout = args[0];
-  const operation = args[1];
+  const operation = args[0];
   return log(
-    `Scheduling operation "${operation.name}" for ${timeout}`,
+    `Scheduling operation "${operation.name}"`,
     async () => add(...args)
   );
 }
 
-log('Running scheduled operations', async ({ log }) => {
-  const start = () => getObjectKeys(schedules).forEach(
-    (timeout) => log(
-      `Starting ${timeout} tick`, async (logApi) => {
-        const tick = async (timeout: TimeoutPreset, { log, setStatus }: LogApi) => {
-          const scheduled = schedules[timeout];
-          const delay = TIMEOUT_PRESET_CONFIG[timeout];
+log('Running scheduled operations', async (logApi) => {
+  const start = () => Promise.all(schedules.map(
+    (operation) => {
+      // Just leaving this here as a reminder that we may want to delay a
+      // scheduled operation later for any reason.
+      // const { onStart } = operation.event();
 
-          setStatus('information', `${timeout}: ${scheduled.length} operations`);
+      const {
+        description,
+      } = getScheduleConfigurationReport(operation.event());
 
-          await runScheduledOperations(timeout, { logApi });
-          // await log(
-          //   `${timeout}: ${scheduled.length} operations`,
-          //   async (logApi) => {
-          //     // if (response.status === 'no-operations') logApi.setStatus(
-          //     //   'information', 'No operations scheduled.'
-          //     // );
-          //     return response;
-          //   }
-          // );
+      return logApi.log(
+        `Running ${operation.name}: ${description.initialisation}`, async (logApi) => {
+          const tick = async ({ log, setStatus }: LogApi) => {
+            const scheduleConfiguration = operation.event();
+            const {
+              config: { delay },
+            } = getScheduleConfigurationReport(scheduleConfiguration);
+            const { repeat } = scheduleConfiguration;
 
-          await wait(delay);
+            await runScheduledOperations({
+              logApi: {
+                ...logApi, options: {
+                  ...logApi.options, showSummary: false
+                }
+              }
+            });
 
-          tick(timeout, logApi);
-        };
-        tick(timeout, logApi);
-      }
-    )
-  );
+            if (repeat) {
+              await wait(delay);
+
+              tick(logApi);
+            }
+          };
+          tick(logApi);
+        }
+      )
+    }
+  ));
 
   start();
 });
 
-scheduleOperation('10s', {
-  name: 'Test operation',
+scheduleOperation({
+  event: { repeat: false },
+  name: 'Non-repeating test operation',
   priority: async () => 1,
-  run: async ({ logApi }) => logApi.log('Test operation log')
+  run: async ({ logApi }) => logApi.log('Non-repeating test operation log title')
+});
+scheduleOperation({
+  event: { repeat: true },
+  name: 'Repeating test operation',
+  priority: async () => 1,
+  run: async ({ logApi }) => logApi.log(
+    'Repeating test operation log title',
+    async (logApi) => {
+      console.log('Repeating test operation log content');
+    }, { showSummary: true }
+  )
 });
 
 // Should be able to assign a schedule from outside the feature.

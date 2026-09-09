@@ -1,10 +1,18 @@
 import Datastore from '@seald-io/nedb';
 
 export type FindOneArgs = [query: any] | [query: any, projection: any];
+/**
+ * @todo Can we really not use Datastore.findOneAsync?
+ * @param db 
+ * @param args 
+ * @returns 
+ */
 export function findOne<T>(
   db: Datastore<T>, ...args: FindOneArgs
 ) {
   const [query, projection] = args;
+  // if (typeof query === 'string') 
+  // return db.findOneAsync(query, projection);
   return new Promise<T | null>((resolve, reject) => {
     const callback = (err: Error | null, doc: T | null) => {
       if (err) return reject(err);

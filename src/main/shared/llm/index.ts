@@ -1,3 +1,4 @@
+export * from './crud';
 export * from './extraction';
 export * from './get-update-props';
 export * from './orchestration';

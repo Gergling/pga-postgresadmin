@@ -11,6 +11,7 @@ import { generatorFactory } from '../utilities';
 import { LanguageAnalysisState } from "./state";
 import { LanguageModelProps, LlmCoreIdentifier } from '@/shared/features/llm';
 import { llmSummariseOperation } from '../crud';
+import { fetchModels, fetchSourceModels } from '../extraction';
 
 const runModel = <CompletionProps>({
   generator,
@@ -56,6 +57,11 @@ export const configureLanguageModelStrategies = (
 ) => {
   const fetchNextModel = fetchNextModelFactory(sources);
   const generatorLookup = generatorFactory(sources);
+  const fetchAvailableModels = ({
+    logApi
+  }: { logApi: LogApi }) => fetchSourceModels({
+    excluded: [], logApi, preferred: [], sources
+  });
 
   const analyser = async <CompletionProps>(
     prompt: string,
@@ -123,5 +129,5 @@ export const configureLanguageModelStrategies = (
     }
   );
 
-  return analyser;
+  return { analyser, fetchAvailableModels };
 };

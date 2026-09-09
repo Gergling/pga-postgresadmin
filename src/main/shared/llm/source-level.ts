@@ -27,7 +27,7 @@ export const languageModelSourceLevelConfig: LanguageModelSourceLevelFunction = 
     params
   ): Promise<LanguageModelProps[]> => {
     const excluded = params.excluded.reduce(reduceMatchingSourceModelName, []);
-    const preferred = params.excluded.reduce(reduceMatchingSourceModelName, []);
+    const preferred = params.preferred.reduce(reduceMatchingSourceModelName, []);
     const models = await props.models(params);
     return models.map((model) => ({
       ...model,

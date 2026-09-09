@@ -1,12 +1,11 @@
-import { ZodObject } from 'zod';
-import { SerialisationEnvelope } from '@/shared/schema';
+import { Envelope } from '@/shared/schema';
 import { instantiateNeDbWrapper } from './instantiator';
 
 export const setupBasicNeDb = <T extends object>(
   collectionName: string
 ) => instantiateNeDbWrapper<T>(collectionName);
 
-export const setupLocalNeDb = <T extends SerialisationEnvelope<ZodObject>>(
+export const setupLocalNeDb = <T extends Envelope>(
   collectionName: string,
 ) => {
   const local = setupBasicNeDb<T>(collectionName);

@@ -1,6 +1,5 @@
 import {
   LanguageModelHistoryBase,
-  languageModelHistorySchema,
   SerialisedModelSummary,
 } from "../schema";
 import { llmParseHistory } from "./history";
@@ -50,6 +49,7 @@ export const transformLlmModelHistory = (
 
     // Model group has history data added.
     modelGroup.add(record);
+    groupedByModel.set(modelKey, modelGroup);
   });
 
   return Array.from(groupedByModel.values()).map(group => group.serialised);

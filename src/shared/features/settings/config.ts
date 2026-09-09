@@ -14,6 +14,12 @@ export const applicationSettingsSchemaFactory = <T extends ZodType>(
     user: zod.string().optional(),
     pass: secured,
   }).optional(),
+  google: zod.object({
+    health: zod.object({
+      apiKey: secured,
+    }).optional(),
+    // TODO: Move mail, gemini and firebase to here
+  }).optional(),
   projects: zod.object({
     path: zod.string().optional(),
   }).optional(),

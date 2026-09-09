@@ -7,6 +7,7 @@ import {
 import {
   LanguageModelGeneratorFunctionParams,
 } from "./base";
+import { LogApi } from "../../logging";
 
 export type LanguageModelSourceLevelProps = Omit<LanguageModelProps, 'source'>;
 
@@ -32,13 +33,13 @@ type LanguageModelSourceLevelConfigBase = {
 export type LanguageModelSourceLevelConfigParams =
   & LanguageModelSourceLevelConfigBase
   & {
-    models: LanguageModelListFunction<LanguageModelSourceLevelProps[]>;
+    models: LanguageModelListFunction<LanguageModelSourceLevelProps[], LogApi>;
   }
   ;
 export type LanguageModelSourceLevelConfigResponse =
   & LanguageModelSourceLevelConfigBase
   & {
-    models: LanguageModelListFunction<LanguageModelProps[]>;
+    models: LanguageModelListFunction<LanguageModelProps[], LogApi>;
   }
   ;
 

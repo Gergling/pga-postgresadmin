@@ -7,13 +7,16 @@ import {
 } from "@/shared/features/llm";
 import { LogApi } from "@/main/shared/logging";
 
-export type LanguageModelOrchestrationListFunction = (props: {
+export type LanguageModelOrchestrationListFunctionParams = {
   attempts: number;
   excluded: LlmCoreIdentifier[];
   logApi: LogApi;
   operation: string;
   preferred: LlmCoreIdentifier[];
-}) => Promise<LanguageModelProps | undefined>;
+};
+export type LanguageModelOrchestrationListFunction = (
+  props: LanguageModelOrchestrationListFunctionParams
+) => Promise<LanguageModelProps | undefined>;
 
 export type LanguageModelOrchestrationUpdatePayloadTypeProps<SuccessPayload> = {
   type: 'custom';

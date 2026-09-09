@@ -16,9 +16,10 @@ export const extractPersonalFolders = async () => {
     const folders = entries
       .filter(entry => entry.isDirectory())
       .map(entry => transformProjectFromPath(targetPath, entry.name));
-      
+
     return folders;
   } catch (error) {
     console.error("Could not read directory:", error);
+    throw error;
   }
 }

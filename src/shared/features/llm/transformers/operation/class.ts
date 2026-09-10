@@ -1,9 +1,9 @@
 import {
   LanguageModelHistoryBase,
   SerialisedModelSummary,
-} from "../schema";
-import { llmParseHistory } from "./history";
-import { ModelGroup } from "./model";
+} from "../../schema";
+import { llmParseHistory } from "../history";
+import { ModelGroup } from "../model";
 import { OperationGroup } from "./summary";
 
 const getOperationGroup = (

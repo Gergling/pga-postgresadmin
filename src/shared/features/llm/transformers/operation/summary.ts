@@ -2,8 +2,8 @@ import {
   LanguageModelHistoryBase,
   SerialisedOperationSummary,
   serialisedOperationSummarySchema
-} from "../schema";
-import { ModelGroup } from "./model";
+} from "../../schema";
+import { ModelGroup } from "../model";
 
 export class OperationGroup {
   groupedByModel: Map<string, ModelGroup>;

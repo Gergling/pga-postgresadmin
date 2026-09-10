@@ -2,22 +2,19 @@ import { mean, median } from "@/shared/utilities";
 import {
   SerialisedModelSummary,
   SerialisedModelSummaryValues
-} from "../schema";
-import { ReduceLlmHistoryProps } from "../types";
+} from "../../schema";
+import { ReduceLlmHistoryProps } from "../../types";
+import { getModelEfficiency } from "../../utilities";
+import { getModelActionClassification } from "./classification";
 import {
-  compareLlmModelsForExperimentation,
-  compareLlmModelsForStability,
-  getModelActionClassification
-} from "./utilities";
-import { getModelEfficiency } from "../utilities";
+  compareLlmModelFactory,
+} from "./comparators";
 
 export const transformLlmModelSummaryFactory = (
   data: SerialisedModelSummary[]
 ) => {
   const sort = (experimental: boolean) => {
-    const comparator = experimental
-      ? compareLlmModelsForExperimentation
-      : compareLlmModelsForStability;
+    const comparator = compareLlmModelFactory(!experimental);
     return [...data].sort(comparator);
   }
 

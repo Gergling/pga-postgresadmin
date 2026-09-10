@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from "vitest";
 import {
   compareExperimentalModelActionClassifications,
   compareStableModelActionClassifications
-} from './utilities';
+} from "./classification";
 
 describe('Model Classification Comparators', () => {
 

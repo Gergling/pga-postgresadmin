@@ -3,12 +3,9 @@ import {
   SerialisedModelSummary,
   SerialisedModelSummaryValues
 } from "../../schema";
-import { getModelGroupValues } from "../model-summary";
+import { getModelGroupValues } from "./summary";
 import { reduceLlmHistory } from "../reducers";
-import {
-  compareLlmModelsForExperimentation,
-  compareLlmModelsForStability
-} from "../utilities";
+import { compareLlmModelFactory } from "./comparators";
 
 export class ModelGroup {
   data: LanguageModelHistoryBase[];
@@ -57,10 +54,7 @@ export class ModelGroup {
     ].includes(this.values.classification);
   }
   selectModel(subject: ModelGroup, stable: boolean): ModelGroup {
-    const comparator = stable
-      ? compareLlmModelsForStability
-      : compareLlmModelsForExperimentation
-      ;
+    const comparator = compareLlmModelFactory(stable);
 
     const comparison = comparator(subject.serialised, this.serialised);
 

@@ -51,7 +51,7 @@ export const CONVENTIONAL_COMMIT_MESSAGE_SCHEMA = z.object({
     feature or tech layer affected. If the scope is too broad to boil down to a
     single word, this should be omitted altogether.
   `),
-  summary: z.string().max(70).describe('The summary of the commit message'),
+  summary: z.string().describe('The summary of the commit message'),
   type: z.union(CONVENTIONAL_COMMIT_TYPES_LIST.map((commitType) => {
     const description = CONVENTIONAL_COMMIT_TYPES[commitType];
     return z.literal(commitType).describe(description);

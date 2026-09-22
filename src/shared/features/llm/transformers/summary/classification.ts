@@ -90,10 +90,10 @@ export const compareStableLlmClassifications = factory.rank(
 // Experimental is inexperience followed by relative divergence
 // Stable is efficiency (UX for now) first.
 
-type GetSummaryClassificationParams = Pick<LlmHistoryRelative, 'relative'> & {
-  aggregation: LlmHistoryRelative['aggregation'];
-  runs: Pick<LlmHistoryRelative['runs'], 'failures'>;
-};
+// type GetSummaryClassificationParams = Pick<LlmHistoryRelative, 'relative'> & {
+//   aggregation: LlmHistoryRelative['aggregation'];
+//   runs: Pick<LlmHistoryRelative['runs'], 'failures'>;
+// };
 // export const getSummaryClassification = ({
 //   aggregation: { successful, terminal, total },
 //   max,

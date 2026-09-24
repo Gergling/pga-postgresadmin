@@ -1,13 +1,24 @@
 import { ComparatorFactory } from "@/shared/utilities";
-import { LlmHistoryRelative } from "../../schema";
 import {
-  compareExperimentalLlmClassifications,
-  compareStableLlmClassifications
-} from "./classification";
+  LlmHistoryClassification,
+  LlmHistoryRelative
+} from "../../schema";
 
-const classificationMap = ({
-  classification
-}: LlmHistoryRelative) => classification;
+export const [
+  compareLlmByExperimentalClassifications,
+  compareLlmByStableClassifications,
+] = ([
+  [
+    'potential', 'unreliable', 'untested', 'stable', 'unsuccessful'
+  ],
+  [
+    'stable', 'potential', 'untested', 'unreliable', 'unsuccessful'
+  ],
+] satisfies LlmHistoryClassification[][]).map(
+  (values) => ComparatorFactory.rank<LlmHistoryClassification>(
+    values
+  ).from<LlmHistoryRelative>((value) => value.classification)
+);
 
 const [
   divergence,
@@ -19,21 +30,14 @@ const [
   ({ success: { efficiency: { ux } } }) => ux,
 ]);
 
-const experimentalClassifications = ComparatorFactory.instantiate(
-  compareExperimentalLlmClassifications
-).from(classificationMap);
-const stableClassifications = ComparatorFactory.instantiate(
-  compareStableLlmClassifications
-).from(classificationMap);
-
 export const compareLlmModelsForStability = ComparatorFactory.instantiate([
-  stableClassifications,
+  compareLlmByStableClassifications,
   uxEfficiency.flip(),
   experience.flip(),
   divergence.flip(),
 ]);
 export const compareLlmModelsForExperimentation = ComparatorFactory.instantiate([
-  experimentalClassifications,
+  compareLlmByExperimentalClassifications,
   experience,
   divergence,
 ]);

@@ -32,6 +32,9 @@ export const compareAlphabeticalAsc: Comparator<string> = (
   a, b
 ) => a.localeCompare(b);
 
+/**
+ * @deprecated Use `ComparatorFactory` instead.
+ */
 export const flipComparator = <T>(
   comparator: Comparator<T>
 ): Comparator<T> => (a, b) => comparator(b, a);
@@ -46,7 +49,7 @@ export class ComparatorFactory<T> {
     a, b
   ) => this.comparator(b, a));
 
-  rank = (ranking: T[]) => new ComparatorFactory<T>((
+  static rank = <T>(ranking: T[]) => new ComparatorFactory<T>((
     a, b
   ) => ranking.indexOf(a) - ranking.indexOf(b));
 
@@ -86,6 +89,7 @@ export class ComparatorFactory<T> {
     if (Array.isArray(params)) return ComparatorFactory.stack(params.map(
       (param) => ComparatorFactory.instantiate(param)
     ));
+    if (params instanceof ComparatorFactory) return params;
     if (typeof params === 'function') {
       return new ComparatorFactory(params)
     };

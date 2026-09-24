@@ -1,4 +1,4 @@
-import { comparatorFactory } from "@/shared/utilities";
+import { ComparatorFactory, comparatorFactory } from "@/shared/utilities";
 import { LlmHistoryClassification, LlmHistoryRelative, ModelClassification } from "../../schema";
 
 const STABILITY_THRESHOLD = 5;
@@ -59,79 +59,6 @@ export const compareExperimentalModelActionClassifications
 export const compareStableModelActionClassifications
   = classificationComparatorFactory.rank(stabilityRanking);
 
-
-// Classifications (use the same return-early function):
-// stable (probably at least half the maximum runs in successes)
-// potential (has successes)
-// untested (no runs)
-// unsuccessful (no successes, probably at least half
-// the maximum runs are non-retryable failures)
-// unreliable - default return
-
-const ranking = {
-  experimental: [
-    'potential', 'unreliable', 'untested', 'stable', 'unsuccessful'
-  ] satisfies LlmHistoryClassification[],
-  stable: [
-    'stable', 'potential', 'untested', 'unreliable', 'unsuccessful'
-  ] satisfies LlmHistoryClassification[],
-};
-
-const factory = comparatorFactory<LlmHistoryClassification>();
-
-export const compareExperimentalLlmClassifications = factory.rank(
-  ranking.experimental
-);
-export const compareStableLlmClassifications = factory.rank(
-  ranking.stable
-);
-
-
-// Experimental is inexperience followed by relative divergence
-// Stable is efficiency (UX for now) first.
-
-// type GetSummaryClassificationParams = Pick<LlmHistoryRelative, 'relative'> & {
-//   aggregation: LlmHistoryRelative['aggregation'];
-//   runs: Pick<LlmHistoryRelative['runs'], 'failures'>;
-// };
-// export const getSummaryClassification = ({
-//   aggregation: { successful, terminal, total },
-//   max,
-//   relative: { divergence, experience },
-//   runs: { failures },
-//   scaled: { success },
-//   totalRuns,
-// }: GetSummaryClassificationParams): LlmHistoryClassification => ([
-//   // Stability is classified when there are at least 2 successful runs AND
-//   // there must have been at least 5 runs across all models (which could still
-//   // be just this one model, which we don't care about too much).
-//   // This classification is "terminal" for stable models, unless success rate
-//   // decreases.
-//   // TODO: I hate it. I hate it all so much. And I don't even know why.
-//   // I have a suspicion its got nothing to do with the code or the application.
-//   { check: () => totalRuns >= 5 && successful > 1, name: 'stable' },
-//   // Potential is classified when there are any successful runs. This category
-//   // is the highest experimental priority to ensure it is cleared from this
-//   // category as soon as possible.
-//   // This classification should never be "terminal" and should always be as
-//   // volatile as possible to be either upgraded to stable or downgraded to
-//   // unsuccessful. It should be the highest priority for experimentation and
-//   // second highest priority to stable models.
-//   { check: () => success > 0, name: 'potential' },
-//   // Unsuccessful is classified when more than half the maximum runs of any
-//   // model were failures.
-//   // This classification should be "terminal" because it will be consistently
-//   // the lowest priority to test.
-//   { check: () => failures > max.total / 2, name: 'unsuccessful' },
-//   // Untested is classified when there are no runs.
-//   // This classification should not be "terminal" as experimental runs should
-//   // be looking for new options, and stable runs should be looking for something
-//   // better than unsuccessful.
-//   { check: () => total === 0, name: 'untested' },
-// ] satisfies {
-//   check: () => boolean;
-//   name: LlmHistoryClassification;
-// }[]).find(({ check }) => check())?.name ?? 'unreliable';
 export const getSummaryClassification = ({
   aggregation: { successful, total },
   runs: { failures },

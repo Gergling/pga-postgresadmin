@@ -11,6 +11,7 @@ import { transformLanguageModelResponse } from "./transform";
 import { LanguageModelOrchestrationUpdateProps, llmRunCore, llmRunCoreStarted } from "../types";
 import { getUpdateProps } from "../get-update-props";
 
+// Abstraction: schema
 const analyseLanguageStateSchema = z.object({
   current: z.discriminatedUnion('phase', [
     z.object({ phase: z.literal('ready') }),
@@ -34,6 +35,8 @@ export type AnalyseLanguageStateAction = (
   props: AnalyseLanguageState
 ) => AnalyseLanguageState;
 
+// Abstraction: probably just transform or reducers or something.
+// Actually, these seem to be just reducers.
 const setModelActionFactory = (
   source: string, model: string
 ): AnalyseLanguageStateAction => (state) => {
@@ -246,7 +249,7 @@ export class LanguageAnalysisState<UpdateCompletionProps> {
     };
     const llm = { ...currentState, name: currentState.model };
 
-    // An unsuccessful response can yield a simple
+    // An unsuccessful response can yield something simple.
     if (result.status !== 'success') {
       this.handleRunCompletion(currentState);
       return getUpdateProps(this, result, llm);

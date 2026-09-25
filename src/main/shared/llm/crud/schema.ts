@@ -3,65 +3,51 @@ import { Optional } from "@/shared/types";
 import {
   LanguageModelHistoryBase,
   LlmOperationSummary,
-  llmParseHistory,
   SerialisedModelSummary,
   SerialisedOperationSummary,
   SerialisedOperationSummaryReliability,
   serialisedOperationSummaryReliabilityKeys,
   serialisedOperationSummarySchema,
+} from "@/shared/features/llm";
+import {
+  OperationGroup
+} from "@/shared/features/llm/transformers/operation/summary";
+import { LogApi } from "../../logging";
+import {
   transformLlmModelHistory,
   transformLlmOperationHistory
-} from "@/shared/features/llm";
-import { OperationGroup } from "@/shared/features/llm/transformers/summary";
-import { LogApi } from "../../logging";
-
-const history = setupBasicNeDb<LanguageModelHistoryBase>('language-model-history');
-history.db.setAutocompactionInterval(1000 * 60 * 60 * 12);
+} from "@/shared/features/llm/transformers/operation/class";
+import {
+  insertLlmHistory,
+  readLlmHistory,
+  readLlmHistoryBySourceAndModel
+} from "./history";
 
 const operationSummaryDb = setupBasicNeDb<SerialisedOperationSummary>('language-model-operation');
 operationSummaryDb.db.setAutocompactionInterval(1000 * 60 * 60 * 12);
 
+/**
+ * @deprecated Use `insertLlmHistory`.
+ * @param data 
+ * @returns 
+ */
 export const llmModelRunInsert = (
   data: Optional<LanguageModelHistoryBase, 'timestamp'>
-) => history.insert({ ...data, timestamp: Date.now() });
-
-const llmReadModelHistory = async (
-  source: string, model: string
-) => {
-  const data = await history.db.findAsync({ source, model });
-  return llmParseHistory(data);
-}
+) => insertLlmHistory(data);
 
 export const llmReadSummarisedModelHistory = async (
   source: string, model: string
 ) => {
-  const history = await llmReadModelHistory(source, model);
+  const history = await readLlmHistoryBySourceAndModel(source, model);
   return transformLlmModelHistory(history);
 }
 
 const llmReadSummarisedOperationHistory = async (
   operation: string, { log }: LogApi
 ) => log(`Reading operation history: "${operation}"`, async ({ log }) => {
-  const operationResults = await history.db.findAsync({ operation });
+  const operationResults = await readLlmHistory(operation);
   return transformLlmOperationHistory(operationResults);
 });
-
-export const llmReadSummarisedOperationModels = async (
-  operation: string, { log }: LogApi
-) => log(`Reading summarised operation models: "${operation}"`, async (logApi) => {
-  const summarisedOperations = await llmReadSummarisedOperationHistory(
-    operation, logApi
-  );
-  return summarisedOperations.reduce(
-    (awaiting, operationGroup) => {
-      operationGroup.groupedByModel.forEach((modelGroup) => {
-        awaiting.push(modelGroup.serialised);
-      });
-      return awaiting;
-    },
-    [] as SerialisedModelSummary[]
-  );
-})
 
 const llmSummariseOperations = (
   operationGroups: OperationGroup[]
@@ -112,14 +98,6 @@ export const llmSummariseOperation = async (
 export const llmReadOperationSummary = async (name: string): Promise<
   SerialisedOperationSummary | undefined
 > => operationSummaryDb.db.findOneAsync({ name });
-
-export const llmListOperationSummaries = async () => {
-  const summaries = await operationSummaryDb.db.findAsync({});
-  return summaries.map(
-    (summary) => serialisedOperationSummarySchema.parse(summary)
-  );
-}
-
 
 const createSummarisedOperationTransformer = (
   reliability: SerialisedOperationSummaryReliability

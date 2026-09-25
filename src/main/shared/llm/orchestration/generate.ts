@@ -10,8 +10,8 @@ import { fetchNextModelFactory } from '../selection';
 import { generatorFactory } from '../utilities';
 import { LanguageAnalysisState } from "./state";
 import { LanguageModelProps, LlmCoreIdentifier } from '@/shared/features/llm';
-import { llmSummariseOperation } from '../crud';
 import { fetchModels, fetchSourceModels } from '../extraction';
+import { llmSummariseOperation } from './summarisation';
 
 const runModel = <CompletionProps>({
   generator,

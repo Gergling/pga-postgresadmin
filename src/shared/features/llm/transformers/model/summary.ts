@@ -1,26 +1,28 @@
 import { mean, median } from "@/shared/utilities";
 import {
-  SerialisedModelSummary,
+  LlmHistoryRelative,
   SerialisedModelSummaryValues
 } from "../../schema";
 import { ReduceLlmHistoryProps } from "../../types";
 import { getModelEfficiency } from "../../utilities";
-import { getModelActionClassification } from "./classification";
+import { getModelActionClassification } from "../summary/classification";
 import {
-  compareLlmModelFactory,
-} from "./comparators";
+  compareLlmModelsForExperimentation,
+  compareLlmModelsForStability
+} from "../summary";
 
 export const transformLlmModelSummaryFactory = (
-  data: SerialisedModelSummary[]
+  data: LlmHistoryRelative[]
 ) => {
-  const sort = (experimental: boolean) => {
-    const comparator = compareLlmModelFactory(!experimental);
-    return [...data].sort(comparator);
-  }
+  const experimental = compareLlmModelsForExperimentation.sort(data);
+  const stable = compareLlmModelsForStability.sort(data);
 
-  return { data, sort };
+  return { experimental, stable };
 };
 
+/**
+ * @deprecated
+ */
 export const getModelGroupValues = ({
   failureCount,
   retryableCount,

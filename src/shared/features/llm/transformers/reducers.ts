@@ -1,19 +1,30 @@
 import { LanguageModelHistoryBase } from "../schema";
 import { ReduceLlmHistoryProps } from "../types";
+import { incrementLlmHistorySummarisedStatus } from "./summary";
 
+/**
+ * @deprecated Use `incrementLlmHistorySummarisedStatus` instead.
+ * @param acc 
+ * @param param1 
+ * @returns 
+ */
 export const reduceLlmHistory = (
-  acc: ReduceLlmHistoryProps, { runtime, status }: LanguageModelHistoryBase
-) => {
-  if (status === 'success') return {
-    ...acc,
-    successfulRuntimes: [...acc.successfulRuntimes, runtime],
-  };
-  if (['rate-limitations', 'traffic'].includes(status)) return {
-    ...acc,
-    retryableCount: acc.retryableCount + 1,
-  };
+  acc: ReduceLlmHistoryProps, {
+    runtime, status
+  }: LanguageModelHistoryBase
+): ReduceLlmHistoryProps => {
+  const { failureCount, retryableCount, successfulRuntimes } = acc;
+  const response = incrementLlmHistorySummarisedStatus(
+    {
+      failures: failureCount,
+      retryable: retryableCount,
+      runtimes: successfulRuntimes
+    }, { runtime, status }
+  );
+
   return {
-    ...acc,
-    failureCount: acc.failureCount + 1,
+    failureCount: response.failures,
+    retryableCount: response.retryable,
+    successfulRuntimes: response.runtimes,
   };
 };

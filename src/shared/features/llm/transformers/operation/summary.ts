@@ -74,22 +74,6 @@ export class OperationGroup {
   }
 };
 
-class OperationSummary {
-  data: SerialisedOperationSummary;
-  constructor(dto: SerialisedOperationSummary) {
-    this.data = dto;
-  }
-  static from(data: unknown[]): OperationSummary[];
-  static from(data: unknown): OperationSummary;
-  static from(data: unknown | unknown[]) {
-    if (Array.isArray(data)) {
-      return data.map((dto) => OperationSummary.from(dto));
-    }
-    const parsed = serialisedOperationSummarySchema.parse(data);
-    return new OperationSummary(parsed);
-  }
-}
-
 /**
  * @deprecated
  */

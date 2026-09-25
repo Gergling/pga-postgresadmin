@@ -9,6 +9,17 @@ export const runtimeStringErrorCodes = {
   IRRETRIEVABLE_RECORD: 'RECORD_IRRETRIEVABLE',
 };
 
+export const llmModelIdentifierSchema = z.object({
+  model: z.string(),
+  source: z.string(),
+});
+export const llmOperationIdentifierSchema = z.object({
+  operation: z.string(),
+});
+
+/**
+ * @deprecated Use `llmModelIdentifierSchema` instead.
+ */
 export const llmCoreIdentifierSchema = z.object({
   name: z.string().catch(runtimeStringErrorCodes.UNREADABLE_PROPERTY),
   source: z.string().catch(runtimeStringErrorCodes.UNREADABLE_PROPERTY),

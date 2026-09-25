@@ -3,20 +3,51 @@ import { parserFactory } from "@/shared/schema";
 import {
   LlmCoreIdentifier,
   llmCoreIdentifierSchema,
+  llmModelIdentifierSchema,
   runtimeNumericErrorCodes,
   runtimeStringErrorCodes
 } from "./core";
 
-const modelClassificationSchema = z.enum([
+export const llmHistoryClassificationSchema = z.enum([
+  /**
+   * @deprecated Use `untested` instead.
+   */
   'no-data',
   'potential',
+  /**
+   * @deprecated
+   */
   'retryable',
   'stable',
-  'unsuccessful',
   'unreliable',
+  'unsuccessful',
+  'untested',
 ]);
 
-export type ModelClassification = z.infer<typeof modelClassificationSchema>;
+export type LlmHistoryClassification = z.infer<typeof llmHistoryClassificationSchema>;
+/**
+ * @deprecated Use {@link LlmHistoryClassification} instead.
+ * @alias LlmHistoryClassification
+ */
+export type ModelClassification = LlmHistoryClassification;
+
+export const llmSummarySchema = llmModelIdentifierSchema.extend({
+  traits: z.object({
+    local: z.boolean(),
+  }),
+  operations: z.array(
+    z.object({
+      name: z.string(),
+      stable: z.boolean(),
+    })
+  ),
+  updated: z.object({
+    fetch: z.number(),
+    summarisation: z.number().optional(),
+  }),
+});
+
+export type LlmSummary = z.infer<typeof llmSummarySchema>;
 
 const serialisedModelSummaryEfficiency = z.object({
   infrastucture: z.number().catch(runtimeNumericErrorCodes.UNREADABLE_PROPERTY),
@@ -31,11 +62,20 @@ const count = z.object({
   success: z.number().catch(runtimeNumericErrorCodes.UNREADABLE_PROPERTY),
 });
 
+/**
+ * @deprecated
+ */
 export const serialisedModelSummarySchema = llmCoreIdentifierSchema.def.innerType.extend({
-  classification: modelClassificationSchema.catch('no-data'),
-  count: z.unknown().transform(
-    (value) => count.parse({ success: typeof value === 'number' ? value : undefined })
-  ).pipe(count),
+  classification: llmHistoryClassificationSchema.catch('no-data'),
+  count: count.catch(
+    (value) => ({
+      success: typeof value === 'number' ? value : runtimeNumericErrorCodes.UNREADABLE_PROPERTY,
+      all: runtimeNumericErrorCodes.UNREADABLE_PROPERTY
+    })
+  ),
+  // count: z.unknown().transform(
+  //   (value) => count.parse({ success: typeof value === 'number' ? value : undefined })
+  // ).pipe(count),
   efficiency: serialisedModelSummaryEfficiency,
   rate: z.number().catch(runtimeNumericErrorCodes.UNREADABLE_PROPERTY),
   runtime: z.object({
@@ -67,6 +107,9 @@ export const serialisedModelSummarySchemaParser = parserFactory({
 
 export type SerialisedModelSummaryParsed = ReturnType<typeof serialisedModelSummarySchemaParser>;
 
+/**
+ * @deprecated
+ */
 export type SerialisedModelSummaryValues = Omit<
   SerialisedModelSummary, 'name' | 'source'
 >;

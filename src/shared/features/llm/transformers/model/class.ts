@@ -5,7 +5,7 @@ import {
 } from "../../schema";
 import { getModelGroupValues } from "./summary";
 import { reduceLlmHistory } from "../reducers";
-import { compareLlmModelFactory } from "./comparators";
+import { compareLlmModelFactory } from "../summary";
 
 export class ModelGroup {
   data: LanguageModelHistoryBase[];
@@ -56,9 +56,9 @@ export class ModelGroup {
   selectModel(subject: ModelGroup, stable: boolean): ModelGroup {
     const comparator = compareLlmModelFactory(stable);
 
-    const comparison = comparator(subject.serialised, this.serialised);
+    // const comparison = comparator(subject.serialised, this.serialised);
 
-    if (comparison < 0) return subject;
+    // if (comparison < 0) return subject;
 
     return this;
   }

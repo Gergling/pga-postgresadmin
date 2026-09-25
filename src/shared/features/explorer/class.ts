@@ -38,6 +38,18 @@ export class ExplorerFileRecord {
 
   }
 
+  static instantiate(data: ConstructorInputWithAbsolutePath | ConstructorInputParams) {
+    if ('absolutePath' in data) {
+      const { absolutePath, ...rest } = data;
+      return new ExplorerFileRecord(explorerFileRecordSchema.parse({
+        ...rest,
+        name: path.basename(absolutePath),
+        parentPath: path.dirname(absolutePath),
+      }));
+    }
+    return new ExplorerFileRecord(explorerFileRecordSchema.parse(data));
+  }
+
   get depth(): number {
     return this.data.parentPath.split(path.sep).length;
   }

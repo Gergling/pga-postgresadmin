@@ -1,6 +1,7 @@
 import z from "zod";
 import { nowUTCMs } from "@/shared/utilities";
-import { resolveAbsolutePath } from "./utilities";
+import { resolveAbsolutePath } from "../utilities";
+import { codePathSchema } from "./code";
 
 export const explorerParentPathSchema = z.string().transform(resolveAbsolutePath);
 
@@ -28,6 +29,9 @@ export const explorerFileRecordPayloadSchema = z.object({
   action: explorerFileRecordActionEnum.default('none'),
   health: z.enum(['ok', 'duplicate', 'orphan', 'corrupt']).default('ok'),
   isDirectory: z.boolean(),
+  metadata: z.object({
+    code: codePathSchema.optional(),
+  }),
   updated: z.number().describe('UTC epoch milliseconds').default(nowUTCMs),
   usage: z.number().optional(),
 });

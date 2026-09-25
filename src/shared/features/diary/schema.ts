@@ -4,6 +4,7 @@ import {
   envelopeRichSchemaFactory,
   envelopeSerialisationSchemaFactory,
 } from "@/shared/schema";
+import { llmEmotionPersistenceSchema } from "../llm";
 
 const status = z.enum([
   'draft',
@@ -16,6 +17,9 @@ const status = z.enum([
 const text = z.string();
 
 export const diaryEntryCoreSchema = z.object({
+  analysis: z.object({
+    emotional: llmEmotionPersistenceSchema,
+  }).partial().optional(),
   status, text,
   // At some point this will need an object with all the relevant ids for things
   // like tasks created.

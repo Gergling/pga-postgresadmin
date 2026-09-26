@@ -1,24 +1,20 @@
-import { scheduleOperation } from "@/main/features/system";
-import { readIncompleteAwaitingTasks, updateTask } from "../db";
 import {
   compareTasksForVoting,
-  CouncilMemberNames,
-  getVoteRank,
   Task,
   TASK_IMPORTANCE,
   TASK_MEAN_RANKS_MAXIMUM,
   TASK_MOMENTUM,
   taskFactory,
-  TaskImportance,
-  taskVoteBaseNameSchema,
-  VotePropsName,
   VoteResponse,
   voteResponseSchema
 } from "@/shared/features/user-tasks";
-import { Temporal } from "@js-temporal/polyfill";
-import { runLanguageModel } from "../../ai";
-import { transformTemplateCompilation } from "@/shared/utilities";
 import { getMainPromptFactory, LogApi } from "@/main/shared";
+import { scheduleOperation } from "@/main/features/system";
+import { runLanguageModel } from "../../ai";
+import {
+  readIncompleteAwaitingTasks,
+  readIncompleteAwaitingTasksNoLog,
+} from "../db";
 import { getTaskOperationCode } from "./utilities";
 
 // Shared abstraction level
@@ -60,16 +56,13 @@ const reduceHighestPriorityTask = (
 };
 // End shared abstraction level.
 
-scheduleOperation('10s', {
+scheduleOperation({
+  event: { repeat: true },
   name: 'vote',
   priority: async ({ logApi }) => {
     // Disabling for now to limit log spam.
     // return 0;
-    const data = await readIncompleteAwaitingTasks({
-      ...logApi, options: {
-        showSummary: false
-      }
-    });
+    const data = await readIncompleteAwaitingTasksNoLog();
 
     // If no incomplete tasks awaiting votes, return 0.
     if (data.length === 0) return 0;

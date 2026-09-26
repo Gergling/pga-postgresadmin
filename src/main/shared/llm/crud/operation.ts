@@ -35,6 +35,14 @@ export const listLlmOperations = async (
   return parsed.filter((item): item is LlmOperation => !!item);
 }
 
+export const readLlmOperation = async (
+  operation: string, logApi: LogApi
+): Promise<LlmOperation | undefined> => {
+  const response = await operationSummaries.db.findOneAsync({ operation });
+  if (!response) return;
+  return parseLlmSummary(response, logApi);
+}
+
 export const upsertLlmOperation = async (
   operation: string, models: LlmHistoryRelative[]
 ) => {

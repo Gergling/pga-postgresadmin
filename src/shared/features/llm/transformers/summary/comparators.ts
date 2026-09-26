@@ -42,7 +42,7 @@ export const compareLlmModelsForExperimentation = ComparatorFactory.instantiate(
   divergence,
 ]);
 
-export const compareLlmModelFactory = (stable: boolean) => (stable
+export const compareLlmModelFactory = (stable: boolean) => stable
   ? compareLlmModelsForStability
-  : compareLlmModelsForExperimentation).run
+  : compareLlmModelsForExperimentation
   ;

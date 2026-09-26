@@ -1,14 +1,13 @@
+import { getObjectKeys } from "@/shared/utilities";
 import {
   COUNCIL_MEMBER,
   TaskIpcReadParameters,
   TaskSerialisation,
   taskSerialisationSchema,
   VOTE_PROPS,
-  votePropsNameSchema
 } from "@/shared/features/user-tasks";
-import { taskDb } from "../schema";
 import { LogApi } from "@/main/shared";
-import { getObjectKeys } from "@/shared/utilities";
+import { taskDb } from "../schema";
 
 const votePropsList = getObjectKeys(VOTE_PROPS);
 
@@ -27,19 +26,21 @@ const filterAwaitingVotes = COUNCIL_MEMBER.filter(({ name }) => ![
   }), {}
 );
 
+export const readIncompleteAwaitingTasksNoLog = async () => {
+  const all = await taskDb.db.findAsync({
+    $and: [
+      filterIncomplete,
+      { $or: filterAwaitingVotes }
+    ]
+  });
+  return all.map(record => taskSerialisationSchema.parse(record));
+}
+
 export const readIncompleteAwaitingTasks = async (
-  { log }: LogApi
-): Promise<TaskSerialisation[]> => log(
+  logApi: LogApi
+): Promise<TaskSerialisation[]> => logApi.log(
   `Reading incomplete tasks awaiting votes`,
-  async () => {
-    const all = await taskDb.db.findAsync({
-      $and: [
-        filterIncomplete,
-        { $or: filterAwaitingVotes }
-      ]
-    });
-    return all.map(record => taskSerialisationSchema.parse(record));
-  }
+  readIncompleteAwaitingTasksNoLog
 );
 
 export const readIncompleteTasks = async (

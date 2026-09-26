@@ -50,7 +50,7 @@ class ModelManager {
           return 1;
         }
         if (!b.data) return -1;
-        return dataComparator(a.data, b.data)
+        return dataComparator.run(a.data, b.data);
       },
       (a, b) => compareLanguageModels(a.config, b.config),
     ]);
@@ -94,6 +94,7 @@ export const fetchNextModelFactory = (
 
       return eligible.sort({ stable: attempts > 0 }).next;
     } catch (e) {
+      logApi.setStatus('error', e)
       // TODO: Might be worth checking for different types of return for
       // different errors. Later.
       return;

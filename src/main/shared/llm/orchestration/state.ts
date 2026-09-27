@@ -6,7 +6,7 @@ import {
   LanguageModelResponseStatusRetryable,
   LlmCoreIdentifier
 } from "@/shared/features/llm";
-import { llmModelRunInsert } from "../crud";
+import { insertLlmHistory } from "../crud";
 import { transformLanguageModelResponse } from "./transform";
 import { LanguageModelOrchestrationUpdateProps, llmRunCore, llmRunCoreStarted } from "../types";
 import { getUpdateProps } from "../get-update-props";
@@ -320,7 +320,7 @@ export class LanguageAnalysisState<UpdateCompletionProps> {
     this.state = logResultActionFactory(operation)({ ...this.state, current });
 
     // Persist the current run.
-    const persistencePromise = llmModelRunInsert({ ...current, operation });
+    const persistencePromise = insertLlmHistory({ ...current, operation });
 
     this.promises.push(persistencePromise);
   }

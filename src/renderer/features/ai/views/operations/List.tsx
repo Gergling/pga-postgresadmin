@@ -18,7 +18,7 @@ export const AiOperationsList = () => {
   if (isLoading) return <Skeleton variant={'rectangular'} />;
 
   return data?.map((operation) => <AiOperation
-    key={operation.name}
+    key={operation.operation}
     {...operation}
   />);
 };

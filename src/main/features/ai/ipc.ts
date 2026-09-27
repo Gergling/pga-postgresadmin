@@ -2,10 +2,11 @@ import { Optional } from "../../../shared/types";
 import { CHANNEL_SUBSCRIBE_TO_RITUAL_TELEMETRY } from "../../../shared/channels";
 import { RitualTelemetrySubscriptionParams } from "../../../shared/features/ai";
 import { getVessel } from "@/main/shared/vessel";
-import { tRPC } from "@/main/config";
+import { rpcLog, tRPC } from "@/main/config";
 import {
-  llmListOperationSummaries,
-} from "@/main/shared/llm/crud";
+  listLlmOperations,
+  listLlmSummaries,
+} from "@/main/shared/llm";
 
 /**
  * @deprecated Use tRPC.procedure.subscription instead.
@@ -45,28 +46,11 @@ export const setupRitualTelemetrySubscription = (
   return () => ipcRenderer.removeListener(CHANNEL_SUBSCRIBE_TO_RITUAL_TELEMETRY, subscription);
 };
 
-/**
- * @deprecated Use tRPC.procedure.subscription instead.
- * @param payload 
- * @returns 
- */
-export const emitRitualTelemetry = (payload: Optional<RitualTelemetrySubscriptionParams, 'timestamp'>) => {
-  const timestamp = Date.now()
-  const vessel = getVessel();
-
-  if (!vessel) {
-    console.warn("Ritual Telemetry failed: No vessel registered.");
-    return;
-  }
-
-  // The broadcast
-  vessel.webContents.send(CHANNEL_SUBSCRIBE_TO_RITUAL_TELEMETRY, { timestamp, ...payload });
-};
-
 export const aiRouter = tRPC.router({
-  /**
-   * @deprecated Use readOperationSummaries.
-   */
-  readLeadingModels: tRPC.procedure.query(llmListOperationSummaries),
-  readOperationSummaries: tRPC.procedure.query(llmListOperationSummaries),
+  readOperationSummaries: tRPC.procedure.query(rpcLog(({
+    logApi
+  }) => listLlmOperations(logApi))),
+  readAvailableModels: tRPC.procedure.query(rpcLog(({
+    logApi
+  }) => listLlmSummaries(logApi))),
 });

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import {
-  SerialisedModelSummary,
+  LlmHistoryRelative,
   transformLlmModelSummaryFactory
 } from "@/shared/features/llm";
 
@@ -8,18 +8,24 @@ export const useModelSummaryTransformer = ({
   data,
   experimental,
 }: {
-  data: SerialisedModelSummary[];
+  data: LlmHistoryRelative[];
   experimental: boolean;
 }) => {
-  const transformer = useMemo(
+  const presorted = useMemo(
     () => transformLlmModelSummaryFactory(data),
     [data]
   );
 
   const sorted = useMemo(
-    () => transformer.sort(experimental),
-    [experimental, transformer]
+    () => {
+      if (experimental) return presorted.experimental;
+      return presorted.stable;
+    },
+    [experimental, presorted]
   );
 
-  return sorted;
+  return {
+    ...presorted,
+    selected: sorted
+  };
 };

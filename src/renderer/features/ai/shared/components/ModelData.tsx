@@ -2,53 +2,58 @@ import { Grid, Stack, TypographyProps } from "@mui/material";
 import { Slab, StackChip, StackChipProps } from "@/renderer/shared/base";
 import { ParentheticalContainer } from "@/renderer/shared/brackets";
 import { Typography } from "@/renderer/shared/theme";
-import { SerialisedModelSummary } from "@/shared/features/llm";
-import { OperationModelClassification } from "../../shared";
+import { LlmHistoryRelative, SerialisedModelSummary } from "@/shared/features/llm";
 import { useMemo } from "react";
+import { OperationModelClassification } from "./OperationModelClassification";
+import { AiChip } from "./Chip";
 
-const Chip = ({
-  label, value, variant, ...props
-}: StackChipProps & Pick<TypographyProps, 'variant'>) => <StackChip
-    label={<Typography variant={variant ?? 'body2'}>{label}</Typography>}
-    value={value}
-    alignItems={'center'}
-    {...props}
-  />
+type Reliability = 'experimental' | 'stable';
+
+const reliabilityLabel = (value?: Reliability) => {
+  if (value === 'experimental') return 'Experimental model';
+  if (value === 'stable') return 'Stable model';
+  return 'Model';
+}
 
 export type AiOperationModelProps = {
-  experimental?: boolean;
-  model: SerialisedModelSummary;
+  reliability?: Reliability;
+  model: LlmHistoryRelative;
 };
-export const AiOperationModel = ({ experimental, model }: AiOperationModelProps) => {
-  const label = experimental ? "Experimental model" : "Stable model";
+export const AiModelData = ({
+  model, reliability,
+}: AiOperationModelProps) => {
+  const label = reliabilityLabel(reliability);
 
-  const { hasNonRetryableRuns, hasSuccessfulRuns, rate } = useMemo(() => {
+  const { hasNonRetryableRuns, hasSuccessfulRuns, rate, runs } = useMemo(() => {
     const hasNonRetryableRuns = model.classification !== 'retryable';
     const hasSuccessfulRuns = [
       'stable', 'potential'
     ].includes(model.classification);
-    const rate = Math.max(model.rate, 0);
+    const rate = Math.max(model.success.rate, 0);
+    const runs = [
+      model.runs.runtimes.length, model.runs.retryable, model.runs.failures
+    ].join(' / ');
     return {
-      hasNonRetryableRuns, hasSuccessfulRuns, rate
+      hasNonRetryableRuns, hasSuccessfulRuns, rate, runs
     };
   }, [model]);
   return <Slab>
     <Stack gap={1}>
-      <Chip label={label} value={model.name} variant="body1" />
+      <AiChip label={label} value={model.model} variant="body1" />
       <Grid container alignItems={'center'}>
         <Grid size={4}>
-          <Chip label="Source" value={model.source} />
+          <AiChip label="Source" value={model.source} />
         </Grid>
         {hasNonRetryableRuns
           ? <>
             <Grid size={4}>
-              <Chip
+              <AiChip
                 label="Success rate"
                 value={`${(rate * 100).toFixed(1)}%`}
               />
             </Grid>
             <Grid size={4}>
-              <Chip label="Total runs" value={model.count} />
+              <AiChip label="Total runs" value={runs} />
             </Grid>
           </>
           : <Grid size={8}>
@@ -74,13 +79,13 @@ export const AiOperationModel = ({ experimental, model }: AiOperationModelProps)
           </Grid>
         </Grid>
       </ParentheticalContainer>
-      {hasSuccessfulRuns ? <Chip label="Successful runtimes" value={
+      {hasSuccessfulRuns ? <AiChip label="Successful runtimes" value={
         <Grid container alignSelf={'stretch'}>
           <Grid size={6}>
-            <Chip label='Median' value={model.runtime.median} />
+            <AiChip label='Median' value={model.success.runtimes.median} />
           </Grid>
           <Grid size={6}>
-            <Chip label='Mean' value={model.runtime.mean} />
+            <AiChip label='Mean' value={model.success.runtimes.mean} />
           </Grid>
         </Grid>
       } /> : <ParentheticalContainer

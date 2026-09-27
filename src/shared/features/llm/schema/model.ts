@@ -23,6 +23,31 @@ export const llmHistoryClassificationSchema = z.enum([
   'unsuccessful',
   'untested',
 ]);
+export const llmHistoryClassificationSchemaWhatever = z.discriminatedUnion('phase', [
+  z.object({
+    phase: z.literal('stable'),
+    progress: z.object({
+      // proportionalSuccess from 0.5 to 1 shows how stable the model is
+      // down at 0.5, it drops back to "potential". There is no next state.
+    })
+  }),
+  z.object({
+    phase: z.literal('potential'),
+    progress: z.object({
+      // proportionalSuccess < 0.5 but has successful runs.
+      // next is stable. No real previous.
+      // If we held on to the "age" of the oldest raw data success, we would
+      // easily be able to guage when this was going to change.
+    })
+  }),
+  // failures > maximumTotalRuns / 2
+  z.object({
+    phase: z.literal('untested'),
+    progress: z.object({
+
+    })
+  }),
+]);
 
 export type LlmHistoryClassification = z.infer<typeof llmHistoryClassificationSchema>;
 /**
@@ -98,13 +123,20 @@ export const serialisedModelSummarySchema = llmCoreIdentifierSchema.def.innerTyp
   source: runtimeStringErrorCodes.IRRETRIEVABLE_RECORD,
 });
 
+/**
+ * @deprecated
+ */
 export type SerialisedModelSummary = z.infer<typeof serialisedModelSummarySchema>;
-
+/**
+ * @deprecated
+ */
 export const serialisedModelSummarySchemaParser = parserFactory({
   fallback: serialisedModelSummarySchema.parse({}),
   schema: serialisedModelSummarySchema,
 });
-
+/**
+ * @deprecated
+ */
 export type SerialisedModelSummaryParsed = ReturnType<typeof serialisedModelSummarySchemaParser>;
 
 /**

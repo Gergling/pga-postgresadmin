@@ -1,42 +1,48 @@
 import { Grid, ToggleButton, ToggleButtonGroup } from "@mui/material";
-import { SerialisedOperationSummary } from "@/shared/features/llm";
+import {
+  LlmOperation
+} from "@/shared/features/llm";
 import { Accordion } from "@/renderer/shared/accordion";
 import { Card, CardContent, CardHeader } from "@/renderer/shared/card";
 import { DataGrid } from "@/renderer/shared/grid";
-import { AiOperationModel, useLlmOperationModelSummaryGrid } from "../models";
+import { AiModelData } from "../../shared";
+import { useLlmOperationModelSummaryGrid } from "./hooks";
 
-export const AiOperation = ({
-  experimental, name, stable
-}: SerialisedOperationSummary) => {
+export const AiOperation = (data: LlmOperation) => {
+  const { operation, models } = data;
   const {
-    dataGridProps, modelsIsLoading, isExperimental, setIsExperimental
-  } = useLlmOperationModelSummaryGrid(name);
-  console.log(name, experimental, stable)
+    dataGridProps, isExperimental,
+    models: { experimental, stable },
+    setIsExperimental
+  } = useLlmOperationModelSummaryGrid(data);
 
   return <Card>
-    <CardHeader sx={{ textAlign: 'center' }} title={name} />
+    <CardHeader sx={{ textAlign: 'center' }} title={operation} />
     <CardContent>
       <Grid container spacing={4}>
-        <Grid size={6}><AiOperationModel model={stable} /></Grid>
         <Grid size={6}>
-          <AiOperationModel experimental model={experimental} />
+          <AiModelData reliability={'stable'} model={stable[0]} />
+        </Grid>
+        <Grid size={6}>
+          <AiModelData reliability={'experimental'} model={experimental[0]} />
         </Grid>
       </Grid>
       <Accordion
         defaultExpanded={true}
         summary={'Other Models'}
-        disabled={modelsIsLoading}
       >
         <ToggleButtonGroup
           exclusive
           size="large"
           value={isExperimental ? 'experimental' : 'stable'}
-          onChange={(_, newStability) => setIsExperimental(newStability === 'experimental')}
+          onChange={(_, newStability) => setIsExperimental(
+            newStability === 'experimental'
+          )}
         >
-          <ToggleButton value="stable" key="left">
+          <ToggleButton value="stable">
             Stable
           </ToggleButton>
-          <ToggleButton value="experimental" key="left">
+          <ToggleButton value="experimental">
             Experimental
           </ToggleButton>
         </ToggleButtonGroup>

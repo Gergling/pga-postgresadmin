@@ -1,8 +1,8 @@
 import { COLORS, neonGlowStyle, Typography } from "@/renderer/shared/theme";
-import { ModelClassification } from "@/shared/features/llm";
+import { LlmHistoryClassification } from "@/shared/features/llm";
 
 export const OperationModelClassification = (
-  { classification }: { classification: ModelClassification; }
+  { classification }: { classification: LlmHistoryClassification; }
 ) => <Typography
   variant="body1" style={{
     color: COLORS.goldGlow,

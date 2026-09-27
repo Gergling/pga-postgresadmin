@@ -11,16 +11,6 @@ export type UseLlmOperationUtilsParams = {
 export const useLlmOperationUtils = (
   params: UseLlmOperationUtilsParams
 ) => {
-  // TODO: Operation will have to go through runtime validation unless I'm
-  // brave enough to implement a list of hard-typed operations.
-  // I CAN do that through a config of some kind as long as it's in shared.
-  // const {
-  //   data,
-  //   isLoading: modelsIsLoading,
-  //   isError: modelsIsError,
-  //   error: modelsError,
-  // } = trpcReact.ai.readOperationModelSummaries.useQuery(name);
-
   const utils = trpcReact.useUtils();
   const {
     featureName,
@@ -41,7 +31,7 @@ export const useLlmOperationUtils = (
     [params]
   );
 
-  const invalidate = () => utils.ai.readOperationModelSummaries.invalidate(operationCode);
+  const invalidate = () => utils.ai.readOperationSummaries.invalidate();
 
   return { invalidate, operationCode, featureName, operationName };
 };

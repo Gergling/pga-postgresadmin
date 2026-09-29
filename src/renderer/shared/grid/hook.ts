@@ -1,7 +1,7 @@
 import { DataGridProps, GridValidRowModel } from "@mui/x-data-grid";
-import { getDataGrid } from "./utility";
 import { useMemo } from "react";
+import { getDataGrid } from "./utility";
 
 export const useDataGrid = <T extends GridValidRowModel>(
-  props?: Partial<DataGridProps<T>>
-): DataGridProps<T> => useMemo(() => getDataGrid(props), [props]);
+  ...args: Parameters<typeof getDataGrid<T>>
+): DataGridProps<T> => useMemo(() => getDataGrid(...args), [args]);

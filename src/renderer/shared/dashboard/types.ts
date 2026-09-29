@@ -1,6 +1,6 @@
 export type PanelDataItem = ({
   display: 'chip';
-  value: number;
+  value: number | string;
 } | {
   display: 'sparkline';
   value: number[];

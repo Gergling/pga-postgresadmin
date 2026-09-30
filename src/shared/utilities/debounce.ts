@@ -17,7 +17,7 @@ const calculateJitterDelay = (attempt: number, options: RetryOptions): number =>
  * Reusable retry wrapper with TypeScript generics
  */
 export async function withRetry<T>(
-  fn: () => Promise<T>, 
+  fn: () => Promise<T>,
   options: RetryOptions = { maxAttempts: 5, baseDelay: 1000, maxDelay: 30000 }
 ): Promise<T> {
   let lastError: unknown;
@@ -42,4 +42,17 @@ export async function withRetry<T>(
     }
   }
   throw lastError;
+}
+
+export const debounce = <T extends (...args: unknown[]) => unknown>(
+  callback: T,
+  wait: number
+) => {
+  let timeoutId: NodeJS.Timeout | undefined;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      callback(...args);
+    }, wait);
+  };
 }

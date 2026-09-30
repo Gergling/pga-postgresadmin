@@ -24,7 +24,8 @@
     "orchestrate": "tsx scripts/agent/orchestrator",
     "scripts-main": "tsx scripts/main/run.ts",
     "shared-experiments": "tsx src/shared/experiments/reductive-unifying-theory.ts",
-    "report": "tsx scripts/report/run.ts"
+    "report": "tsx scripts/report/run.ts",
+    "postinstall": "tsx scripts/install/postinstall-huggingface-cache.ts"
   },
   "build": {
     "appId": "com.gergling.wsu",

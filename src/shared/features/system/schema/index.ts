@@ -1,2 +1,1 @@
-export * from './band';
 export * from './network';

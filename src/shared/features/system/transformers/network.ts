@@ -1,5 +1,8 @@
 // 3. Normal Procedure for Finding Ping Reliability
 
+import { mean } from "@/shared/utilities";
+import { ConnectionType, SystemCheckNetworkResponse } from "../schema";
+
 // Do not loop it continuously. Running a network ping on an infinite,
 // immediate loop creates an unintentional, localized Denial of Service (DoS)
 // attack against your targets.
@@ -29,12 +32,58 @@
 // from green to orange, even if the baseline latency looks fine.
 
 // RFC 3550 Jitter
-const [previous, ...rest] = [1, 2, 3, 4, 5];
+// const [previous, ...rest] = [1, 2, 3, 4, 5];
 
-const diffs = [];
+// const diffs = [];
 
-rest.reduce((previous, value) => {
-  const diff = Math.abs(value - previous);
-  diffs.push(diff);
-  return value;
-}, previous);
+// rest.reduce((previous, value) => {
+//   const diff = Math.abs(value - previous);
+//   diffs.push(diff);
+//   return value;
+// }, previous);
+
+export const transformSystemCheckNetworkResponse = ({
+  burst,
+  router,
+  type,
+  target,
+}: {
+  burst: number[];
+  router: boolean;
+  type: ConnectionType;
+  target: number;
+}): SystemCheckNetworkResponse => {
+  if (type === 'offline') return {
+    category: 'dead',
+    type,
+  };
+  if (burst.length === 0) {
+    if (router) return {
+      category: 'local',
+      reliability: 0,
+      type,
+    };
+    return {
+      category: 'dead',
+      type,
+    };
+  }
+
+  const reliability = burst.length / target;
+  const latency = mean(burst);
+  const [previous, ...rest] = burst;
+
+  const { diffs } = rest.reduce((acc, value) => {
+    const diff = Math.abs(value - acc.previous);
+    return { ...acc, diffs: [...acc.diffs, diff], previous: value };
+  }, { diffs: [], previous });
+  const jitter = mean(diffs);
+
+  return {
+    category: 'pipeline',
+    jitter,
+    latency,
+    reliability,
+    type,
+  };
+};

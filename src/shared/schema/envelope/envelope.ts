@@ -35,11 +35,6 @@ export const envelopeSchemaFactory = <T extends z.ZodRawShape>(
   schema: T
 ) => z.object({
   ...envelopeBaseSchema.shape,
-  // audit: z.array(z.object({
-  //   data: z.object(schema).partial(),
-  //   updated: serialisationDateSchema.describe('This is the date when this data was last updated.'),
-  // })).default([]),
-  // data: z.object(schema),
   ...envelopeSchemaExtensionFactory(schema).shape,
 });
 export type EnvelopeSchema<

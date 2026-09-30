@@ -56,7 +56,7 @@ type ScheduledOperationBase<Params = unknown> = {
   priority: (params: Params) => number | Promise<number>;
   run: (params: Params) => Promise<void>;
 };
-type ScheduledOperationParams<
+export type ScheduledOperationParams<
   Params = unknown
 > = ScheduledOperationBase<Params> & {
   event: ScheduleConfiguration | ScheduleEventConfiguration;

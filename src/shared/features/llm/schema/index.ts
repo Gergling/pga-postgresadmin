@@ -1,5 +1,6 @@
 export * from './analysis';
 export * from './core';
+export * from './embedding';
 export * from './history';
 export * from './model';
 export * from './operation';

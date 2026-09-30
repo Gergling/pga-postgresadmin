@@ -2,9 +2,15 @@ import z from "zod";
 import {
   envelopeCodecFactory,
   envelopeRichSchemaFactory,
+  envelopeSchemaFactory,
   envelopeSerialisationSchemaFactory,
 } from "@/shared/schema";
-import { llmEmotionPersistenceSchema } from "../llm";
+import { LlmEmbeddingCache, LlmEmotionName, llmEmotionPersistenceSchema } from "../llm";
+
+const diaryEntryCoreAnalysisSchema = z.object({
+  emotional: llmEmotionPersistenceSchema,
+});
+export type DiaryEntryCoreAnalysis = z.infer<typeof diaryEntryCoreAnalysisSchema>;
 
 const status = z.enum([
   'draft',
@@ -17,22 +23,18 @@ const status = z.enum([
 const text = z.string();
 
 export const diaryEntryCoreSchema = z.object({
-  analysis: z.object({
-    emotional: llmEmotionPersistenceSchema,
-  }).partial().optional(),
+  analysis: diaryEntryCoreAnalysisSchema.optional(),
+  embedding: z.array(z.number()).optional(),
   status, text,
   // At some point this will need an object with all the relevant ids for things
   // like tasks created.
 });
+export type DiaryEntryCore = z.infer<typeof diaryEntryCoreSchema>;
 
 /**
  * @deprecated Best not use this; use diaryEntryRichSchema or diaryEntrySerialisationSchema depending on your needs.
  */
 export const diaryEntrySchema = envelopeSerialisationSchemaFactory({ data: diaryEntryCoreSchema });
-/**
- * @deprecated Best not use this; use DiaryEntryRich or DiaryEntrySerialisation depending on your needs.
- */
-export type DiaryEntry = z.infer<typeof diaryEntrySchema>;
 
 // The serialisation response.
 export const diaryEntrySerialisationSchema = envelopeSerialisationSchemaFactory({
@@ -59,3 +61,5 @@ export type DiaryEntryUi = z.infer<typeof diaryEntryUiSchema>;
 export const diaryIpcCodec = envelopeCodecFactory(
   diaryEntrySerialisationSchema, diaryEntryRichSchema
 );
+
+// envelopeSchemaFactory

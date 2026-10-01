@@ -68,8 +68,8 @@ export const StatusOverview = () => {
     if (!resources || !statusData) return [];
     return [
       { type: 'database', value: statusData },
-      { type: 'cpu', value: resources.cpuAvailable },
-      { type: 'memory', value: resources.memoryFreePercentage },
+      { type: 'cpu', value: resources.cpu.mean },
+      { type: 'memory', value: resources.memory.mean },
     ];
   }, [data]);
 

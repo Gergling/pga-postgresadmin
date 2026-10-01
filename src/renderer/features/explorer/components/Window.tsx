@@ -20,9 +20,30 @@ const Item = ({
     unitTest: testable === 'create' ? 'eligible' : 'none'
   });
   const handleCreateUnitTest = () => {
-    if (unitTest === 'eligible') dispatch({
-      type: 'unit-test', payload: 'initiate'
-    });
+    if (unitTest === 'eligible') {
+      dispatch({
+        type: 'unit-test', payload: 'initiate'
+      });
+      // Send the file path to a backend queueing system.
+      // The queue contains an operation name and a value. The value can be
+      // anything, but is always the same for that operation type, so like the
+      // options collection but more volatile, because queue items are removed
+      // later.
+      // Once the FE has acknowledged a successful completion, the BE removes
+      // the item.
+
+      // So in this case, the operation is something like
+      // explorer:create-unit-test, and the value is the path.
+
+      // REMEMBER: Creating a unit test is part of the development workflow.
+      // It will speed things up.
+      // ESPECIALLY if the machine can start looking for utilities to unit test
+      // by itself.
+
+      // If we need an event-wrapping system, put something in main/shared.
+      // All that needs at the moment is a constant and maybe a type for that
+      // constant, and ofc listener utilities.
+    }
   };
 
   return <ListItem>
@@ -71,7 +92,7 @@ export const ExplorerWindow = ({ path: basePath }: { path: string; }) => {
 
   // TODO: Handle a lack of parent *somehow*.
   return <Stack>
-    <Slab showScanLines>
+    <Slab scanLines={'static'}>
       <ParentheticalContainer
         dimension={'vertical'}
         roundness={0}

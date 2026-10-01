@@ -8,14 +8,12 @@ import { OperationModelClassification } from "./OperationModelClassification";
 import { Typography } from "@/renderer/shared/theme";
 import { GridCellRenderer } from "@/renderer/shared/grid";
 
-// const AiSummarySuccessful = ({}, LlmHistoryRelative) => 
-
 const Row = ({ cells }: {
   cells: {
     label: React.ReactNode; value: React.ReactNode;
   }[]
 }) => <Grid container alignItems={'center'}>
-    {cells.map((props) => <Grid size={12 / cells.length}>
+    {cells.map((props, key) => <Grid key={key} size={12 / cells.length}>
       <AiChip {...props} variant="body1" />
     </Grid>)}
   </Grid>;

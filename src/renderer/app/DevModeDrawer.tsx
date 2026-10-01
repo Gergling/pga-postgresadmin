@@ -18,9 +18,11 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { Layers, Start } from '@mui/icons-material';
 import { MetricChip, useTheme } from '@gergling/ui-components';
 import { RunMode } from '@/shared/features/environment';
+import { useRedactor } from '@/renderer/shared/redactor';
 import {
-  ResponsiveIndicator
-} from '../shared/common';
+  ResponsiveIndicator,
+  usePersistent
+} from '@/renderer/shared/common';
 import { trpcReact } from '../libs/react-query';
 
 /**
@@ -53,26 +55,15 @@ const useEnvironment = () => {
   };
 };
 
-const usePersistent = (key: string) => {
-  const [item, setItem] = useState(() => {
-    const stored = localStorage.getItem(key);
-    return stored ? JSON.parse(stored) : false;
-  });
-
-  useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(item));
-  }, [item]);
-
-  return {
-    item,
-    setItem,
-  };
-};
-
 export const DevModeOverlay = () => {
   const { isProd, mode, toggleEnvironment } = useEnvironment();
-  const { item: expanded, setItem: setExpanded } = usePersistent('devModeDrawerExpanded');
-  const { item: isFixedPosition, setItem: setFixedPosition } = usePersistent('devModeDrawerFixedPosition');
+  const { item: expanded, setItem: setExpanded } = usePersistent<boolean>(
+    'devModeDrawerExpanded'
+  );
+  const {
+    item: isFixedPosition, setItem: setFixedPosition
+  } = usePersistent<boolean>('devModeDrawerFixedPosition');
+  const { isRedacted, setIsRedacted } = useRedactor();
 
   const { theme: { colors: { info, warning } } } = useTheme();
   const color = useMemo(() => {
@@ -117,6 +108,10 @@ export const DevModeOverlay = () => {
               <FormControlLabel
                 control={<Switch checked={isFixedPosition} onChange={(_, checked) => setFixedPosition(checked)} sx={{ color }} />}
                 label={"FIXED POSITION"}
+              />
+              <FormControlLabel
+                control={<Switch checked={isRedacted} onChange={(_, checked) => setIsRedacted(checked)} color={'warning'} />}
+                label={"REDACTION MODE"}
               />
             </Grid>
 

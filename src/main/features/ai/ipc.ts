@@ -1,7 +1,5 @@
-import { Optional } from "../../../shared/types";
 import { CHANNEL_SUBSCRIBE_TO_RITUAL_TELEMETRY } from "../../../shared/channels";
 import { RitualTelemetrySubscriptionParams } from "../../../shared/features/ai";
-import { getVessel } from "@/main/shared/vessel";
 import { rpcLog, tRPC } from "@/main/config";
 import {
   listLlmOperations,

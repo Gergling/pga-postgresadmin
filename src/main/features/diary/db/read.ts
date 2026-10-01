@@ -62,3 +62,19 @@ export const fetchDiaryEntry = async (id: string): Promise<DiaryEntrySerialisati
 export const fetchProcessingCount = async (): Promise<number> => diaryRepo
   .query().count();
 
+export const findUnembeddedDiaryEntry = async () => {
+  const snapshot = await diaryDb.db.findOneAsync({
+    'data.embedding': { $exists: false }
+  });
+  if (!snapshot) return;
+  return diaryEntrySerialisationSchema.parse(snapshot);
+};
+
+export const findUnanalysedDiaryEntry = async () => {
+  const snapshot = await diaryDb.db.findOneAsync({
+    'data.analysis': { $exists: false },
+    'data.embedding': { $exists: true },
+  });
+  if (!snapshot) return;
+  return diaryEntrySerialisationSchema.parse(snapshot);
+};

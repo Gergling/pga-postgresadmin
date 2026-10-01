@@ -1,23 +1,25 @@
 import { wait } from "@/shared/utilities";
 import {
   getScheduleConfigurationReport,
+  ScheduledOperationParams,
   scheduleOperationFactory,
 } from "@/shared/features/system";
 import { log, LogApi } from "@/main/shared";
+
+type LogParam = { logApi: LogApi; };
 
 const {
   add,
   run: runScheduledOperations,
   schedules,
-} = scheduleOperationFactory<{ logApi: LogApi; }>();
+} = scheduleOperationFactory<LogParam>();
 
 export const scheduleOperation = async (
-  ...args: Parameters<typeof add>
+  params: ScheduledOperationParams<LogParam>
 ) => {
-  const operation = args[0];
   return log(
-    `Scheduling operation "${operation.name}"`,
-    async () => add(...args)
+    `Scheduling operation "${params.name}"`,
+    async () => add(params)
   );
 }
 

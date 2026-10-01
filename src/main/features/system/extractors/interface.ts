@@ -1,6 +1,7 @@
 import os from 'os';
+import { ConnectionType } from '@/shared/features/system';
 
-export function getNetworkInterfaceType(): 'wifi' | 'ethernet' | 'offline' {
+export function getNetworkInterfaceType(): ConnectionType {
   const interfaces = os.networkInterfaces();
 
   for (const name of Object.keys(interfaces)) {

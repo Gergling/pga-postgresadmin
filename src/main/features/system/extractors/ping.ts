@@ -1,4 +1,5 @@
 import net from 'net';
+import { wait } from '@/shared/utilities';
 
 interface PingResult {
   success: boolean;
@@ -16,7 +17,7 @@ const FALLBACK_TARGETS = [
  * Measures TCP handshake latency to a reliable public server.
  * Bypasses Cloudflare entirely and cycles through fallbacks if one is down.
  */
-export async function getPingLatency(timeout = 1500): Promise<PingResult> {
+async function getPingLatency(timeout = 1500): Promise<PingResult> {
   for (const target of FALLBACK_TARGETS) {
     const result = await new Promise<PingResult>((resolve) => {
       const socket = new net.Socket();
@@ -62,4 +63,21 @@ export async function getPingLatency(timeout = 1500): Promise<PingResult> {
 
   // All fallback targets failed
   return { success: false };
+}
+
+// The standard practice: Run a burst of 3 to 5 pings every 10 to 30 seconds.
+const COUNT_PINGS = Array.from({ length: 4 });
+const DELAY_PINGS = 150;
+// Space the pings within the burst by 100ms–200ms.
+export const burstPings = async () => {
+  const burst: number[] = [];
+  for (const count of COUNT_PINGS) {
+    const { latencyMs } = await getPingLatency();
+    if (typeof latencyMs !== 'undefined') {
+      burst.push(latencyMs);
+    }
+    await wait(DELAY_PINGS);
+  }
+
+  return { burst, target: COUNT_PINGS.length };
 }

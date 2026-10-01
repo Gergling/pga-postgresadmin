@@ -1,6 +1,5 @@
 import {
-  mean,
-  sum,
+  Series,
 } from "@/shared/utilities";
 import {
   TEMPORAL_GRANULARITIES,
@@ -11,6 +10,45 @@ import {
   TEMPORAL_GRANULARITY_WEIGHTS
 } from "../constants";
 import { PanelDataItem } from "../types";
+
+const getChipCandidate = (
+  label: string,
+  name: string,
+  series: Series
+): PanelDataItem => {
+  const valueWeight = series.mean / series.max;
+  return {
+    display: 'chip', label, weights: {
+      achievement: valueWeight,
+      opportunity: valueWeight,
+    },
+    name, value: series.sum,
+  };
+};
+const getDeltaCandidate = (
+  label: string,
+  name: string,
+  series: Series
+): PanelDataItem => {
+  const deltas = series.clone('deltas');
+  const valueWeight = deltas.last / deltas.max;
+  return {
+    display: 'delta', label, weights: {
+      achievement: valueWeight,
+      opportunity: valueWeight,
+    },
+    name, value: deltas.last,
+  };
+};
+const getSparklineCandidate = (
+  label: string,
+  name: string,
+  weights: PanelDataItem['weights'],
+  series: Series
+): PanelDataItem => ({
+  display: 'sparkline', label, weights,
+  name, value: series.data,
+});
 
 type GetPanelCandidatesFactoryConfig = {
   name: string;
@@ -40,28 +78,18 @@ export const getPanelCandidatesFactory = ({
     // populated !== 'last.
     ({ category }) => category !== 'prior' || populated !== 'last'
   ).map(({ value }) => value);
-  const valueSum = sum(values);
-  const valueMean = mean(values);
-  const valueMax = Math.max(...values);
-  const valueWeight = valueMean / valueMax;
+  const series = Series.from(values);
 
-  const chipCandidate: PanelDataItem = {
-    display: 'chip', label, weights: {
-      achievement: valueWeight,
-      opportunity: valueWeight,
-    },
-    name, value: valueSum,
-  };
-  const sparklineCandidate: PanelDataItem = {
-    display: 'sparkline', label, weights: {
-      achievement: sparklineWeight,
-      opportunity: sparklineWeight,
-    },
-    name, value: values,
-  };
+  const chipCandidate = getChipCandidate(label, name, series);
+  const deltaCandidate = getDeltaCandidate(label, name, series);
+  const sparklineCandidate = getSparklineCandidate(label, name, {
+    achievement: sparklineWeight,
+    opportunity: sparklineWeight,
+  }, series);
   return [
     ...candidates,
     chipCandidate,
+    deltaCandidate,
     sparklineCandidate,
   ];
 }, []);

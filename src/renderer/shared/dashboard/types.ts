@@ -2,6 +2,9 @@ export type PanelDataItem = ({
   display: 'chip';
   value: number | string;
 } | {
+  display: 'delta';
+  value: number;
+} | {
   display: 'sparkline';
   value: number[];
 }) & {

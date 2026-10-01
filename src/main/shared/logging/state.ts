@@ -1,4 +1,4 @@
-import { getIsoDateTimeString } from "@/shared/utilities";
+import { getIsoDateTimeString } from "@/shared/utilities/date";
 import { INDENT, TaskStatus } from "./config";
 import { getCode, shouldPropagateStatus } from "./utilities";
 import { LogOptions } from "./types";

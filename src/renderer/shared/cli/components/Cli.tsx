@@ -1,6 +1,11 @@
 import React from 'react';
-import './CLI.css';
-import { CLIContainer, CLIInput, CLIInputWrapper, CLILineStyled, CLIOutput } from './Cli.style';
+import {
+  CLIContainer,
+  CLIInput,
+  CLIInputWrapper,
+  CLILineStyled,
+  CLIOutput
+} from './Cli.style';
 
 // Define the shape of a single line of output
 export interface CLILine {

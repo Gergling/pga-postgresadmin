@@ -2,6 +2,7 @@ import { UiNavigationConfigItem } from "@/renderer/shared/navigation";
 import { runeFactory } from "@/renderer/features/svg-viewer/components";
 import { SettingsRoot } from "../settings";
 import { AdminRoot } from "../admin";
+import { AI_ROUTES } from "../ai";
 
 export const META_BASE_ROUTE = 'meta';
 export const META_BASE_ROUTE_ABSOLUTE = `/${META_BASE_ROUTE}`;
@@ -18,5 +19,6 @@ export const META_CHILD_ROUTES: UiNavigationConfigItem[] = [
     path: 'settings',
     icon: runeFactory('Settings'),
     element: SettingsRoot,
-  }
+  },
+  AI_ROUTES,
 ];

@@ -5,6 +5,7 @@ import {
   ParentheticalGrid
 } from "@/renderer/shared/brackets";
 import { RelativeTime } from "@/renderer/shared/common";
+import { Redactor } from "@/renderer/shared/redactor";
 import {
   CyberPanel,
   StyledBody,
@@ -46,7 +47,7 @@ export const DiaryEntryItem = ({
         </ParentheticalGrid>
         <StyledDiaryEntryItem status={status}>
 
-          <StyledBody>{text}</StyledBody>
+          <StyledBody><Redactor>{text}</Redactor></StyledBody>
           <CyberPanel status={status || ''} />
 
           <StyledControls>

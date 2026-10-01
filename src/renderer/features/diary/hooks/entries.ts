@@ -4,10 +4,14 @@ import {
   recencyFactory,
 } from '@/shared/features/recency';
 import {
+  getPanelCandidatesFactory,
   PanelData,
 } from "@/renderer/shared/dashboard";
 import { useDiaryEntryList } from "./list";
-import { getDiaryPanelCandidates } from "../utilities";
+
+const getDiaryEntryPanelCandidates = getPanelCandidatesFactory({
+  name: 'diary-entry-frequency', title: 'Diary entries'
+});
 
 export const useDiaryPanels = (): PanelData => {
   const recency = useMemo(() => {
@@ -28,7 +32,10 @@ export const useDiaryPanels = (): PanelData => {
   const entryFrequencies = useMemo(
     () => recency.getTemporalFrequencies(dates), [dates]
   );
-  const candidates = getDiaryPanelCandidates(entryFrequencies);
+  const candidates = useMemo(
+    () => getDiaryEntryPanelCandidates(entryFrequencies),
+    [entryFrequencies]
+  );
 
   return candidates;
 };

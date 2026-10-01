@@ -1,9 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Typography } from "@mui/material";
 import { useTheme } from "@gergling/ui-components";
-import { hashFactory } from "@/shared/utilities";
+import { hashFactory, stringToSeed } from "@/shared/utilities";
 import { GUIDES } from "../config";
-import { NEON_PLASMA_GLOW_CONFIG_NAMES, NeonPlasmaGlowConfigNames, SIZE_CONFIG, SizeName } from "../config/neon";
+import {
+  NEON_PLASMA_GLOW_CONFIG_NAMES,
+  NeonPlasmaGlowConfigNames,
+  SIZE_CONFIG,
+  SizeName
+} from "../config/neon";
 import { mapLinePath } from "../paths";
 import { Line, Point } from "../types";
 import { describeArc, mapLine, polarToCartesian, scaleLine, translateLine } from "../utilities";
@@ -21,21 +26,6 @@ const getInitialRuneLines = (): Record<RuneOrientationKey, Line[]> => {
   const star = points.map((point): Line => ({ start: centre, end: point }));
   return { ring, star };
 };
-
-/**
- * Converts a string into a 32-bit signed integer seed.
- * Uses a bitwise approach to ensure "abc" and "cba" produce different results.
- */
-const stringToSeed = (str: string): number => {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash |= 0; // Convert to 32bit integer
-  }
-  return hash;
-};
-
 
 type HexagonalKey = 0 | 1 | 2 | 3 | 4 | 5;
 type RuneState = Record<HexagonalKey, boolean>; // 24 states
@@ -139,16 +129,16 @@ type RunetatorPropsBase = {
   fade?: boolean; // Will cause changes in path segments to fade in and out.
   runes?: Partial<Record<RuneCouncillorKey, Line[]>>;
 } & (
-  {
-    fill: true;
-  } | {
-    state: RunetatorState;
-  } | {
-    seed: number;
-  } | {
-    seedStr: string;
-  }
-);
+    {
+      fill: true;
+    } | {
+      state: RunetatorState;
+    } | {
+      seed: number;
+    } | {
+      seedStr: string;
+    }
+  );
 export type RunetatorProps = RunetatorPropsBase & { size: SizeName; };
 
 export const Runetator: React.FC<RunetatorProps> = ({
@@ -166,7 +156,7 @@ export const Runetator: React.FC<RunetatorProps> = ({
   return <SvgNeonBlood color={'blood'} {...props}>
     <path
       d={d}
-      fill="none" 
+      fill="none"
       strokeLinejoin="bevel"
     />
   </SvgNeonBlood>;
@@ -175,12 +165,12 @@ export const Runetator: React.FC<RunetatorProps> = ({
 const DemoRunetator: React.FC<RunetatorPropsBase> = (
   props
 ) => <GalleryItem>
-  <Runetator size={'large'} {...props} />
-  <div style={{ display: 'flex' }}>
-    <Runetator size={'medium'} {...props} />
-    <Runetator size={'small'} {...props} />
-  </div>
-</GalleryItem>;
+    <Runetator size={'large'} {...props} />
+    <div style={{ display: 'flex' }}>
+      <Runetator size={'medium'} {...props} />
+      <Runetator size={'small'} {...props} />
+    </div>
+  </GalleryItem>;
 
 export const runeFactory = (
   seedStr: string,

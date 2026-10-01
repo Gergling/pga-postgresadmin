@@ -1,15 +1,13 @@
 import { FetchItemFunction } from '@/shared/lib/typesaurus';
-import {
-  Project
-} from '@/shared/features/projects';
 import { getLlmInstructions } from '@/shared/features/llm';
-import { GenerateCommitMessageUpdateEmitter } from './types';
+import { Project } from '@/shared/features/projects';
+import { LogApi } from '@/main/shared';
 import {
   fetchStagedFileContents,
   runGitCommit
 } from './commands';
 import { generateCommitMessage } from './rituals';
-import { LogApi } from '@/main/shared';
+import { GenerateCommitMessageUpdateEmitter } from './types';
 
 export const fetchProjectStagedCommitMessage: FetchItemFunction<
   {

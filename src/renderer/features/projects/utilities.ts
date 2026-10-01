@@ -1,18 +1,22 @@
 import { createElement } from "react";
-import { Project, ProjectRenderer } from "@/shared/features/projects";
+import { getRelativeTimeStringNow } from "@/shared/lib/temporal";
 import {
-  getRelativeTimeStringNow
-} from "@/renderer/shared/common";
+  EnrichedProject,
+  Project
+} from "@/shared/features/projects";
 import { BreadcrumbNavigationHistoryItem } from "@/renderer/shared/navigation";
 import { ProjectRune } from "./components/Rune";
 import { PROJECTS_BASE_ROUTE_ABSOLUTE } from "./constants";
 
-export const getProjectStatus = ({ git, path }: ProjectRenderer): {
+export const getProjectStatus = ({ git, path }: EnrichedProject): {
   git: string;
   gitLatestCommitDate?: string;
   gitLastCheck?: string;
   local: string;
 } => {
+  // Git should have a single "pertinent status" to it, expressing none/unknown
+  // or an "interesting" fact about the git commits.
+  // Also the last git check should be included.
   const local = path ? 'Yes' : 'No';
   if (git === 'unknown') return { git: 'Unknown', local };
   if (git === 'none') return { git: 'No', local };

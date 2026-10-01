@@ -1,8 +1,7 @@
-import { contextFactory } from "@gergling/ui-components";
 import { PropsWithChildren, useMemo } from "react";
+import { contextFactory } from "@gergling/ui-components";
 import {
-  projectCodec,
-  ProjectRenderer
+  ProjectEnvelope,
 } from "@/shared/features/projects";
 import { trpcReact } from "@/renderer/libs/react-query";
 
@@ -10,7 +9,7 @@ export const {
   Provider: ProjectDetailProvider,
   useContextHook: useProjectDetail,
 } = contextFactory(
-  (props: PropsWithChildren & { project: ProjectRenderer; }) => {
+  (props: PropsWithChildren & { project: ProjectEnvelope; }) => {
     const {
       data,
       refetch,
@@ -18,10 +17,10 @@ export const {
       enabled: false,
     });
 
-    const project = useMemo((): ProjectRenderer => {
-      const projectData = data ? projectCodec.decode(data) : props.project;
-      return { ...props.project, ...projectData };
-    }, [data, props.project]);
+    const project = useMemo(
+      (): ProjectEnvelope => props.project.from(data),
+      [data, props.project]
+    );
 
     return {
       project,

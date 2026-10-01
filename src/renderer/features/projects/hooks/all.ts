@@ -4,28 +4,48 @@ import {
 } from "@/renderer/shared/navigation";
 import { trpcReact } from "@/renderer/libs/react-query";
 import { getProjectHistoryItem } from "../utilities";
-import { projectCodec } from "@/shared/features/projects";
+import { projectCodec, ProjectEnvelope } from "@/shared/features/projects";
 
 export const useProjects = () => {
   const {
     data,
     refetch,
-  } = trpcReact.projects.fetchList.useQuery();
+    isLoading: readListIsLoading
+  } = trpcReact.projects.readList.useQuery();
+  const {
+    mutateAsync,
+    isPending: updateRootIsLoading
+  } = trpcReact.projects.updateRoot.useMutation();
+  const utils = trpcReact.useUtils();
 
-  const projects = useMemo(() => {
-    return data?.map(
-      (project) => {
-        return projectCodec.decode(project);
-      }
-    )
-  }, [data])
+  const projects = useMemo(() => ProjectEnvelope.from(data), [data]);
+
+  // Each project needs to be updated individually for additional information.
+  // The ones with git "unknown" can just be handled right now.
+  // For that matter, just do it on the backend.
+  // We can think about auxiliary updates to old projects later, but we won't
+  // want an audit logged if nothing has changed, so the only thing that will
+  // change will be the git.lastCheck or something.
+  // Then we can just order by that and check the top one.
 
   const getProject = useCallback(
     (projectName: string) => projects?.find((p) => p.name === projectName),
     [projects]
   );
 
-  return { projects, getProject, refetchProjects: refetch };
+  const isLoading = useMemo(
+    () => readListIsLoading || updateRootIsLoading,
+    [readListIsLoading, updateRootIsLoading]
+  );
+
+  const updateRoot = useCallback(
+    () => mutateAsync().then(() => utils.projects.readList.invalidate()),
+    [utils.projects.readList.invalidate, mutateAsync]
+  );
+
+  return {
+    isLoading, getProject, projects, refetchProjects: refetch, updateRoot
+  };
 };
 
 // This is to make sure we have a displayable history of icons and labels

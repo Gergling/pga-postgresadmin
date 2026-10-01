@@ -1,21 +1,21 @@
 import { createElement, useCallback, useEffect, useMemo } from "react";
 import { skipToken } from "@tanstack/react-query";
 import { Optional } from "@/shared/types";
-import { projectCodec, ProjectRenderer } from "@/shared/features/projects";
+import { ProjectEnvelope } from "@/shared/features/projects";
 import { ChatMessageProps } from "@/renderer/shared/common";
 import { trpcReact } from "@/renderer/libs/react-query";
+import { useLlmOperationUtils } from "@/renderer/features/ai";
+import { useProjectDetail } from "../context";
+import { commitMessageStore } from "../stores";
 import {
   ProjectCommitButton,
   ProjectFormattedCommitMessage
-} from "../components";
-import { commitMessageStore } from "../stores";
-import { useProjectDetail } from "../context";
-import { useLlmOperationUtils } from "../../ai";
+} from "./components";
 
 export type ChatMessage = Optional<ChatMessageProps, 'role' | 'timestamp'>;
 
 export const useCommitMessage = (
-  project: ProjectRenderer,
+  project: ProjectEnvelope,
   pushMessage: (message: ChatMessage) => void
 ) => {
   const {
@@ -28,9 +28,9 @@ export const useCommitMessage = (
     onCommit, setCommitMessageFetched, startFetchingCommitMessage,
     setFetchingStarted, setProjectHasUpdated,
   } = commitMessageStore();
-  const encodedProject = useMemo(() => projectCodec.encode(project), [project]);
+  // const encodedProject = useMemo(() => project.state.current, [project.state.current]);
   const subscription = trpcReact.projects.fetchStagedCommitMessage.useSubscription(
-    enableFetchCommitMessage ? encodedProject : skipToken
+    enableFetchCommitMessage ? project.state.current : skipToken
   );
   const proposeCommitMessage = useCallback(() => {
     pushMessage({ content: 'Initiated fetching commit message...' });

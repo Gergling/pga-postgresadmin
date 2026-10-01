@@ -1,6 +1,4 @@
 export * from './detail';
-export * from './CommitButton';
-export * from './CommitMessage';
 export * from './Guard';
 export * from './Heading';
 export * from './List';

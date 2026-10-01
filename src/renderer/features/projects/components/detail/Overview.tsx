@@ -12,6 +12,6 @@ const Parenthetical = (
 export const ProjectDetailOverview = () => {
   const { project } = useProjectDetail();
   return <Parenthetical>
-    <ProjectStatus {...project} />
+    <ProjectStatus project={project} />
   </Parenthetical>
 };

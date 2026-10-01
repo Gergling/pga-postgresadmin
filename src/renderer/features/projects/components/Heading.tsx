@@ -2,7 +2,7 @@ import { PropsWithChildren } from "react";
 import { Grid } from "@mui/material";
 import { DoubleArrow } from "@mui/icons-material";
 import { Link } from "react-router-dom";
-import { ProjectRenderer } from "@/shared/features/projects";
+import { ProjectEnvelope } from "@/shared/features/projects";
 import {
   ParentheticalHeading
 } from "@/renderer/shared/brackets";
@@ -15,7 +15,7 @@ const HeadingChip = ({ children }: PropsWithChildren) => <Grid
   flexBasis={0} flexGrow={1}
 ><ParentheticalHeading heading={children}></ParentheticalHeading></Grid>;
 
-export const ProjectHeading = (project: ProjectRenderer) => {
+export const ProjectHeading = ({ project }: { project: ProjectEnvelope }) => {
   return <Grid container spacing={2}>
     <Grid size={{ xs: 6, sm: 3 }}>
       <HeadingChip>

@@ -29,7 +29,7 @@ export const ProjectDetail = () => {
   }, [project]);
 
   return <>
-    <ProjectHeading {...project} />
+    <ProjectHeading project={project} />
     <NavigationTabs tabs={tabs} />
     <ErrorBoundary fallback={<>Project Detail Navigation Error</>}>
       <Outlet />

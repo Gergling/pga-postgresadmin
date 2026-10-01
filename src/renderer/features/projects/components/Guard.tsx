@@ -11,7 +11,9 @@ export const ProjectGuard = () => {
 
   if (!project) return `There is no project "${projectName}".`;
 
-  return <ErrorBoundary fallback={<>Something bad happened rendering a specific project.</>}>
+  return <ErrorBoundary fallback={
+    <>Something bad happened rendering a specific project.</>
+  }>
     {project && <ProjectDetailProvider project={project}>
       <ProjectDetail />
     </ProjectDetailProvider>}

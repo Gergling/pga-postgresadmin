@@ -1,8 +1,9 @@
 import { create } from "zustand";
-import { useProjectDetail } from "../../context";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { alpha, Badge } from "@mui/material";
 import { BugReport, Commit } from "@mui/icons-material";
-import { ProjectRenderer } from "@/shared/features/projects";
+import { ProjectEnvelope } from "@/shared/features/projects";
 import { useFocus } from "@/renderer/shared/events";
 import { COLORS, neonGlowStyle } from "@/renderer/shared/theme";
 import {
@@ -11,9 +12,8 @@ import {
   ChatWindow,
 } from "@/renderer/shared/common";
 import { Button } from "@/renderer/shared/form";
-import { ChatMessage, useCommitMessage } from "../../hooks";
-import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { ChatMessage, useCommitMessage } from "../../commits";
+import { useProjectDetail } from "../../context";
 
 const store = create<{
   messages: ChatMessageProps[];
@@ -31,9 +31,10 @@ const store = create<{
 
 const badgeStyle = neonGlowStyle({ color: COLORS.goldGlow });
 
-const CommitMessagePresetButton = ({ project: { git }, onClick }: {
-  project: ProjectRenderer; onClick: () => void;
+const CommitMessagePresetButton = ({ project, onClick }: {
+  project: ProjectEnvelope; onClick: () => void;
 }) => {
+  const { git } = project.state.current;
   if (typeof git !== 'object') return null;
   return <Button onClick={onClick} disabled={git.totalStagedFiles === 0}>
     <Badge badgeContent={git.totalStagedFiles} max={9}

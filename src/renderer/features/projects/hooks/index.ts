@@ -1,2 +1,2 @@
 export * from './all';
-export * from './commit-message';
+export * from './panels';

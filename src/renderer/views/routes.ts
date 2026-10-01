@@ -1,21 +1,19 @@
 import { createHashRouter, redirect } from "react-router-dom";
 import { Placeholder } from "../features/svg-viewer/components";
 import {
-  // JobSearchView,
   RootView,
   SvgViewerView,
   View404
-} from ".";
-import { UiNavigationConfigItem } from "../shared/navigation/types";
-import { getNavigationItem } from "../shared/navigation/utilities/navigation";
-import { TASKS_ROUTES } from "../features/tasks/routes";
-import { JOB_SEARCH_VIEW_CONFIG } from "@/renderer/features/job-search";
-import { getNavigationIcon } from "../shared/navigation/components/getNavigationIcon";
+} from "./";
+import { UiNavigationConfigItem } from "@/renderer/shared/navigation/types";
+import { getNavigationItem } from "@/renderer/shared/navigation/utilities/navigation";
+import { TASKS_ROUTES } from "@/renderer/features/tasks/routes";
+import { getNavigationIcon } from "@/renderer/shared/navigation/components/getNavigationIcon";
+import { reduceRoutes } from "@/renderer/shared/navigation/utilities";
 import { PROJECT_ROUTES } from "@/renderer/features/projects/routes";
-import { reduceRoutes } from "../shared/navigation/utilities";
-import { HOME_BASE_ROUTE, HOME_ROUTES } from "../features/home";
-import { EXPLORER_ROUTES } from "../features/explorer";
-import { META_ROUTES } from "../features/meta";
+import { HOME_BASE_ROUTE, HOME_ROUTES } from "@/renderer/features/home";
+import { EXPLORER_ROUTES } from "@/renderer/features/explorer";
+import { META_ROUTES } from "@/renderer/features/meta";
 
 const config: UiNavigationConfigItem = {
   HydrateFallback: () => null,

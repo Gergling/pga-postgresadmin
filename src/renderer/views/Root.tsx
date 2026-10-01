@@ -6,7 +6,7 @@ import { NavigationBreadcrumbs } from "../shared/navigation";
 import { DevModeOverlay } from "../app/DevModeDrawer";
 import { ErrorBoundary } from "../shared/common/components/ErrorBoundary";
 import { DiaryDrawer, useDiary } from "../features/diary";
-import { useTaskNavigation } from "../features/tasks/hooks/navigation";
+import { useTaskNavigation } from "../features/tasks/view/navigation";
 import { PhraseDuJour } from "../features/banners";
 import { useProjectNavigation } from "../features/projects";
 import { Box } from "@mui/material";

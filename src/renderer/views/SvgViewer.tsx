@@ -1,3 +1,3 @@
-import { SvgViewer } from "../features/svg-viewer";
+import { SvgViewer } from "@/renderer/features/svg-viewer";
 
 export const SvgViewerView = () => <SvgViewer />;

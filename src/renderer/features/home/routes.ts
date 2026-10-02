@@ -1,7 +1,7 @@
 import { UiNavigationConfigItem } from "@/renderer/shared/navigation";
 import { Home } from "../svg-viewer/components";
-import { HOME_BASE_ROUTE } from "./constants";
-import { HomeRoot } from "./components";
+import { HOME_BASE_ROUTE, HOME_CHILD_ROUTES } from "./constants";
+import { HomeRoot } from "./components/Root";
 import {
   getNavigationIcon
 } from "@/renderer/shared/navigation/components/getNavigationIcon";
@@ -11,4 +11,5 @@ export const HOME_ROUTES: UiNavigationConfigItem = {
   label: 'Home',
   path: HOME_BASE_ROUTE,
   element: HomeRoot,
+  children: HOME_CHILD_ROUTES,
 };

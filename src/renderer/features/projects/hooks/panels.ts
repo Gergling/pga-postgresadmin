@@ -5,7 +5,8 @@ import { useMemo } from "react";
 import { TemporalFrequencies } from "@/shared/features/recency";
 
 const getGeneralProjectPanelCandidates = getPanelCandidatesFactory({
-  name: 'project-general-update-frequency', title: 'General project updates'
+  feature: 'projects',
+  name: 'general-update-frequency', title: 'General project updates'
 });
 
 export const useProjectPanels = (): PanelData => {
@@ -20,7 +21,8 @@ export const useProjectPanels = (): PanelData => {
 
         const commitDates: TemporalFrequencies = recency.getTemporalFrequencies(git.commitDates);
         const projectCandidateFactory = getPanelCandidatesFactory({
-          name: `project-${name}-update-frequency`,
+          feature: 'projects',
+          name: `${name}-update-frequency`,
           title: `${name.toUpperCase()} project updates`,
         });
         const projectCandidates = projectCandidateFactory(commitDates);

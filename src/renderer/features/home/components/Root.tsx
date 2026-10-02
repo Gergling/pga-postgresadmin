@@ -1,55 +1,24 @@
-import { useMemo } from "react";
-import { Grid, GridProps } from "@mui/material";
-import { generateParagraph } from '@/shared/utilities/noise';
-import { Slab } from "@/renderer/shared/base";
-import {
-  DashboardPanel,
-} from "@/renderer/shared/dashboard";
-import { Diary, useDiaryPanels } from "../../diary";
-import { Alien } from "../../svg-viewer/components/Alien";
-import { AiOperationsList } from "../../ai";
-import { useProjectPanels } from "../../projects";
+import { Outlet } from "react-router-dom";
+import { ErrorBoundary } from "@/renderer/shared/common";
+import { NavigationTabs } from "@/renderer/shared/navigation";
+import { sigilFactory } from "../../svg-viewer/components/Sigiliser";
+import { HOME_CHILD_ROUTES } from "../constants";
 
-const Panel = ({ children, ...props }: GridProps) => {
-  return <Grid {...props} sx={{ textAlign: 'center' }}>
-    <Slab>
-      {children}
-    </Slab>
-  </Grid>
-};
-
-const seeder = () => Math.random();
-const paragraphs = Array.from({ length: 3 }, () => generateParagraph({
-  accent: 'scotlon', seeder, weight: { sentenceLength: 4 }
+const tabs = HOME_CHILD_ROUTES.map(({ label, path, icon }, value) => ({
+  icon: icon || sigilFactory(label?.slice(0, 6) || 'Workflower'),
+  label: label || '',
+  path: path || '',
+  selected: false,
+  value,
 }));
 
-const str = 'What am I doing with my life?';
-
 export const HomeRoot = () => {
-  const diaryPanels = useDiaryPanels();
-  const projectPanels = useProjectPanels();
-  const panels = useMemo(() => [...diaryPanels, ...projectPanels].sort(
-    (panelA, panelB) => panelB.weights.achievement - panelA.weights.achievement
-  ), [diaryPanels, projectPanels]);
-  const topPanels = panels.slice(0, 3);
-
   return <div>
-    <Grid container>
-      {topPanels.map(
-        (panel, index) => <Panel key={index} size={{ xs: 12, md: 4 }}>
-          <DashboardPanel {...panel} />
-        </Panel>
-      )}
-    </Grid>
-    {/* <AiOperationsList /> */}
-    {/* <Slab>
-      <p>{str}</p>
-      <Alien str={str} />
-    </Slab>
-    <Slab>
-      {paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
-    </Slab> */}
-    {/* <EmailSyncPanel /> */}
-    <Diary />
+    <NavigationTabs tabs={tabs} />
+    <ErrorBoundary fallback={<>Home did a bad.</>}>
+      <div style={{ padding: '0 2rem' }}>
+        <Outlet />
+      </div>
+    </ErrorBoundary>
   </div>
 };

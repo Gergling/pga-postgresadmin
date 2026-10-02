@@ -10,7 +10,8 @@ import {
 import { useDiaryEntryList } from "./list";
 
 const getDiaryEntryPanelCandidates = getPanelCandidatesFactory({
-  name: 'diary-entry-frequency', title: 'Diary entries'
+  feature: 'diary',
+  name: 'entry-frequency', title: 'Diary entries'
 });
 
 export const useDiaryPanels = (): PanelData => {

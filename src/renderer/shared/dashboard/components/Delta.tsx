@@ -1,16 +1,14 @@
-import { TrendingDown, TrendingFlat, TrendingUp } from "@mui/icons-material";
 import { DashboardStackChip } from "./StackChip";
+import { DashboardValueDelta } from "./Value";
 
-const DeltaIcon = ({ value }: { value: number; }) => {
-  if (value > 0) return <TrendingUp />;
-  if (value < 0) return <TrendingDown />;
-  return <TrendingFlat />;
-};
-
-export const DashboardDeltaChip = ({ value, ...props }: {
-  label: React.ReactNode;
-  value: number;
-}) => <DashboardStackChip
-    {...props}
-    value={<><DeltaIcon value={value} /> {value}</>}
-  />;
+export const DashboardDeltaChip = (
+  { label, value }: {
+    label: React.ReactNode;
+    value: number;
+  }
+) => (
+  <DashboardStackChip
+    label={label}
+    value={<DashboardValueDelta value={value} />}
+  />
+);

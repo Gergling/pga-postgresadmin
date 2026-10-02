@@ -1,15 +1,29 @@
-export type PanelDataItem = ({
+export type PanelDataFeature = 'diary' | 'projects';
+
+export type PanelDataValueChip = {
   display: 'chip';
   value: number | string;
-} | {
+};
+
+export type PanelDataValueDelta = {
   display: 'delta';
   value: number;
-} | {
+};
+
+export type PanelDataValueSparkline = {
   display: 'sparkline';
   value: number[];
-}) & {
-  name: string;
+};
+
+export type PanelDataItem = (
+  | PanelDataValueChip
+  | PanelDataValueDelta
+  | PanelDataValueSparkline
+) & {
+  feature: PanelDataFeature;
+  id: string;
   label: string;
+  name: string;
   weights: {
     achievement: number;
     opportunity: number;

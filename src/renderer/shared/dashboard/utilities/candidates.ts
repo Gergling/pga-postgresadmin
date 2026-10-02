@@ -3,59 +3,67 @@ import {
 } from "@/shared/utilities";
 import {
   TEMPORAL_GRANULARITIES,
-  TemporalFrequencies
+  TemporalFrequencies,
+  TemporalGranularity
 } from "@/shared/features/recency";
 import {
   TEMPORAL_GRANULARITY_SUMMARY_WEIGHTS,
   TEMPORAL_GRANULARITY_WEIGHTS
 } from "../constants";
-import { PanelDataItem } from "../types";
+import { PanelDataFeature, PanelDataItem } from "../types";
+
+type Params = Pick<PanelDataItem, 'feature' | 'label' | 'name'> & {
+  granularity: TemporalGranularity;
+};
+
+const getBaseCandidate = <T extends Params & Pick<PanelDataItem, 'display'>>(
+  { granularity, ...props }: T
+): Omit<T, 'granularity'> & Pick<PanelDataItem, 'display' | 'id'> => ({
+  ...props, id: `${props.display}-${props.feature}-${props.name}-${granularity}`
+});
 
 const getChipCandidate = (
-  label: string,
-  name: string,
+  params: Params,
   series: Series
 ): PanelDataItem => {
   const valueWeight = series.mean / series.max;
   return {
-    display: 'chip', label, weights: {
+    ...getBaseCandidate({ ...params, display: 'chip' }), weights: {
       achievement: valueWeight,
       opportunity: valueWeight,
     },
-    name, value: series.sum,
+    value: series.sum,
   };
 };
 const getDeltaCandidate = (
-  label: string,
-  name: string,
+  params: Params,
   series: Series
 ): PanelDataItem => {
   const deltas = series.clone('deltas');
   const valueWeight = deltas.last / deltas.max;
   return {
-    display: 'delta', label, weights: {
+    ...getBaseCandidate({ ...params, display: 'delta' }), weights: {
       achievement: valueWeight,
       opportunity: valueWeight,
     },
-    name, value: deltas.last,
+    value: deltas.last,
   };
 };
 const getSparklineCandidate = (
-  label: string,
-  name: string,
-  weights: PanelDataItem['weights'],
+  { weights, ...params }: Params & Pick<PanelDataItem, 'weights'>,
   series: Series
 ): PanelDataItem => ({
-  display: 'sparkline', label, weights,
-  name, value: series.data,
+  ...getBaseCandidate({ ...params, display: 'sparkline' }),
+  weights, value: series.data,
 });
 
 type GetPanelCandidatesFactoryConfig = {
+  feature: PanelDataFeature;
   name: string;
   title: string;
 }
 export const getPanelCandidatesFactory = ({
-  name, title
+  feature, name, title
 }: GetPanelCandidatesFactoryConfig) => (
   entryFrequencies: TemporalFrequencies
 ) => TEMPORAL_GRANULARITIES.reduce((candidates, granularity): PanelDataItem[] => {
@@ -80,11 +88,13 @@ export const getPanelCandidatesFactory = ({
   ).map(({ value }) => value);
   const series = Series.from(values);
 
-  const chipCandidate = getChipCandidate(label, name, series);
-  const deltaCandidate = getDeltaCandidate(label, name, series);
-  const sparklineCandidate = getSparklineCandidate(label, name, {
-    achievement: sparklineWeight,
-    opportunity: sparklineWeight,
+  const candidateParams: Params = { feature, granularity, label, name };
+
+  const chipCandidate = getChipCandidate(candidateParams, series);
+  const deltaCandidate = getDeltaCandidate(candidateParams, series);
+  const sparklineCandidate = getSparklineCandidate({
+    ...candidateParams,
+    weights: { achievement: sparklineWeight, opportunity: sparklineWeight },
   }, series);
   return [
     ...candidates,

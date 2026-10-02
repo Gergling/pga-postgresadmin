@@ -1,14 +1,25 @@
 import { CSSProperties } from "@mui/material";
 import { COLORS } from "./colors";
-import { NeonShadowProps } from "./types";
+import { NeonShadowProps, NeonShadowResponse } from "./types";
 
-export const neonFilterDropShadow = (color: string = COLORS.bloodGlow) => `drop-shadow(0 0 20px ${color})`;
+/**
+ * @deprecated Use `neonGlowStyle` instead.
+ */
+export const neonFilterDropShadow = (
+  color: string = COLORS.bloodGlow
+) => `drop-shadow(0 0 20px ${color})`;
 
+/**
+ * @deprecated Use `neonGlowStyle` instead.
+ */
 export const neonBoxShadow = ({
   blur = '15px',
   color = COLORS.bloodGlow
 }: NeonShadowProps) => `box-shadow: 0 0 ${blur} ${color};`;
 
+/**
+ * @deprecated Use `neonGlowStyle` instead.
+ */
 export const neonTextShadow = ({
   blur = '5px',
   color = COLORS.bloodGlow
@@ -19,13 +30,12 @@ export const neonGlowStyle = ({
   color = COLORS.bloodGlow,
   shadow: {
     box = true,
+    filter,
     text,
   } = { box: true },
-}: NeonShadowProps): {
-  boxShadow?: CSSProperties['boxShadow'];
-  textShadow?: CSSProperties['textShadow'];
-} => ({
+}: NeonShadowProps): NeonShadowResponse => ({
   boxShadow: box ? `0 0 ${blur} ${color}` : undefined,
+  filter: filter ? `drop-shadow(0 0 ${blur} ${color})` : undefined,
   textShadow: text ? `0 0 ${blur} ${color}` : undefined,
 });
 

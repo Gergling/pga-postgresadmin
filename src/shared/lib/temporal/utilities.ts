@@ -50,17 +50,26 @@ export const getRelativeTimeString = (
   return getRelativePropTimeString(value, extendedProp);
 };
 
+type OptionParams = { showSeconds?: boolean; };
+export const getReadableTemporalZonedDateTime = (
+  { year, month, day, hour, minute, second }: Temporal.ZonedDateTime,
+  options?: OptionParams
+) => {
+  const timeParts = [hour, minute];
+  if (options?.showSeconds) timeParts.push(second);
+  const timeString = timeParts.map(
+    (value) => value.toString().padStart(2, '0')
+  ).join(':');
+  const dateString = [year, ...[month, day].map(
+    (value) => value.toString().padStart(2, '0')
+  )].join('-');
+  return `${timeString} ${dateString}`;
+}
+
 export const getReadableEpochMilliseconds = (epochMilliseconds: number) => {
   const instant = Temporal.Instant.fromEpochMilliseconds(epochMilliseconds);
   const zonedDT = instant.toZonedDateTimeISO(Temporal.Now.timeZoneId());
-  const {
-    year,
-    month,
-    day,
-    hour,
-    minute,
-  } = zonedDT;
-  const readableTime = `${hour}:${minute} ${year}-${month}-${day}`;
+  const readableTime = getReadableTemporalZonedDateTime(zonedDT);
 
   return { zonedDT, readableTime };
 };
@@ -71,7 +80,7 @@ export const getTemporalZonedDateTime = (
 ) => Temporal.Instant
   .fromEpochMilliseconds(epochMilliseconds)
   .toZonedDateTimeISO(timeZoneId)
-;
+  ;
 
 export const getTemporalZonedDateTimeGroupKey = (
   group: (keyof Temporal.ZonedDateTime)[]

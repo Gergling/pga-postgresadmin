@@ -13,6 +13,7 @@ export * from './number';
 export * from './object';
 export * from './progress';
 export * from './randomisers';
+export * from './state';
 export * from './string';
 export * from './temporal';
 export * from './timeout';

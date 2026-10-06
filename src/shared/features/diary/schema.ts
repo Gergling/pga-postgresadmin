@@ -5,7 +5,7 @@ import {
   envelopeSchemaFactory,
   envelopeSerialisationSchemaFactory,
 } from "@/shared/schema";
-import { LlmEmbeddingCache, LlmEmotionName, llmEmotionPersistenceSchema } from "../llm";
+import { llmEmotionPersistenceSchema } from "../llm";
 
 const diaryEntryCoreAnalysisSchema = z.object({
   emotional: llmEmotionPersistenceSchema,
@@ -31,17 +31,16 @@ export const diaryEntryCoreSchema = z.object({
 });
 export type DiaryEntryCore = z.infer<typeof diaryEntryCoreSchema>;
 
-/**
- * @deprecated Best not use this; use diaryEntryRichSchema or diaryEntrySerialisationSchema depending on your needs.
- */
-export const diaryEntrySchema = envelopeSerialisationSchemaFactory({ data: diaryEntryCoreSchema });
+export const diaryEntrySchema = envelopeSchemaFactory(
+  diaryEntryCoreSchema.shape
+);
 
 // The serialisation response.
 export const diaryEntrySerialisationSchema = envelopeSerialisationSchemaFactory({
   data: diaryEntryCoreSchema,
 });
 export type DiaryEntrySerialisation = z.infer<
-  typeof diaryEntrySerialisationSchema
+  typeof diaryEntrySchema
 >;
 
 export const diaryEntryRichSchema

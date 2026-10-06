@@ -93,7 +93,7 @@ const envelopeSchemaFactoryLegacy = <
       )
     ) : {};
     return baseFactory<T, z.infer<typeof dateSchema>>(data, dateSchema).extend({
-      summary: z.object(summaryShape).default({}),
+      summary: z.object(summaryShape).catch({}),
     });
   };
 

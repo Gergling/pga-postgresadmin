@@ -14,22 +14,9 @@ type ConstructorInputWithAbsolutePath = Omit<ConstructorInputParams, 'name' | 'p
 };
 
 export class ExplorerFileRecord {
-  data: ExplorerFileRecordProps;
-
-  constructor(data: ConstructorInputWithAbsolutePath);
-  constructor(data: ConstructorInputParams);
-  constructor(data: ConstructorInputWithAbsolutePath | ConstructorInputParams) {
-    if ('absolutePath' in data) {
-      const { absolutePath, ...rest } = data;
-      this.data = explorerFileRecordSchema.parse({
-        ...rest,
-        name: path.basename(absolutePath),
-        parentPath: path.dirname(absolutePath),
-      });
-      return this;
-    }
-    this.data = explorerFileRecordSchema.parse(data);
-
+  private constructor(
+    public data: ConstructorInputParams
+  ) {
     // TODO: This is the perfect place to check for misformatted paths.
     //   return result.parentPath !== record.data.parentPath
     // || result.name !== record.data.name;

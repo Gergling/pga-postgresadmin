@@ -4,6 +4,8 @@
 // (catch, error and skip loudly if anything violates).
 // A function to run the operation.
 
+import { SchedulerStateManager } from "./state";
+
 // Logging SHOULD NOT be handled here. ONLY logic and the singleton data.
 
 // Priority must be measured against system resources. This acts as a comparison.
@@ -55,6 +57,8 @@ type ScheduledOperationBase<Params = unknown> = {
   name: string;
   priority: (params: Params) => number | Promise<number>;
   run: (params: Params) => Promise<void>;
+  // TODO: onDispatch function, takes something like
+  // { operation: string; status: string; }
 };
 export type ScheduledOperationParams<
   Params = unknown
@@ -67,27 +71,46 @@ type ScheduledOperation<
   event: ScheduleEventConfiguration;
 };
 type RunReport = {
-  status: 'no-operations' | 'success';
+  status:
+  | 'multi'
+  | 'no-operations'
+  ;
+} | {
+  completed: Record<string, boolean>;
+  status: 'complete';
 };
 
 const schedules: ScheduledOperation[] = [];
 
+const x = async (
+  { state, totalToActivate }: {
+    state: SchedulerStateManager; totalToActivate: number;
+  }
+) => {
+  const nextOperations = state.get('queue').slice(0, totalToActivate);
+  // ScheduledOperationParams<Params>
+  state.dispatch({ start: totalToActivate });
+};
 
 // Example cases: Voting, email, explorer (incl. backfill).
 
 // These can be run from anywhere in main (or renderer, technically...
 // depending on whether we *should*... probably not since the renderer side has
 // its own scheduling solutions in potentiae).
-export const scheduleOperationFactory = <Params>() => {
+export const scheduleOperationFactory = <Params>(state: SchedulerStateManager) => {
   const add = (
     { event, ...params }: ScheduledOperationParams<Params>
   ) => {
+    state.dispatch({ queue: params.name });
     if (typeof event !== 'function') {
       return schedules.push({ ...params, event: () => event });
     }
     return schedules.push({ ...params, event });
   };
   const run = async (params: Params): Promise<RunReport> => {
+    // This function needs to be able to run repeatedly without duplicating
+    // operations.
+
     const operations = schedules;
     // TODO: 1. Filter by system capacities, e.g. internet, etc.
     // If no operations, quit with a 'no-operations' status,
@@ -115,12 +138,37 @@ export const scheduleOperationFactory = <Params>() => {
     // If no operations, return that nothing got through the priority because
     // the compute availability was too low.
 
-    // if (!availableOperations.length) return 'no-operations';
-    // if (availableOperations.length > 0) {
-    //   const [{ run: operation }] = availableOperations;
-    //   await operation(logApi);
-    //   return;
-    // }
+    // Queue all the operations. If they're already in the queue, they won't be
+    // added again.
+    operations.forEach(({ name }) => {
+      state.dispatch({ queue: name });
+    });
+
+    // IF there is an active operation running, quit.
+    const activityCapacity = 1;
+    const totalToActivate = activityCapacity - state.get('activity');
+    if (totalToActivate <= 0) return { status: 'multi' };
+
+    // Otherwise, pick the next one(s) and run them.
+    const nextOperations = state.get('queue').slice(0, totalToActivate);
+    const awaitingOperations = operations.reduce(
+      (acc, { name, run: operation }) => {
+        if (!nextOperations.includes(name)) return acc;
+        const response = operation(params).then(() => {
+          state.dispatch({ finish: { name, status: 'success' } });
+        }).catch(() => {
+          state.dispatch({ finish: { name, status: 'error' } });
+        });
+        return [...acc, response];
+      }, [] as Promise<unknown>[]
+    );
+    state.dispatch({ start: totalToActivate });
+
+    const results = await Promise.allSettled(awaitingOperations);
+    const response = results.reduce((acc, x) => {
+      if (x.status === 'fulfilled') return { ...acc, ['not-named-yet']: true };
+      return { ...acc, ['not-named-yet']: false };
+    }, {});
 
     // TODO: Ultimately, we can record:
     // Operation History Collection:
@@ -137,7 +185,7 @@ export const scheduleOperationFactory = <Params>() => {
     // This will allow us to later calculate operation "weights" in order to
     // resolve priority ties.
 
-    return { status: 'success' };
+    return { status: 'complete', completed: response };
   };
   return { add, run, schedules };
 };

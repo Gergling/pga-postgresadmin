@@ -15,7 +15,20 @@ export type Box = {
   opposite: Point;
 };
 
+type BaseParams = {
+  scale?: number;
+  /**
+   * In degrees.
+   */
+  rotation?: number;
+  translation?: Point;
+};
+export type BaseResponse = { points: Point[]; type: 'lines'; };
 export type PathFunction = (scale: number) => string;
+export type PointFunction<ExtensionParams extends object = object> = (
+  options: BaseParams & ExtensionParams
+) => BaseResponse[];
+export type LineFunction = (options: BaseParams) => Line[];
 
 export type SvgLayer = React.SVGProps<SVGUseElement>;
 export type NeonPlasmaGlowKey = 'halo' | 'structure' | 'core' | 'filament';

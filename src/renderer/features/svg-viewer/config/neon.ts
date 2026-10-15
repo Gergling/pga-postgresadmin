@@ -75,6 +75,7 @@ export const NEON_PLASMA_GLOW_CONFIG_NAMES = Object.keys(NEON_PLASMA_GLOW_CONFIG
 export type SizeName = keyof typeof SIZE_CONFIG;
 export type NeonBloodIcon = React.FC<{
   color?: NeonPlasmaGlowConfigNames;
+  showDownload?: boolean;
   size: SizeName;
 }>;
 

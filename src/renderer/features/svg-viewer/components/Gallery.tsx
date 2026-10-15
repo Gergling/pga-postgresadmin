@@ -54,7 +54,7 @@ export const Gallery = <T extends string,>({
   items: GalleryProps<T>;
   selected: string;
 }) => {
-  const allItems = Object.keys(items).reduce((acc, key) => ([ ...acc, ...items[key as GalleryGroup]]), []);
+  const allItems = Object.keys(items).reduce((acc, key) => ([...acc, ...items[key as GalleryGroup]]), []);
   const selectedItem = allItems.find(({ label }) => label === selected);
   const { theme: { colors: { primary } } } = useTheme();
 
@@ -95,7 +95,7 @@ export const Gallery = <T extends string,>({
             label={label}
             selected={label === selected}
           >
-            <Component color={defaultColour} size={defaultSize} />
+            <Component color={defaultColour} showDownload size={defaultSize} />
             <div style={{ display: 'flex' }}>
               <Component color={defaultColour} size={'medium'} />
               <Component color={defaultColour} size={'small'} />

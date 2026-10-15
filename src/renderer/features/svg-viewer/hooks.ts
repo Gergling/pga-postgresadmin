@@ -20,15 +20,10 @@ export const useSize = (size: SizeName) => useMemo(() => {
   const start = -padding;
   const end = n + padding;
   const viewBox = `${start} ${start} ${end} ${end}`;
-  // const viewBox = `0 0 ${n} ${n}`;
   const offset = -padding / 2;
   const translation = (n / 2) + offset;
   return {
     viewBox, width: end, height: end, translation,
-    visible: { // Junk it
-      width: n,
-      height: n,
-    },
     container: {
       width: n,
       height: n,

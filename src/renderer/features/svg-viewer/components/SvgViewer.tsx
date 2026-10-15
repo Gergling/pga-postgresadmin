@@ -18,6 +18,7 @@ import {
 import { NeonBloodIcon } from "../config/neon";
 import { Yield } from "./svgs/Yield";
 import { FullDemoSigiliser } from "./Sigiliser";
+import { Video } from "./svgs/Video";
 
 const getGalleryConfig = <Name extends string,>(
   config: Record<GalleryGroup, Partial<Record<Name, NeonBloodIcon>>>,
@@ -61,6 +62,7 @@ const {
     'Importance': Placeholder,
     'Momentum': Placeholder,
     'Placeholder': Placeholder,
+    Video,
     'Workflower': Workflower,
     'Yield': Yield,
   },
@@ -71,13 +73,13 @@ const {
     'Tasks Awaiting Votes': Placeholder,
     'Tasks Width Abstentions': Placeholder,
   },
-})('Yield');
+})('Video');
 
 export const SvgViewer = () => {
   return <div style={{ color: 'white' }}>
     <Gallery items={items} selected={selected} />
 
-    <RuneGenerator/>
+    <RuneGenerator />
     <FullDemoSigiliser />
   </div>;
 };
@@ -119,7 +121,7 @@ export const SvgViewer = () => {
 // Outer Circle: r="40" (Red)
 // Inner Circle: r="25" (Red)
 // Flame: Three vertical lines at the core (Gold).
-// ... 
+// ...
 
 // Metric,Proposed Term,Symbolic Logic,Visual Direction
 // Importance,Weight,Gravity / Anchor,Vertical Blade

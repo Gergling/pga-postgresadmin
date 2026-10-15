@@ -11,5 +11,6 @@ export * from './ProposedTasks';
 export * from './QuickWins';
 export * from './Sceptic';
 export * from './Strategist';
+export * from './Video';
 export * from './Workflower';
 export * from './Yield';

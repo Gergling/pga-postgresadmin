@@ -23,6 +23,10 @@ export const AppThemeOverrideProvider = ({ children }: PropsWithChildren) => {
         'sans-serif',
       ].join(','),
       ...headerOverrides,
+      overline: {
+        fontSize: '0.5rem',
+        lineHeight: 0,
+      },
     }
   }}>{children}</AppThemeProvider>;
 };

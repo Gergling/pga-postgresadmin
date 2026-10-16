@@ -1,20 +1,40 @@
 import { ReactNode, useMemo, useState } from 'react';
-import { Menu, MenuItem, IconButton, Button } from '@mui/material';
+import { Menu, MenuItem, IconButton, Button, ExtendButtonBase, IconButtonTypeMap, IconButtonProps } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-export type DropdownOption<T extends string | number = string | number> = {
-  value: T;
+type OnClickFnc = (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => void;
+export type DropdownSelectorOption<T extends string | number = string | number> = {
   label: ReactNode;
+  onClick?: OnClickFnc;
+  value: T;
 }
+export type DropdownActionOption<T extends string | number = string | number> = {
+  label: ReactNode;
+  onClick: OnClickFnc;
+  value?: T;
+}
+export type DropdownOption<
+  T extends string | number = string | number
+> = DropdownSelectorOption<T>;
 
-export type DropdownProps<T extends string | number = string | number> = {
-  icon?: React.ReactNode;
+type DropdownIconProps = {
+  iconButtonProps?: Omit<IconButtonProps, 'children'>;
+  icon: React.ReactNode;
+} | {
+  iconButtonProps?: never;
+  icon?: never;
+};
+
+export type DropdownProps<
+  T extends string | number = string | number
+> = DropdownIconProps & ({
   onSelect: (value: T) => void;
-  options: DropdownOption<T>[];
-} & ({
+  options: DropdownSelectorOption<T>[];
   selected: T;
   showSelectedText?: boolean;
 } | {
+  onSelect?: (value: T | undefined) => void;
+  options: DropdownActionOption<T>[];
   selected?: never;
   showSelectedText?: false;
 });
@@ -51,9 +71,12 @@ export const Dropdown = <T extends string | number = string | number>({
     setOpen(false);
   };
 
-  const handleSelect = (value: T) => {
-    onSelect(value);
-    setSelected(value);
+  const handleSelectFactory = <U extends DropdownProps<T>['options'][number],>(
+    option: U
+  ) => (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
+    if (option.onClick) option.onClick(e);
+    if (onSelect) onSelect(option.value as T);
+    setSelected(option.value);
     handleClose();
   };
 
@@ -71,6 +94,7 @@ export const Dropdown = <T extends string | number = string | number>({
         >{selectedOption?.label}</Button>
         :
         <IconButton
+          {...props.iconButtonProps}
           onClick={handleClick}
           aria-controls={open ? 'dropdown-menu' : undefined}
           aria-haspopup="true"
@@ -91,12 +115,12 @@ export const Dropdown = <T extends string | number = string | number>({
           horizontal: 'right',
         }}
       >
-        {options.map(({ label, value }) => (
+        {options.map((option) => (
           <StyledMenuItem
-            key={value}
-            onClick={() => handleSelect(value)}
+            key={option.value}
+            onClick={handleSelectFactory(option)}
           >
-            {label}
+            {option.label}
           </StyledMenuItem>
         ))}
       </StyledMenu>

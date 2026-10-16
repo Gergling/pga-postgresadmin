@@ -23,7 +23,7 @@
     "type-check": "tsc -p tsconfig.check.json",
     "orchestrate": "tsx scripts/agent/orchestrator",
     "scripts-main": "tsx scripts/main/run.ts",
-    "shared-experiments": "tsx src/shared/experiments/reductive-unifying-theory.ts",
+    "shared-experiments": "tsx src/shared/experiments/nodel-division-entropy.ts",
     "report": "tsx scripts/report/run.ts",
     "postinstall": "tsx scripts/install/postinstall-huggingface-cache.ts"
   },

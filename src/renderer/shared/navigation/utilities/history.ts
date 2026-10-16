@@ -1,4 +1,3 @@
-import { QuestionMark } from "@mui/icons-material";
 import { BreadcrumbHistoryRequestItemFunction, BreadcrumbNavigationHistoryItem, PathVisits } from "../types";
 import { NAVIGATION_HISTORY_DISPLAYED, NAVIGATION_HISTORY_KEY_BASE, NAVIGATION_HISTORY_MAXIMUM_FREQUENCY } from "../constants";
 import { RouteMatch } from "react-router-dom";
@@ -6,18 +5,28 @@ import { getObjectEntries } from "@/shared/utilities";
 import { createElement } from "react";
 import { Runetator } from "@/renderer/features/svg-viewer/components";
 
-export const getFallbackHistoryItem = (path: string): BreadcrumbNavigationHistoryItem => ({
-  icon: () => createElement(Runetator, { size: 'small', seedStr: path }),
-  label: path.slice(0, 12) + '...',
+const getBaseHistoryItem = (
+  path: string
+): Omit<BreadcrumbNavigationHistoryItem, 'status'> => {
+  const icon = () => createElement(Runetator, { size: 'small', seedStr: path });
+  const chunks = path.split('/');
+  const last = chunks.pop();
+  if (!last) return { icon, label: path, path };
+  return { icon, label: last, path: chunks.join('/') };
+};
+
+export const getFallbackHistoryItem = (
+  path: string
+): BreadcrumbNavigationHistoryItem => ({
+  ...getBaseHistoryItem(path),
   status: 'error',
-  path,
 });
 
-export const getLoadingHistoryItem = (path: string): BreadcrumbNavigationHistoryItem => ({
-  icon: QuestionMark,
-  label: 'Loading...',
+export const getLoadingHistoryItem = (
+  path: string
+): BreadcrumbNavigationHistoryItem => ({
+  ...getBaseHistoryItem(path),
   status: 'request',
-  path,
 });
 
 export const getNavigationHistoryKey = (
